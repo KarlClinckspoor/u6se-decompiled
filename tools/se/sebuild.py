@@ -102,7 +102,7 @@ def main():
     ni, oi = new[hn:], old[ho:]
     diffs = [i for i in range(min(len(ni), len(oi))) if ni[i] != oi[i]]
     print('image: %d vs %d bytes, %d bytes differ' % (len(ni), len(oi), len(diffs)))
-    starts = [(int(m[0], 16) * 16 + int(m[1], 16), m[3]) for m in mods]
+    starts = [(int(m[0], 16) * 16 + int(m[1], 16), m[3]) for m in mods if m[0] != '-']
     shown, last = 0, -100
     for i in diffs:
         if i - last > 16 and shown < 12:

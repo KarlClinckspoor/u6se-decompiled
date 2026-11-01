@@ -257,6 +257,11 @@ def main():
                 elif f.tkind == 'seg' and f.target == cs.name:
                     if v != f.disp + at:
                         problems.append((where, 'offset in own code +%x: original %04x' % (f.disp, v)))
+                elif f.tkind == 'ext' and syms.get(f.target) is not None and dsyms.get(f.target) is None:
+                    # the offset of a far function (mov ax,OFFSET f)
+                    if syms.get(f.target)[1] + f.disp != v:
+                        problems.append((where, 'offset of function %s: original %04x, %s is at %04x:%04x' % (
+                            f.target, v, f.target, syms.get(f.target)[0], syms.get(f.target)[1])))
                 elif f.tkind == 'ext':
                     want = dsyms.get(f.target)
                     if want is None:

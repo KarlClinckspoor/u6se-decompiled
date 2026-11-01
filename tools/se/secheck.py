@@ -7,6 +7,8 @@
 A module passes when its code is identical and its length is the table's LEN (or LEN-1:
 the last byte may be TLINK's word-alignment padding). A module's _DATA is checked against
 the DS range given in modules.txt as a fifth column START-END, when there is one.
+A line whose frame is "-" is a module with data only: it is linked in its place but has no
+code to compare (the full build, tools/se/sebuild.py, checks it).
 """
 import os, re, subprocess, sys
 from concurrent.futures import ThreadPoolExecutor
@@ -33,6 +35,8 @@ def check(m):
     path = os.path.join(target.T['src'], src)
     args = [sys.executable, os.path.join(HERE, 'secmp.py'), '--target', target.T['name'], path, '--seg', fr,
             '--at', at, '--include', target.T['src']]
+    if os.path.dirname(path) != target.T['src']:
+        args += ['--include', os.path.dirname(path)]
     if data:
         d0, d1 = data.split('-')
         args += ['--data-range', d0, d1]
@@ -48,7 +52,7 @@ def check(m):
 
 def main():
     want = [w.upper() for w in sys.argv[1:]]
-    mods = [m for m in modules() if m[3] != '-' and (not want or m[0] in want or m[3].upper() in want or
+    mods = [m for m in modules() if m[3] != '-' and m[0] != '-' and (not want or m[0] in want or m[3].upper() in want or
                                                       os.path.splitext(m[3])[0].upper() in want)]
     bad = 0
     with ThreadPoolExecutor(max_workers=6) as ex:
