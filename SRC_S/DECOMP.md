@@ -78,9 +78,12 @@ the same OSI library, a newer version.
 
 ## Where it stands (2026-11-01)
 
-68 of 69 modules rebuild byte-identical, code and data. `main.c` (034C) is one byte off:
-the `jle` in InputName (034C:1F48) should land on the branch's closing `jmp` (1F57), not on
-1FA3. Everything else in it matches.
+All 69 modules rebuild byte-identical, code and data. The last byte (InputName's `jle` at
+034C:1F48 landing on a `jmp` that was not threaded) came from the source writing the erase
+code three times: at the end of the backspace branch, in the bad-character branch, and in
+a final `else`. `-O` folds the copies into jumps after it has threaded the other jumps
+(rule from abedegno/Exhume's Turbo C++ profile: a conditional jump onto an unshortened
+`jmp` is a statement written twice that the optimiser merged).
 
 Findings that matter for the rest:
 - **Origin compiled with line numbers on** (`-y`, or the IDE's default debug information).
@@ -95,5 +98,5 @@ Findings that matter for the rest:
 - Uninitialised data: DS 2814-4210 (Origin's), 4210-4344 (the run-time library's).
   `tools/se/mkbss.py --start 2814 --end 4210` writes BSS.ASM.
 
-Next: the last byte of main.c, then the full link (`tools/se/sebuild.py`), which still
-has to be tried: BSS.ASM, link order, relocation order.
+Next: the full link (`tools/se/sebuild.py`), which still has to be tried: BSS.ASM, link
+order, relocation order.

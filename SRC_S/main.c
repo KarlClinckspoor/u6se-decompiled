@@ -1208,22 +1208,26 @@ or empty*/
 				len--;
 				x -= C_0780_0004(playerName[len]);
 			}
+			(*D_2B90)(D_2B72.surface, x, y, x + 8, y + 8, D_2B72.bg);
+			C_077E_000C(x, y);
+			playerName[len] = 0;
 		} else if(key == 0xd) {
 			done = 1;
-			continue;
 		} else if(key == 0x1b)
 			return 0;
-		else if(key < ' ' || key > 'z' || BadNameChar(key))
-			key;/*nothing (a statement, not an empty one: the code has a jump here)*/
-		else if(len < 13) {
+		else if(key < ' ' || key > 'z' || BadNameChar(key)) {
+			(*D_2B90)(D_2B72.surface, x, y, x + 8, y + 8, D_2B72.bg);
+			C_077E_000C(x, y);
+			playerName[len] = 0;
+		} else if(len < 13) {
 			playerName[len] = key;
 			len++;
 			x += C_0780_0004(key);
-			continue;
+		} else {
+			(*D_2B90)(D_2B72.surface, x, y, x + 8, y + 8, D_2B72.bg);
+			C_077E_000C(x, y);
+			playerName[len] = 0;
 		}
-		(*D_2B90)(D_2B72.surface, x, y, x + 8, y + 8, D_2B72.bg);
-		C_077E_000C(x, y);
-		playerName[len] = 0;
 	}
 	if(strcmp(playerName, "") == 0)
 		return 0;
