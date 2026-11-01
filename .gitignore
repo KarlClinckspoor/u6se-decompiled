@@ -1,0 +1,7 @@
+__pycache__/
+build*/
+gamedata/*
+tools/*.7z
+tools/tcpp100/
+tools/tcpp101/
+tools/masm300/
