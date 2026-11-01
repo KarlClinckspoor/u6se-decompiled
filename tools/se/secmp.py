@@ -95,7 +95,7 @@ def switch_tables(blob, shift=0):
     for mm in re.finditer(rb'\x2e\xff\xa7(..)', blob, re.S):
         t = (struct.unpack('<H', mm.group(1))[0] - shift) & 0xFFFF
         before = blob[max(0, mm.start() - 24):mm.start()]
-        c = list(re.finditer(rb'\x3d(..)[\x77\x76]|\x83\xf8(.)[\x77\x76]', before, re.S))
+        c = list(re.finditer(rb'(?:\x3d|\x81\xfb)(..)[\x77\x76]|\x83[\xf8\xfb](.)[\x77\x76]', before, re.S))
         if not c:
             continue
         g = c[-1]
@@ -361,7 +361,7 @@ def main():
     if first is not None:
         oblob = img[base:base + cs.length + 16]
         o_all = disasm(oblob, 0, 0, cs.length + 16, switch_tables(oblob, at))
-        n_all = disasm(bytes(cs.data), 0, 0, cs.length, switch_tables(bytes(cs.data)))
+        n_all = disasm(bytes(cs.data), 0, 0, cs.length, switch_tables(oblob, at))
 
         def parse(l):
             p = l.split(None, 2)

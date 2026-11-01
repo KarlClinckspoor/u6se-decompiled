@@ -1,4 +1,4 @@
-/* flags: -mm -c -O */
+/* flags: -mm -c -O -y */
 /*
  * Worlds of Ultima: The Savage Empire - SAVAGE.EXE
  * segment 0636: the title (TITLE.LZC): the letters of the title change and fly apart,

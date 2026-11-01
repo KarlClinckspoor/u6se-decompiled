@@ -75,3 +75,25 @@ See `modules.txt`. Frames 0AA0-0D23 and 08E4 are a library that GAME.EXE contain
 identical or nearly: decompiling them here serves both. Two modules match U6's OSI library
 (U.EXE): 0756 is TXTJUST, 078E is TXTPRINT; the other small modules 0731-08E2 look like
 the same OSI library, a newer version.
+
+## Where it stands (2026-11-01)
+
+68 of 69 modules rebuild byte-identical, code and data. `main.c` (034C) is one byte off:
+the `jle` in InputName (034C:1F48) should land on the branch's closing `jmp` (1F57), not on
+1FA3. Everything else in it matches.
+
+Findings that matter for the rest:
+- **Origin compiled with line numbers on** (`-y`, or the IDE's default debug information).
+  Line-number records stop Turbo C++ from cross-jumping code of different source lines;
+  without `-y` main.c and title.c come out shorter. The IDE (TC.EXE, from TC.CA1+TC.CA2 on
+  the 1.00 disks, each part minus its first 4 bytes) and `tcc -y` give the same code.
+  Other modules match with or without it.
+- Library C files want `-mm -c -O -G`; asm code segments are WORD aligned, Turbo C's BYTE.
+- Turbo C++ 1.00 puts the first declared local nearest BP (the reverse of Turbo C 2.0).
+- `OSIDATA.ASM` and `MOUSDATA.ASM` are data-only modules (frame "-" in modules.txt).
+- 0DA8/0DA9 are C0M's start-up/exit tables, made by the link.
+- Uninitialised data: DS 2814-4210 (Origin's), 4210-4344 (the run-time library's).
+  `tools/se/mkbss.py --start 2814 --end 4210` writes BSS.ASM.
+
+Next: the last byte of main.c, then the full link (`tools/se/sebuild.py`), which still
+has to be tried: BSS.ASM, link order, relocation order.
