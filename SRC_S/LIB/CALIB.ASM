@@ -1,0 +1,181 @@
+;----------------------------------------
+;SAVAGE.EXE (and GAME.EXE 2F30): a delay loop calibrated on the timer interrupt
+;----------------------------------------
+
+_DATA	SEGMENT PUBLIC WORD 'DATA'
+_DATA	ENDS
+DGROUP	GROUP _DATA
+
+
+CALIB_TEXT	SEGMENT PUBLIC WORD 'CODE'
+	ASSUME CS:CALIB_TEXT,DS:DGROUP
+
+;void cdecl CountLoop(unsigned long n): count n down (the timer handler may cut it short)
+PUBLIC _C_0D11_000C
+_C_0D11_000C	PROC FAR	;0D11:000C
+	PUSH	BP
+	MOV	BP,SP
+	MOV	AX,[BP+8]
+	MOV	_D_2478,AX
+	MOV	CX,[BP+6]
+	MOV	_D_2476,CX
+	MOV	BYTE PTR _D_2465,0
+	INC	BYTE PTR _D_2464
+	JCXZ	C_002D
+C_0027:
+	DEC	WORD PTR _D_2476
+	JNZ	C_0027
+C_002D:
+	CMP	WORD PTR _D_2478,0
+	JZ	C_003A
+	DEC	WORD PTR _D_2478
+	JMP	C_0027
+C_003A:
+	DEC	BYTE PTR _D_2464
+	POP	BP
+	RET
+_C_0D11_000C	ENDP
+
+;the timer interrupt while calibrating: the loop counter at each tick; after 4 ticks the
+;loop is stopped
+C_0D11_0040	PROC FAR	;0D11:0040
+	PUSH	AX
+	PUSH	BX
+	PUSH	CX
+	PUSH	DX
+	PUSH	ES
+	PUSH	DS
+	PUSH	SI
+	PUSH	DI
+	PUSH	BP
+	MOV	BP,SP
+	MOV	AX,DGROUP
+	MOV	DS,AX
+	CMP	BYTE PTR _D_2464,0
+	JZ	C_008B
+	MOV	BL,_D_2465
+	XOR	BH,BH
+	CMP	BL,4
+	JB	C_0075
+	MOV	WORD PTR _D_2476,1
+	MOV	WORD PTR _D_2478,1
+	MOV	BYTE PTR _D_2464,0
+	JMP	SHORT C_008B
+C_0075:
+	SHL	BX,1
+	SHL	BX,1
+	MOV	AX,_D_2476
+	MOV	WORD PTR _D_2466[BX],AX
+	MOV	AX,_D_2478
+	MOV	WORD PTR _D_2466[BX+2],AX
+	INC	BYTE PTR _D_2465
+C_008B:
+	PUSHF
+	CALL	DWORD PTR _D_247A
+	MOV	SP,BP
+	POP	BP
+	POP	DI
+	POP	SI
+	POP	DS
+	POP	ES
+	POP	DX
+	POP	CX
+	POP	BX
+	POP	AX
+	IRET
+C_0D11_0040	ENDP
+
+;void CalibrateLoop(void): count the loops in a timer tick (once)
+PUBLIC _C_0D11_009C
+_C_0D11_009C	PROC FAR	;0D11:009C
+	PUSH	SI
+	PUSH	DI
+	PUSH	DS
+	CMP	BYTE PTR _D_2484,0
+	JNZ	C_00FE
+	MOV	BYTE PTR _D_2484,1
+	MOV	AX,3508h
+	INT	21h
+	MOV	WORD PTR _D_247A,BX
+	MOV	WORD PTR _D_247A+2,ES
+	LDS	DX,_D_2480
+	MOV	AX,2508h
+	INT	21h
+	POP	DS
+	PUSH	DS
+	MOV	AX,0FFFFh
+	PUSH	AX
+	PUSH	AX
+	PUSH	CS
+	CALL	NEAR PTR _C_0D11_000C
+	ADD	SP,4
+	LDS	DX,_D_247A
+	MOV	AX,2508h
+	INT	21h
+	POP	DS
+	PUSH	DS
+	MOV	CX,3
+	MOV	BX,1
+C_00E0:	;(SI is not advanced: the first two samples, three times)
+	MOV	SI,OFFSET DGROUP:_D_2466
+	MOV	AX,[SI]
+	MOV	DX,[SI+2]
+	SUB	AX,[SI+4]
+	SBB	DX,[SI+6]
+	MOV	AL,AH
+	MOV	AH,DL
+	CMP	BX,AX
+	JNB	C_00F8
+	MOV	BX,AX
+C_00F8:
+	LOOP	C_00E0
+	MOV	_D_247E,BX
+C_00FE:
+	POP	DS
+	POP	DI
+	POP	SI
+	RET
+_C_0D11_009C	ENDP
+
+;void cdecl LoopDelay(unsigned long t): CountLoop(t * D_247E / 256)
+PUBLIC _C_0D11_0102
+_C_0D11_0102	PROC FAR	;0D11:0102
+	PUSH	BP
+	MOV	BP,SP
+	MOV	AX,_D_247E
+	MUL	WORD PTR [BP+6]
+	MOV	BL,AH
+	MOV	BH,DL
+	MOV	CL,DH
+	XOR	CH,CH
+	MOV	AX,_D_247E
+	MUL	WORD PTR [BP+8]
+	ADD	BH,AL
+	ADC	CL,AH
+	ADC	CH,DL
+	PUSH	CX
+	PUSH	BX
+	PUSH	CS
+	CALL	NEAR PTR _C_0D11_000C
+	ADD	SP,4
+	POP	BP
+	RET
+_C_0D11_0102	ENDP
+
+CALIB_TEXT	ENDS
+
+;(after the code: TASM wrote the data record after the code's)
+_DATA	SEGMENT
+PUBLIC _D_2464,_D_2465,_D_2466,_D_2476,_D_2478,_D_247A,_D_247E,_D_2480,_D_2484
+_D_2464	db	0	;D_2464	1 while C_0D11_000C counts
+_D_2465	db	0	;D_2465	samples taken
+_D_2466	dd	4 dup(0)	;D_2466	the loop counter at each timer tick
+_D_2476	dw	0	;D_2476	the loop counter (low word)
+_D_2478	dw	0	;D_2478	(high word)
+_D_247A	dd	0	;D_247A	the timer interrupt (int 8) before
+_D_247E	dw	1	;D_247E	loops in a timer tick / 256
+_D_2480	dd	CALIB_TEXT:C_0D11_0040	;D_2480	the sampling interrupt handler
+_D_2484	db	0	;D_2484	calibrated
+_DATA	ENDS
+
+END
