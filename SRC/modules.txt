@@ -18,10 +18,11 @@
 1810 7 5ACC -  # U6 combat
 1DBD 3 8AA3 -  # U6 objcmd
 2667 6 9A4 -  # U6 egg
-2701 A 69B -  # U6 music
+2701 A 69B music.c 2364-24CC  # U6 music
 276B 5 2669 gfx.c 24CC-27E8  # U6 gfx
+- - 0 gamestat.c 27E8-286C  # data only (U6 gamestat), linked between gfx and kbd
 29D1 E 62 OSILIB/KBD.ASM
-29D8 0 A93 -  # U6 rest
+29D8 0 A93 rest.c 286C-2A64  # U6 rest
 2A81 3 3E5 disk.c 2A64-2B34  # U6 disk
 2ABF 8 358 OSILIB/MOUSE.ASM 2B34-2B42
 2AF5 0 66 OSILIB/LOW.ASM 2B42-2BDA  # U6 OSILIB LOW: three code segments, 2AF5, 2AFB, 2AFC
