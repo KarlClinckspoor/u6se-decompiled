@@ -15,11 +15,11 @@ EXTRN _EMS_map:FAR
 OSIREAD_TEXT	SEGMENT WORD PUBLIC 'CODE'
 	ASSUME CS:OSIREAD_TEXT,DS:DGROUP
 
-;int pascal OSI_read(int handle, long pos, long size, void far *buf):
+;int pascal DOS_read(int handle, long pos, long size, void far *buf):
 ;seek to pos (unless pos's high word is -1), read size bytes to buf;
 ;returns 1, or 0 with CF set on an error not retried (osiError has the error)
-PUBLIC OSI_read
-OSI_read	PROC FAR	;0C06:000C
+PUBLIC DOS_read
+DOS_read	PROC FAR	;0C06:000C
 	PUSH	BP
 	MOV	BP,SP
 	SUB	SP,4
@@ -118,7 +118,7 @@ L_00B8:
 	MOV	SP,BP
 	POP	BP
 	RET	0Eh
-OSI_read	ENDP
+DOS_read	ENDP
 
 OSIREAD_TEXT	ENDS
 END

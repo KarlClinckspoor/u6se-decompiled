@@ -12,7 +12,7 @@ struct libfile {
 	long length;	/* +10 */
 };
 
-extern long pascal OSI_seek(int handle, long pos, int whence);
+extern long pascal DOS_seek(int handle, long pos, int whence);
 
 /* move to offset from the start (whence 0), the current position (1) or
    the end (2) of the entry f, not before its start nor after its end
@@ -40,7 +40,7 @@ extern long pascal OSI_seek(int handle, long pos, int whence);
 		newpos = f->start;
 	if (newpos > end && !f->last)
 		newpos = end;
-	newpos = OSI_seek(f->handle, newpos, 0);
+	newpos = DOS_seek(f->handle, newpos, 0);
 	if (newpos != -1L) {
 		f->pos = newpos - f->start;
 		return f->pos;

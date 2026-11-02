@@ -10,16 +10,16 @@ DGROUP	GROUP _DATA
 _DATA	SEGMENT WORD PUBLIC 'DATA'
 PUBLIC _osiError,_osiErrorHandler
 _osiError	dw 0			;D_240C error code of the last file routine (0: none)
-_osiErrorHandler	dd OSI_defaultHandler		;D_240E error handler (far, called with DS = DGROUP)
+_osiErrorHandler	dd DOS_defaultHandler		;D_240E error handler (far, called with DS = DGROUP)
 _DATA	ENDS
 
 OSIOPEN_TEXT	SEGMENT WORD PUBLIC 'CODE'
 	ASSUME CS:OSIOPEN_TEXT,DS:DGROUP
 
-;int pascal OSI_open(char far *name): open the file for reading and writing,
+;int pascal DOS_open(char far *name): open the file for reading and writing,
 ;returns its handle (-1, CF set, on an error not retried)
-PUBLIC OSI_open
-OSI_open	PROC FAR	;0C02:0000
+PUBLIC DOS_open
+DOS_open	PROC FAR	;0C02:0000
 	PUSH	BP
 	MOV	BP,SP
 	MOV	_osiError,0
@@ -39,17 +39,17 @@ L_0009:
 L_0028:
 	POP	BP
 	RET	4
-OSI_open	ENDP
+DOS_open	ENDP
 
 ;the default error handler: does nothing (the error stays: no retry)
-PUBLIC OSI_defaultHandler
-OSI_defaultHandler	PROC FAR	;0C02:002C
+PUBLIC DOS_defaultHandler
+DOS_defaultHandler	PROC FAR	;0C02:002C
 	RET
-OSI_defaultHandler	ENDP
+DOS_defaultHandler	ENDP
 
-;void pascal OSI_close(int handle): close the file
-PUBLIC OSI_close
-OSI_close	PROC FAR	;0C02:002D
+;void pascal DOS_close(int handle): close the file
+PUBLIC DOS_close
+DOS_close	PROC FAR	;0C02:002D
 	PUSH	BP
 	MOV	BP,SP
 L_0030:
@@ -64,7 +64,7 @@ L_0030:
 L_0048:
 	POP	BP
 	RET	2
-OSI_close	ENDP
+DOS_close	ENDP
 
 OSIOPEN_TEXT	ENDS
 END

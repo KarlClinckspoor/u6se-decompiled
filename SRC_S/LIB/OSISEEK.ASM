@@ -11,11 +11,11 @@ EXTRN _osiError:WORD,_osiErrorHandler:DWORD
 OSISEEK_TEXT	SEGMENT WORD PUBLIC 'CODE'
 	ASSUME CS:OSISEEK_TEXT,DS:DGROUP
 
-;long pascal OSI_seek(int handle, long pos, int whence): move the file
+;long pascal DOS_seek(int handle, long pos, int whence): move the file
 ;pointer (whence: 0 start, 1 current, 2 end), returns the new position
 ;(-1L, CF set, on an error not retried)
-PUBLIC OSI_seek
-OSI_seek	PROC FAR	;0C1C:0002
+PUBLIC DOS_seek
+DOS_seek	PROC FAR	;0C1C:0002
 	PUSH	BP
 	MOV	BP,SP
 	PUSH	SI
@@ -41,7 +41,7 @@ L_0034:
 	POP	SI
 	POP	BP
 	RET	8
-OSI_seek	ENDP
+DOS_seek	ENDP
 
 OSISEEK_TEXT	ENDS
 END

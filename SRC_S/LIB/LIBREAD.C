@@ -12,7 +12,7 @@ struct libfile {
 	long length;	/* +10 */
 };
 
-extern long pascal OSI_read(int handle, long pos, long size, void far *buf);
+extern long pascal DOS_read(int handle, long pos, long size, void far *buf);
 
 /* read n bytes (-1: all the rest) of the entry f to buf, no further than
    its end; 1 if done */
@@ -27,7 +27,7 @@ extern long pascal OSI_read(int handle, long pos, long size, void far *buf);
 		return 0;
 	if (cur + n > end || n == -1L)
 		n = end - cur;
-	if (!OSI_read(f->handle, cur, n, buf))
+	if (!DOS_read(f->handle, cur, n, buf))
 		return 0;
 	f->pos += n;
 	return 1;

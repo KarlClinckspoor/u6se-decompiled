@@ -14,12 +14,12 @@ EXTRN _EMS_map:FAR
 OSIWRITE_TEXT	SEGMENT WORD PUBLIC 'CODE'
 	ASSUME CS:OSIWRITE_TEXT,DS:DGROUP
 
-;int pascal OSI_write(int handle, long pos, long size, void far *buf):
+;int pascal DOS_write(int handle, long pos, long size, void far *buf):
 ;seek to pos (unless pos's high word is -1), write size bytes from buf;
 ;returns 1, or 0 with CF set on an error not retried (a short write is
 ;error -1)
-PUBLIC OSI_write
-OSI_write	PROC FAR	;0C12:0000
+PUBLIC DOS_write
+DOS_write	PROC FAR	;0C12:0000
 	PUSH	BP
 	MOV	BP,SP
 	SUB	SP,4
@@ -99,7 +99,7 @@ L_009A:
 	MOV	SP,BP
 	POP	BP
 	RET	0Eh
-OSI_write	ENDP
+DOS_write	ENDP
 
 OSIWRITE_TEXT	ENDS
 END

@@ -85,10 +85,10 @@ extern int D_3538;/*a character has been created*/
 extern int D_353E;/*music on*/
 
 /*the OSI library (pascal) and Origin's other routines*/
-extern int pascal OSI_open(char far *name);/*open a file (-1: error)*/
-extern void pascal OSI_close(int fd);/*close a file*/
-extern long pascal OSI_read(int fd, long offset, long length, void far *buf);/*read*/
-extern long pascal OSI_write(int fd, long offset, long length, void far *buf);/*write*/
+extern int pascal DOS_open(char far *name);/*open a file (-1: error)*/
+extern void pascal DOS_close(int fd);/*close a file*/
+extern long pascal DOS_read(int fd, long offset, long length, void far *buf);/*read*/
+extern long pascal DOS_write(int fd, long offset, long length, void far *buf);/*write*/
 extern long pascal LIB_entrySize(char far *name, int n);/*size of item n of an .lzc archive*/
 extern void far * pascal LZC_load(char far *name, int n, void far *buf, int a, long b);/*load item n of an .lzc archive*/
 extern void far *MEM_alloc(long size, int flags);/*allocate far memory*/
@@ -213,9 +213,9 @@ void Endgame(void);
 	int fd;
 
 	markerFile[3] = n + '0';
-	fd = OSI_open(markerFile);
+	fd = DOS_open(markerFile);
 	if(fd != -1)
-		OSI_close(fd);
+		DOS_close(fd);
 	return fd != -1;
 }
 
@@ -626,12 +626,12 @@ the days, months, years of the endgame*/
 	D_2B9C = 0;
 	D_2B98 = 0;
 	FindDrives();
-	fd = OSI_open("config.se");
+	fd = DOS_open("config.se");
 	if(fd >= 0) {
-		OSI_read(fd, 0L, 6L, cfg);
+		DOS_read(fd, 0L, 6L, cfg);
 		cfg[6] = 0;
 		ParseConfig(cfg);
-		OSI_close(fd);
+		DOS_close(fd);
 	}
 	for(i = 1; i < argc; i++)
 		ParseConfig(argv[i]);
@@ -1383,10 +1383,10 @@ escaped*/
 
 	buf = MEM_alloc(0x1d73L, 0);
 	InsertDisk(8);
-	fd = OSI_open("savegame\\objlist");
-	OSI_read(fd, 0L, 0x1d73L, buf);
+	fd = DOS_open("savegame\\objlist");
+	DOS_read(fd, 0L, 0x1d73L, buf);
 	if(osiError) {
-		OSI_close(fd);
+		DOS_close(fd);
 		return 0;
 	}
 	buf[0x901] = D_2BCC;
@@ -1414,8 +1414,8 @@ escaped*/
 	buf[0x18f9] |= 1;
 	buf[0x1908] |= 1;
 	buf[0x18f6] |= 1;
-	OSI_write(fd, 0L, 0x1d73L, buf);
-	OSI_close(fd);
+	DOS_write(fd, 0L, 0x1d73L, buf);
+	DOS_close(fd);
 	return 1;
 }
 
@@ -1451,17 +1451,17 @@ created*/
 
 	buf = MEM_alloc(0x1d73L, 0);
 	InsertDisk(8);
-	fd = OSI_open("savegame\\objlist");
-	OSI_read(fd, 0L, 0x1d73L, buf);
+	fd = DOS_open("savegame\\objlist");
+	DOS_read(fd, 0L, 0x1d73L, buf);
 	if(osiError) {
-		OSI_close(fd);
+		DOS_close(fd);
 		return -1;
 	}
 	if(buf[0x1912] & 1) {
-		OSI_close(fd);
+		DOS_close(fd);
 		return 1;
 	}
-	OSI_close(fd);
+	DOS_close(fd);
 	return 0;
 }
 
@@ -1473,17 +1473,17 @@ be read*/
 
 	buf = MEM_alloc(0x1d73L, 0);
 	InsertDisk(8);
-	fd = OSI_open("savegame\\objlist");
-	OSI_read(fd, 0L, 0x1d73L, buf);
+	fd = DOS_open("savegame\\objlist");
+	DOS_read(fd, 0L, 0x1d73L, buf);
 	if(osiError) {
-		OSI_close(fd);
+		DOS_close(fd);
 		return -1;
 	}
 	if(buf[0x1d72] == 1) {
-		OSI_close(fd);
+		DOS_close(fd);
 		return 1;
 	}
-	OSI_close(fd);
+	DOS_close(fd);
 	return 0;
 }
 
