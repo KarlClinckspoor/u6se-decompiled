@@ -189,6 +189,11 @@ def main():
     cseg = [s for s in m.segs[1:] if s.cls == 'CODE' and (not a.cseg or s.name.upper() == a.cseg.upper())]
     if len(cseg) > 1 and not a.cseg:  # several: the one named after the frame compared
         cseg = [s for s in cseg if re.fullmatch(r'SEG_%04X(_TEXT)?' % int(a.seg, 16), s.name, re.I)] or cseg
+    if not [x for x in cseg if x.length]:
+        # a data-only huge-model module (msgs.c): its own far data segment, compared as code
+        far = [x for x in m.segs[1:] if x.cls in ('DATA', 'FAR_DATA') and x.name not in ('_DATA', '_BSS') and x.length]
+        if far:
+            cseg = far
     if len(cseg) != 1:
         sys.exit('expected one CODE segment, got %s' % cseg)
     cs = cseg[0]

@@ -6,9 +6,9 @@
 0000 242 421 OSILIB/OSI_FILE.ASM 01F6-0200
 0268 B F0B main.c 00A8-01F6  # U6 main
 0359 6 276E -  # U6 gameloop
-05D0 4 2FAC -  # U6 console
-08CB 0 10FE -  # U6 map
-09DA E 823 -  # U6 visible
+05D0 4 2FAF -  # U6 console
+08CB 3 10FB map.c 04C2-069C  # U6 map
+09DA E 823 visible.c 069C-070C  # U6 visible
 0A5D 1 3B69 -  # U6 object
 0E13 A 1664 status.c 08A4-0A06  # U6 status
 0F79 E 136 talk.c 0A06-0A36  # U6 talk
@@ -52,6 +52,6 @@
 2F2B 4 22 ../SRC_S/LIB/PTRLIN.ASM
 2F2D 6 38 ../SRC_S/LIB/PTRNORM.ASM
 2F30 E 11E ../SRC_S/LIB/CALIB.ASM 2F42-2F64  # then 4 bytes up to the paragraph of the far data
-2F43 0 220 -  # far data (U6 msgs / monsdata, -mh)
-2F65 0 3F0 -  # far data (U6 msgs / monsdata, -mh)
+2F43 0 212 monsdata.c  # monster tables (-mh); then 14 bytes to the next paragraph
+2F65 0 3E3 msgs.c  # far messages (-mh); then 13 bytes to the next paragraph
 # (2FA4, 2FA5: C0M's start-up and exit tables, _INIT_ and _EXIT_, made by the link)
