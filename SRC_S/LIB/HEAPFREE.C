@@ -12,10 +12,10 @@ extern long D_4068;	/* linear address of the heap */
 extern long D_4070;	/* its length */
 extern long D_4074;	/* linear address of the lowest table entry */
 
-extern struct heapent far * pascal C_0D09_000E(long linear);
+extern struct heapent far * pascal LinearToPtr(long linear);
 
 /* the total length of the free blocks */
-/*C_0BB1_000F*/long C_0BB1_000F(void)
+/*C_0BB1_000F*/long HEAP_totalFree(void)
 {
 	struct heapent far *e;
 	long a;
@@ -23,7 +23,7 @@ extern struct heapent far * pascal C_0D09_000E(long linear);
 
 	total = 0;
 	for (a = D_4068 + D_4070 - 8; a >= D_4074; a -= 8) {
-		e = C_0D09_000E(a);
+		e = LinearToPtr(a);
 		if (!(e->info & 0x80000000L))
 			total += e->info & 0xFFFFFL;
 	}
@@ -31,7 +31,7 @@ extern struct heapent far * pascal C_0D09_000E(long linear);
 }
 
 /* the length of the largest free block */
-/*C_0BB1_009E*/long C_0BB1_009E(void)
+/*C_0BB1_009E*/long HEAP_largestFree(void)
 {
 	struct heapent far *e;
 	long a;
@@ -39,7 +39,7 @@ extern struct heapent far * pascal C_0D09_000E(long linear);
 
 	best = 0;
 	for (a = D_4068 + D_4070 - 8; a >= D_4074; a -= 8) {
-		e = C_0D09_000E(a);
+		e = LinearToPtr(a);
 		if (!(e->info & 0x80000000L) && (e->info & 0xFFFFFL) > best)
 			best = e->info & 0xFFFFFL;
 	}

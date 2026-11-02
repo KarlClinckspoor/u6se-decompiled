@@ -3,29 +3,29 @@
 ;A block is a 4-byte header, its length (a long, bit 0 set: in use), then
 ;the data; blocks never cross a 16 KB page (the header of a block that would
 ;is cut short at the page's end: 3FFCh). A virtual pointer is
-;(C000h + logical page):offset (see C_0AD2_0024).
+;(C000h + logical page):offset (see EMS_map).
 ;----------------------------------------
 
 DGROUP	GROUP _DATA
 _DATA	SEGMENT WORD PUBLIC 'DATA'
 _DATA	ENDS
 
-EXTRN _D_23C9:DWORD,_D_23D4:WORD
-EXTRN _C_0AD2_0024:FAR
+EXTRN _emsMapped:DWORD,_emsInUse:WORD
+EXTRN _EMS_map:FAR
 
 EMSALLOC_TEXT	SEGMENT WORD PUBLIC 'CODE'
 	ASSUME CS:EMSALLOC_TEXT,DS:DGROUP
 
-;void far *C_0AB2_000A(unsigned long size): allocate size (less than 64 KB - 4)
+;void far *EMS_alloc(unsigned long size): allocate size (less than 64 KB - 4)
 ;bytes of the EMS heap, first fit; returns the block's virtual pointer, or NULL
-PUBLIC _C_0AB2_000A
-_C_0AB2_000A	PROC FAR	;0AB2:000A
+PUBLIC _EMS_alloc
+_EMS_alloc	PROC FAR	;0AB2:000A
 	PUSH	BP
 	MOV	BP,SP
 	SUB	SP,14h
 	PUSH	SI
 	PUSH	DI
-	CMP	_D_23D4,0
+	CMP	_emsInUse,0
 	JNZ	L_001C
 	JMP	L_016D
 L_001C:
@@ -39,7 +39,7 @@ L_0025:
 L_002E:
 	ADD	WORD PTR [BP+06],3	;round up to 4
 	db 83h,66h,06h,0FCh	;AND WORD PTR [BP+06],-4
-	LES	AX,_D_23C9
+	LES	AX,_emsMapped
 	MOV	[BP-0Ch],AX
 	MOV	[BP-0Ah],ES
 	MOV	AX,0C000h
@@ -48,7 +48,7 @@ L_002E:
 	XOR	AX,AX
 	MOV	[BP-04],AX
 	PUSH	AX
-	CALL	_C_0AD2_0024
+	CALL	_EMS_map
 	ADD	SP,4
 	MOV	ES,DX
 	MOV	SI,AX
@@ -59,7 +59,7 @@ L_0063:
 	TEST	AX,1
 	JZ	L_0070
 L_0068:
-	CALL	next_block
+	CALL	emsNextBlock
 	JNZ	L_0063
 	JMP	L_016D
 L_0070:
@@ -91,7 +91,7 @@ L_009C:
 	CMP	BX,[BP-10h]
 	JNB	L_00CB
 L_00B3:
-	CALL	next_block
+	CALL	emsNextBlock
 	JNZ	L_00BB
 	JMP	L_016D
 L_00BB:
@@ -107,7 +107,7 @@ L_00CB:
 	MOV	[BP-02],DX
 	PUSH	WORD PTR [BP-06]
 	PUSH	WORD PTR [BP-08]
-	CALL	_C_0AD2_0024
+	CALL	_EMS_map
 	ADD	SP,4
 	MOV	ES,DX
 	MOV	SI,AX
@@ -125,7 +125,7 @@ L_00CB:
 	SBB	[BP-12h],DX
 	SUB	WORD PTR [BP-14h],4
 	SBB	WORD PTR [BP-12h],0
-	CALL	next_block
+	CALL	emsNextBlock
 	JZ	L_016D
 	MOV	BX,[BP+06]
 	SUB	SI,4
@@ -140,7 +140,7 @@ L_011D:
 	JZ	L_0150
 	MOV	AX,BX
 	XOR	DX,DX
-	CALL	next_block
+	CALL	emsNextBlock
 	JZ	L_016D
 	MOV	AX,[BP-14h]
 	SUB	AX,4
@@ -150,7 +150,7 @@ L_011D:
 L_0150:
 	PUSH	WORD PTR [BP-0Ah]
 	PUSH	WORD PTR [BP-0Ch]
-	CALL	_C_0AD2_0024
+	CALL	_EMS_map
 	ADD	SP,4
 	MOV	AX,[BP-08]
 	ADD	AX,4
@@ -168,12 +168,12 @@ L_016D:
 	MOV	SP,BP
 	POP	BP
 	RET
-_C_0AB2_000A	ENDP
+_EMS_alloc	ENDP
 
 ;the next block: DX:AX the length of the block at [BP-04] (virtual pointer
 ;[BP-04],[BP-02]); moves there, maps it in (ES:SI after its header) and
 ;returns its length in DX:AX; ZF set at the end of the heap
-next_block	PROC NEAR	;0AB2:0177
+emsNextBlock	PROC NEAR	;0AB2:0177
 	AND	AL,0FEh
 	ADD	AX,4
 	ADC	DX,0
@@ -190,7 +190,7 @@ next_block	PROC NEAR	;0AB2:0177
 	MOV	[BP-04],AX
 	PUSH	DX
 	PUSH	AX
-	CALL	_C_0AD2_0024
+	CALL	_EMS_map
 	ADD	SP,4
 	MOV	ES,DX
 	MOV	SI,AX
@@ -201,36 +201,36 @@ next_block	PROC NEAR	;0AB2:0177
 	ADD	SI,4
 L_01B7:
 	RET
-next_block	ENDP
+emsNextBlock	ENDP
 
-;void C_0AB2_01B8(void far *p): free a block of the EMS heap (p a virtual
+;void EMS_free(void far *p): free a block of the EMS heap (p a virtual
 ;pointer, C000h or more)
-PUBLIC _C_0AB2_01B8
-_C_0AB2_01B8	PROC FAR	;0AB2:01B8
+PUBLIC _EMS_free
+_EMS_free	PROC FAR	;0AB2:01B8
 	PUSH	BP
 	MOV	BP,SP
 	SUB	SP,4
 	PUSH	SI
 	PUSH	DI
-	CMP	_D_23D4,0
+	CMP	_emsInUse,0
 	JZ	L_0201
 	MOV	AX,[BP+08]
 	AND	AX,0C000h
 	CMP	AX,0C000h
 	JNZ	L_0201
-	LES	AX,_D_23C9
+	LES	AX,_emsMapped
 	MOV	[BP-04],AX
 	MOV	[BP-02],ES
 	PUSH	WORD PTR [BP+08]
 	PUSH	WORD PTR [BP+06]
-	CALL	_C_0AD2_0024
+	CALL	_EMS_map
 	ADD	SP,4
 	MOV	ES,DX
 	MOV	BX,AX
 	AND	BYTE PTR ES:[BX-04],0FEh
 	PUSH	WORD PTR [BP-02]
 	PUSH	WORD PTR [BP-04]
-	CALL	_C_0AD2_0024
+	CALL	_EMS_map
 	ADD	SP,4
 L_0201:
 	POP	DI
@@ -238,7 +238,7 @@ L_0201:
 	MOV	SP,BP
 	POP	BP
 	RET
-_C_0AB2_01B8	ENDP
+_EMS_free	ENDP
 
 EMSALLOC_TEXT	ENDS
 END

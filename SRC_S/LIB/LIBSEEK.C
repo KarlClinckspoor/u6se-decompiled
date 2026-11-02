@@ -12,13 +12,13 @@ struct libfile {
 	long length;	/* +10 */
 };
 
-extern long pascal C_0C1C_0002(int handle, long pos, int whence);
+extern long pascal OSI_seek(int handle, long pos, int whence);
 
 /* move to offset from the start (whence 0), the current position (1) or
    the end (2) of the entry f, not before its start nor after its end
    (unless it is the library's last entry); returns the new position in the
    entry, -1L on an error */
-/*C_0C49_000E*/long pascal C_0C49_000E(struct libfile *f, long offset, int whence)
+/*C_0C49_000E*/long pascal LIB_seek(struct libfile *f, long offset, int whence)
 {
 	long end;
 	long newpos;
@@ -40,7 +40,7 @@ extern long pascal C_0C1C_0002(int handle, long pos, int whence);
 		newpos = f->start;
 	if (newpos > end && !f->last)
 		newpos = end;
-	newpos = C_0C1C_0002(f->handle, newpos, 0);
+	newpos = OSI_seek(f->handle, newpos, 0);
 	if (newpos != -1L) {
 		f->pos = newpos - f->start;
 		return f->pos;

@@ -39,9 +39,8 @@ xlat	LABEL BYTE	;0CB5:001C	scan code translation: a Tandy 1000's to the standard
 	db	0D0h,0D1h,0D2h,0D3h,0D4h,0D5h,0D6h,0D7h,0D8h,0D7h,0D8h,0DBh,0DCh,0DDh,0DEh,0DFh	;D0
 	db	0E0h,0E1h,0E2h,0E3h,0E4h,0E5h,0E6h,0E7h,0E8h,0E9h,0EAh,0EBh,0ECh,0EDh,0EEh,0EFh	;E0
 	db	0F0h,0F1h,0F2h,0F3h,0F4h,0F5h,0F6h,0F7h,0F8h,0F9h,0FAh,0FBh,0FCh,0FDh,0FEh,0FFh	;F0
-	PUBLIC	C_0CB5_011C	;(the key table: events.asm reads it)
-C_0CB5_011C	LABEL	BYTE
-keys	db	128 dup(0)	;0CB5:011C	1 for each key down (by scan code)
+	PUBLIC	keyDown	;(the key table: events.asm reads it)
+keyDown	db	128 dup(0)	;0CB5:011C	1 for each key down (by scan code)
 
 ;empty the BIOS keyboard buffer
 flushBios	PROC NEAR	;0CB5:019C
@@ -59,8 +58,8 @@ C_01A9:
 flushBios	ENDP
 
 ;void KeyboardInstall(void): take over int 9, look for a Tandy 1000 keyboard
-PUBLIC _C_0CB5_01AB
-_C_0CB5_01AB	PROC FAR	;0CB5:01AB
+PUBLIC _KeyboardInstall
+_KeyboardInstall	PROC FAR	;0CB5:01AB
 	PUSH	AX
 	PUSH	BX
 	PUSH	CX
@@ -121,18 +120,18 @@ C_0224:
 	POP	BX
 	POP	AX
 	RET
-_C_0CB5_01AB	ENDP
+_KeyboardInstall	ENDP
 
 ;void KeyboardClear(void): no key down, but Alt and Ctrl as they are
-PUBLIC _C_0CB5_0232
-_C_0CB5_0232	PROC FAR	;0CB5:0232
+PUBLIC _KeyboardClear
+_KeyboardClear	PROC FAR	;0CB5:0232
 	PUSH	AX
 	PUSH	CX
 	PUSH	ES
 	PUSH	DI
 	MOV	AX,KEYB_TEXT
 	MOV	ES,AX
-	MOV	DI,OFFSET keys
+	MOV	DI,OFFSET keyDown
 	XOR	AX,AX
 	MOV	AL,ES:[DI+38h]	;Alt
 	PUSH	AX
@@ -142,7 +141,7 @@ _C_0CB5_0232	PROC FAR	;0CB5:0232
 	XOR	AX,AX
 	MOV	CX,80h
 	REP	STOSB
-	MOV	DI,OFFSET keys
+	MOV	DI,OFFSET keyDown
 	POP	AX
 	MOV	ES:[DI+1Dh],AL
 	POP	AX
@@ -152,31 +151,31 @@ _C_0CB5_0232	PROC FAR	;0CB5:0232
 	POP	CX
 	POP	AX
 	RET
-_C_0CB5_0232	ENDP
+_KeyboardClear	ENDP
 
 ;void KeyboardClearAll(void): no key down at all
-PUBLIC _C_0CB5_0264
-_C_0CB5_0264	PROC FAR	;0CB5:0264
+PUBLIC _KeyboardClearAll
+_KeyboardClearAll	PROC FAR	;0CB5:0264
 	PUSH	ES
 	PUSH	DI
 	PUSH	AX
 	MOV	AX,KEYB_TEXT
 	MOV	ES,AX
-	MOV	DI,OFFSET keys
+	MOV	DI,OFFSET keyDown
 	XOR	AX,AX
 	MOV	ES:[DI+38h],AL
 	MOV	ES:[DI+1Dh],AL
 	PUSH	CS
-	CALL	NEAR PTR _C_0CB5_0232
+	CALL	NEAR PTR _KeyboardClear
 	POP	AX
 	POP	DI
 	POP	ES
 	RET
-_C_0CB5_0264	ENDP
+_KeyboardClearAll	ENDP
 
 ;void KeyboardRemove(void): give int 9 back, empty the BIOS buffer
-PUBLIC _C_0CB5_0281
-_C_0CB5_0281	PROC FAR	;0CB5:0281
+PUBLIC _KeyboardRemove
+_KeyboardRemove	PROC FAR	;0CB5:0281
 	PUSH	AX
 	PUSH	BX
 	PUSH	CX
@@ -197,12 +196,12 @@ _C_0CB5_0281	PROC FAR	;0CB5:0281
 	POP	BX
 	POP	AX
 	RET
-_C_0CB5_0281	ENDP
+_KeyboardRemove	ENDP
 
 ;void cdecl KeyboardSetCallback(void (far *f)(void)): f is called at each key, with the
 ;key in AX (and keyCode)
-PUBLIC _C_0CB5_02A7
-_C_0CB5_02A7	PROC FAR	;0CB5:02A7
+PUBLIC _KeyboardSetCallback
+_KeyboardSetCallback	PROC FAR	;0CB5:02A7
 	PUSH	BP
 	MOV	BP,SP
 	PUSH	AX
@@ -216,7 +215,7 @@ _C_0CB5_02A7	PROC FAR	;0CB5:02A7
 	POP	AX
 	POP	BP
 	RET
-_C_0CB5_02A7	ENDP
+_KeyboardSetCallback	ENDP
 
 ;the callback until one is set
 nullCallback	PROC FAR	;0CB5:02BF
@@ -288,11 +287,11 @@ C_0337:
 C_033E:
 	MOV	AL,CS:leftAlt
 	OR	AL,CS:rightAlt
-	MOV	CS:keys+38h,AL
+	MOV	CS:keyDown+38h,AL
 	MOV	AX,38h
 	JMP	SHORT C_0355
 C_0350:
-	MOV	CS:keys[BX],CL
+	MOV	CS:keyDown[BX],CL
 C_0355:
 	MOV	CS:keyCode,AX
 	CALL	CS:callback

@@ -15,11 +15,11 @@ tHook	STRUC
 tHook	ENDS
 
 _DATA	SEGMENT
-PUBLIC _D_2456, _D_2458, _D_245A, _D_245C
-_D_2456	dw	0	;D_2456	timer chip divisor (0: 65536, 18.2 Hz)
-_D_2458	dw	0	;D_2458	timer rate asked for (Hz; 0 when 18 or less)
-_D_245A	dw	0	;D_245A	struct tHook *: the vectors taken over
-_D_245C	tHook	<0,0FFFFh,0>	;D_245C	the timer interrupt's (int 8)
+PUBLIC _timerDivisor, _timerRate, _hookList, _timerHook
+_timerDivisor	dw	0	;D_2456	timer chip divisor (0: 65536, 18.2 Hz)
+_timerRate	dw	0	;D_2458	timer rate asked for (Hz; 0 when 18 or less)
+_hookList	dw	0	;D_245A	struct tHook *: the vectors taken over
+_timerHook	tHook	<0,0FFFFh,0>	;D_245C	the timer interrupt's (int 8)
 _DATA	ENDS
 
 EXTRN _malloc:FAR
@@ -30,8 +30,8 @@ PIT_TEXT	SEGMENT PUBLIC WORD 'CODE'
 ;void far * cdecl HookVector(int intNo, void interrupt (far *handler)(), struct tHook *hook,
 ;  void far * far *pOld): set an interrupt vector, remember the old one in hook (malloc'ed
 ;  when 0) and in *pOld (when not 0); returns the old vector (0 when out of memory)
-PUBLIC _C_0CED_000E
-_C_0CED_000E	PROC FAR	;0CED:000E
+PUBLIC _HookVector
+_HookVector	PROC FAR	;0CED:000E
 	PUSH	BP
 	MOV	BP,SP
 	SUB	SP,4
@@ -77,9 +77,9 @@ C_004E:
 	MOV	DX,[BP-2]
 	MOV	WORD PTR [SI].hOld,AX
 	MOV	WORD PTR [SI].hOld+2,DX
-	MOV	BX,_D_245A
+	MOV	BX,_hookList
 	MOV	[SI].hNext,BX
-	MOV	_D_245A,SI
+	MOV	_hookList,SI
 C_0079:
 	POP	DI
 	POP	SI
@@ -87,7 +87,7 @@ C_0079:
 	MOV	SP,BP
 	POP	BP
 	RET
-_C_0CED_000E	ENDP
+_HookVector	ENDP
 
 timerStep	dw	0	;0CED:0080	the divisor (0: no faster timer)
 oldInt8	dw	0, DGROUP	;0CED:0082	the timer interrupt before (a far pointer)
@@ -113,8 +113,8 @@ timerInt	ENDP
 
 ;void cdecl SetTimerRate(int hz): make the timer interrupt hz times a second (18.2 when
 ;hz <= 18) and take it over
-PUBLIC _C_0CED_00A5
-_C_0CED_00A5	PROC FAR	;0CED:00A5
+PUBLIC _SetTimerRate
+_SetTimerRate	PROC FAR	;0CED:00A5
 	PUSH	BP
 	MOV	BP,SP
 	PUSH	DS
@@ -122,12 +122,12 @@ _C_0CED_00A5	PROC FAR	;0CED:00A5
 	PUSH	DI
 	PUSHF
 	MOV	AX,[BP+6]
-	MOV	_D_2458,AX
+	MOV	_timerRate,AX
 	CLI
 	CMP	WORD PTR [BP+6],12h
 	JA	C_00C0
 	XOR	AX,AX
-	MOV	_D_2458,AX
+	MOV	_timerRate,AX
 	JZ	C_00CB
 C_00C0:
 	MOV	AX,34DEh	;1193182 Hz / hz
@@ -136,7 +136,7 @@ C_00C0:
 	DIV	BX
 C_00CB:
 	MOV	CS:timerStep,AX
-	MOV	_D_2456,AX
+	MOV	_timerDivisor,AX
 	MOV	BX,AX
 	MOV	AL,36h	;counter 0, mode 3, binary
 	OUT	43h,AL
@@ -144,12 +144,12 @@ C_00CB:
 	OUT	40h,AL
 	MOV	AL,BH
 	OUT	40h,AL
-	CMP	_D_245C.hIntNo,-1
+	CMP	_timerHook.hIntNo,-1
 	JNZ	C_0100
 	PUSH	CS
 	MOV	AX,OFFSET oldInt8
 	PUSH	AX
-	MOV	AX,OFFSET DGROUP:_D_245C
+	MOV	AX,OFFSET DGROUP:_timerHook
 	PUSH	AX
 	PUSH	CS
 	MOV	AX,OFFSET timerInt
@@ -157,7 +157,7 @@ C_00CB:
 	MOV	AX,8
 	PUSH	AX
 	PUSH	CS
-	CALL	NEAR PTR _C_0CED_000E
+	CALL	NEAR PTR _HookVector
 	ADD	SP,0Ch
 C_0100:
 	POPF
@@ -166,12 +166,12 @@ C_0100:
 	POP	DS
 	POP	BP
 	RET
-_C_0CED_00A5	ENDP
+_SetTimerRate	ENDP
 
 ;void cdecl TimerDelay(unsigned long n): wait until the timer chip's counter 0 has counted
 ;n steps (1193182 a second)
-PUBLIC _C_0CED_0106
-_C_0CED_0106	PROC FAR	;0CED:0106
+PUBLIC _TimerDelay
+_TimerDelay	PROC FAR	;0CED:0106
 	PUSH	BP
 	MOV	BP,SP
 	PUSH	SI
@@ -199,7 +199,7 @@ C_0124:
 	MOV	BH,AL
 	SUB	CX,BX
 	JNB	C_013C
-	ADD	CX,_D_2456
+	ADD	CX,_timerDivisor
 C_013C:
 	ADD	SI,CX
 	ADC	DI,0
@@ -214,18 +214,18 @@ C_014B:
 	POP	SI
 	POP	BP
 	RET
-_C_0CED_0106	ENDP
+_TimerDelay	ENDP
 
 ;void cdecl UnhookVector(int intNo): give back an interrupt vector taken over
-PUBLIC _C_0CED_0150
-_C_0CED_0150	PROC FAR	;0CED:0150
+PUBLIC _UnhookVector
+_UnhookVector	PROC FAR	;0CED:0150
 	PUSH	BP
 	MOV	BP,SP
 	PUSH	DS
 	PUSH	SI
 	PUSH	DI
 	MOV	AX,[BP+6]
-	MOV	DI,OFFSET DGROUP:_D_245A
+	MOV	DI,OFFSET DGROUP:_hookList
 	MOV	SI,[DI]
 C_015E:
 	OR	SI,SI
@@ -250,18 +250,18 @@ C_0182:
 	POP	DS
 	POP	BP
 	RET
-_C_0CED_0150	ENDP
+_UnhookVector	ENDP
 
 ;void cdecl UnhookAll(void): the timer back to 18.2 Hz, every vector taken over given back
-PUBLIC _C_0CED_0187
-_C_0CED_0187	PROC FAR	;0CED:0187
+PUBLIC _UnhookAll
+_UnhookAll	PROC FAR	;0CED:0187
 	PUSH	BP
 	PUSH	DS
 	PUSH	SI
 	PUSH	DI
 	PUSHF
 	CLI
-	CMP	_D_245C.hIntNo,-1
+	CMP	_timerHook.hIntNo,-1
 	JZ	C_019E
 	MOV	AL,36h
 	OUT	43h,AL
@@ -269,7 +269,7 @@ _C_0CED_0187	PROC FAR	;0CED:0187
 	OUT	40h,AL
 	OUT	40h,AL
 C_019E:
-	MOV	SI,_D_245A
+	MOV	SI,_hookList
 	OR	SI,SI
 	JZ	C_01C7
 	MOV	AX,[SI].hIntNo
@@ -277,7 +277,7 @@ C_019E:
 	JA	C_01C7
 	MOV	[SI].hIntNo,0FFFFh
 	MOV	BX,[SI].hNext
-	MOV	_D_245A,BX
+	MOV	_hookList,BX
 	PUSH	DS
 	MOV	DX,WORD PTR [SI].hOld
 	MOV	DS,WORD PTR [SI].hOld+2
@@ -292,7 +292,7 @@ C_01C7:
 	POP	DS
 	POP	BP
 	RET
-_C_0CED_0187	ENDP
+_UnhookAll	ENDP
 
 PIT_TEXT	ENDS
 

@@ -21,8 +21,8 @@ extern int vidMode;/*the video mode*/
 extern void (far *D_3516)(struct tSurface *, int);/*a TM.DRV routine (header +18)*/
 
 extern unsigned pascal PAL_alloc(unsigned n);/*EGA video memory: n blocks of 256 bytes (0xFF: none)*/
-extern void far *C_0BC5_00AD(long size, int flags);/*allocate far memory (or EMS: flags)*/
-extern void C_0BC5_0126(void far *p);/*free what C_0BC5_00AD allocated*/
+extern void far *MEM_alloc(long size, int flags);/*allocate far memory (or EMS: flags)*/
+extern void MEM_free(void far *p);/*free what MEM_alloc allocated*/
 
 /*the bytes of the pixels of s*/
 /*C_0D6B_0009*/unsigned pascal SurfaceSize(struct tSurface *s) {
@@ -101,14 +101,14 @@ extern void C_0BC5_0126(void far *p);/*free what C_0BC5_00AD allocated*/
 		break;
 		case 4: case 7: case 9:
 			size = (long)h * bpl;
-			s->pixels = C_0BC5_00AD(size, flags + 2);
+			s->pixels = MEM_alloc(size, flags + 2);
 			p = s->pixels;
 			if(p == 0)
 				return 0;
 		break;
 		default:
 			size = (long)h * w;
-			s->pixels = C_0BC5_00AD(size, flags + 2);
+			s->pixels = MEM_alloc(size, flags + 2);
 			p = s->pixels;
 			if(p == 0)
 				return 0;
@@ -118,7 +118,7 @@ extern void C_0BC5_0126(void far *p);/*free what C_0BC5_00AD allocated*/
 	s->lines = malloc(h * 2 + top * 2);
 	if(s->lines == 0) {
 		if(vidMode != 0x13)
-			C_0BC5_0126((void far *)s->pixels);
+			MEM_free((void far *)s->pixels);
 		return 0;
 	}
 	for(i = 0; i < h; i ++) {

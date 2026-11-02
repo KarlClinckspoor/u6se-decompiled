@@ -9,8 +9,8 @@ backward	DB	0	;0CAC:000A	1 while copying downwards
 
 ;void pascal MemMove(void far *dst, void far *src, int n): copy n bytes from src to dst,
 ;downwards when dst is above src (the pointers are normalised first)
-PUBLIC C_0CAC_000B
-C_0CAC_000B	PROC FAR	;0CAC:000B
+PUBLIC MemMove
+MemMove	PROC FAR	;0CAC:000B
 	PUSH	BP
 	MOV	BP,SP
 	PUSH	SI
@@ -84,7 +84,7 @@ C_008D:
 	POP	SI
 	POP	BP
 	RET	0Ah
-C_0CAC_000B	ENDP
+MemMove	ENDP
 
 MEMMOVE_TEXT	ENDS
 

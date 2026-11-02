@@ -14,9 +14,9 @@ typedef void (far *tDrvFunc)();
 extern char tmDrvName[];/*"TM.DRV"*/
 extern char superTmDrvName[];/*"SUPERTM.DRV"*/
 
-/*C_0C58_0305: load a file (into buf, or allocated when buf is 0)*/
-extern void far * pascal C_0C58_0305(char far *name, int kind, void far *buf, int flags, long x);
-extern void far *C_0AD2_0024(void far *p);/*map an EMS pointer: handed to the drivers (header +2E / +0C)*/
+/*LZC_load: load a file (into buf, or allocated when buf is 0)*/
+extern void far * pascal LZC_load(char far *name, int kind, void far *buf, int flags, long x);
+extern void far *EMS_map(void far *p);/*map an EMS pointer: handed to the drivers (header +2E / +0C)*/
 
 extern unsigned far *D_201A;/*TM.DRV: its header (an offset per entry point)*/
 extern tDrvFunc D_2020;/*TM.DRV entry points, by header offset: +04*/
@@ -59,7 +59,7 @@ extern tDrvFunc D_2BDC;/*+02*/
 		k = 2;
 	else
 		k = kind;
-	D_201A = C_0C58_0305(tmDrvName, k, 0L, 0x12, 0L);
+	D_201A = LZC_load(tmDrvName, k, 0L, 0x12, 0L);
 	if(D_201A) {
 		seg = FP_SEG(D_201A);
 		drvPutChar = ENTRY(seg, D_201A[0x02 / 2]);
@@ -85,7 +85,7 @@ extern tDrvFunc D_2BDC;/*+02*/
 		D_2BB2 = ENTRY(seg, D_201A[0x2A / 2]);
 		D_34FE = ENTRY(seg, D_201A[0x2C / 2]);
 		D_2BBE = ENTRY(seg, D_201A[0x32 / 2]);
-		*(tDrvFunc far *)(D_201A + 0x2E / 2) = (tDrvFunc)C_0AD2_0024;
+		*(tDrvFunc far *)(D_201A + 0x2E / 2) = (tDrvFunc)EMS_map;
 		return 1;
 	}
 	return 0;
@@ -101,7 +101,7 @@ extern tDrvFunc D_2BDC;/*+02*/
 			k = 2;
 		else
 			k = kind;
-		D_34F2 = C_0C58_0305(superTmDrvName, k, 0L, 0x12, 0L);
+		D_34F2 = LZC_load(superTmDrvName, k, 0L, 0x12, 0L);
 		if(D_34F2) {
 			seg = FP_SEG(D_34F2);
 			D_2BDC = ENTRY(seg, D_34F2[0x02 / 2]);
@@ -109,7 +109,7 @@ extern tDrvFunc D_2BDC;/*+02*/
 			D_2B6A = ENTRY(seg, D_34F2[0x06 / 2]);
 			D_2B30 = ENTRY(seg, D_34F2[0x08 / 2]);
 			D_2B94 = ENTRY(seg, D_34F2[0x0A / 2]);
-			*(tDrvFunc far *)(D_34F2 + 0x0C / 2) = (tDrvFunc)C_0AD2_0024;
+			*(tDrvFunc far *)(D_34F2 + 0x0C / 2) = (tDrvFunc)EMS_map;
 			return 1;
 		}
 	}

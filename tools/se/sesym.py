@@ -40,11 +40,29 @@ def read(p):
 
 
 def table():
-    """{('C', seg, off) or ('D', off): (name, file, lang)}"""
+    """{('C', seg, off) or ('D', off): (name, file, lang, static)}
+
+    For a target whose modules.txt names sources of another target (GAME.EXE uses
+    SAVAGE.EXE's library, ../SRC_S/...), those files' definitions are moved to this
+    target's addresses (tools/se/shared.py)."""
     t = {}
     for p in files():
+        parse_file(p, os.path.relpath(p, SRC), t)
+    for (sg, o), n in PASCAL.items():
+        t[('C', sg, o)] = (n, '?', 'pascal', False)
+    try:
+        import shared
+        for k, v in shared.translated(parse_file).items():
+            t.setdefault(k, v)
+    except ImportError:
+        pass
+    return t
+
+
+def parse_file(p, fn, t):
+    """add the definitions of source file p (named fn) to table t"""
+    if True:
         s = read(p)
-        fn = os.path.relpath(p, SRC)
         if p.lower().endswith(('.c', '.h')):
             for m in re.finditer(r'/\*C_([0-9A-F]{4})_([0-9A-F]{4})\*/\s*((?:[\w\*]+\s+)*?)\**\s*(\w+)\s*\(', s):
                 quals = m.group(3)
@@ -59,8 +77,12 @@ def table():
                 t[('C', int(m.group(2), 16), int(m.group(3), 16))] = (m.group(1), fn, 'asm', False)
             for m in re.finditer(r'^(\w+)\s+(?:db|dw|dd|LABEL)\b[^;\n]*;\s*D_([0-9A-F]{4})\b', s, re.M):
                 t[('D', int(m.group(2), 16))] = (m.group(1), fn, 'asm', False)
-    for (sg, o), n in PASCAL.items():
-        t[('C', sg, o)] = (n, '?', 'pascal', False)
+            # public data in a code segment: `NAME db ... ;SSSS:OOOO` (with PUBLIC NAME)
+            pub = {n.lower() for l in re.findall(r'^\s*PUBLIC\s+([^;\n]+)', s, re.M | re.I)
+                   for n in re.split(r'[\s,]+', l.strip()) if n}
+            for m in re.finditer(r'^(\w+)\s+(?:db|dw|dd|DB|DW|DD|LABEL)\b[^;\n]*;\s*([0-9A-F]{4}):([0-9A-F]{4})\b', s, re.M):
+                if m.group(1).lower() in pub:
+                    t[('C', int(m.group(2), 16), int(m.group(3), 16))] = (m.group(1), fn, 'asm', False)
     return t
 
 
@@ -115,6 +137,8 @@ def main():
             else:
                 amap[addr] = '_' + v[0]
         tok = re.compile(r'\b(C_[0-9A-F]{4}_[0-9A-F]{4}|D_[0-9A-F]{4})\b')
+        # in assembly also the C link name of an address: _C_SSSS_OOOO, _D_XXXX
+        atok = re.compile(r'(?<![\w@$?])_?(C_[0-9A-F]{4}_[0-9A-F]{4}|D_[0-9A-F]{4})\b')
         for p in files():
             s = read(p)
             o = s
@@ -127,7 +151,7 @@ def main():
                 out = []
                 for line in s.split('\n'):
                     code, sep, com = line.partition(';')
-                    code = tok.sub(lambda m: amap.get(m.group(1), m.group(1)), code)
+                    code = atok.sub(lambda m: amap.get(m.group(1), m.group(0)), code)
                     for old, new in rename_asm_defs.get(os.path.relpath(p, SRC), {}).items():
                         code = re.sub(r'(?<!\w)%s\b' % re.escape(old), new, code)
                     out.append(code + sep + com)

@@ -46,7 +46,7 @@ struct tQuestion {
 extern struct tText *pText;/*the current text window*/
 extern int soundCard;/*music card: 0 none, 1 Roland, 2 AdLib (main sets 3 first)*/
 extern int musicMarker;/*how far the music has played (the intro waits on it)*/
-extern int D_240C;/*the last file operation failed*/
+extern int osiError;/*the last file operation failed*/
 
 /*uninitialised data*/
 extern int D_2818;/*a saved game exists (0: run INSTALL first)*/
@@ -85,17 +85,17 @@ extern int D_3538;/*a character has been created*/
 extern int D_353E;/*music on*/
 
 /*the OSI library (pascal) and Origin's other routines*/
-extern int pascal C_0C02_0000(char far *name);/*open a file (-1: error)*/
-extern void pascal C_0C02_002D(int fd);/*close a file*/
-extern long pascal C_0C06_000C(int fd, long offset, long length, void far *buf);/*read*/
-extern long pascal C_0C12_0000(int fd, long offset, long length, void far *buf);/*write*/
-extern long pascal C_0C1F_000A(char far *name, int n);/*size of item n of an .lzc archive*/
-extern void far * pascal C_0C58_0305(char far *name, int n, void far *buf, int a, long b);/*load item n of an .lzc archive*/
-extern void far *C_0BC5_00AD(long size, int flags);/*allocate far memory*/
-extern void C_0BC5_0126(void far *p);/*free far memory*/
-extern void C_0BC5_000B(int);
-extern void C_0BC5_0045(int);
-extern void C_0BC5_0079(int);
+extern int pascal OSI_open(char far *name);/*open a file (-1: error)*/
+extern void pascal OSI_close(int fd);/*close a file*/
+extern long pascal OSI_read(int fd, long offset, long length, void far *buf);/*read*/
+extern long pascal OSI_write(int fd, long offset, long length, void far *buf);/*write*/
+extern long pascal LIB_entrySize(char far *name, int n);/*size of item n of an .lzc archive*/
+extern void far * pascal LZC_load(char far *name, int n, void far *buf, int a, long b);/*load item n of an .lzc archive*/
+extern void far *MEM_alloc(long size, int flags);/*allocate far memory*/
+extern void MEM_free(void far *p);/*free far memory*/
+extern void MEM_reset(int);
+extern void MEM_init(int);
+extern void MEM_shutdown(int);
 extern void pascal TXT_gotoxy(int x, int y);/*move the text cursor*/
 extern int pascal TXT_charWidth(char c);/*width of a character*/
 extern void TXT_printf(char far *fmt, ...);/*print*/
@@ -109,11 +109,11 @@ extern void FadeOutMusic(int);/*fade the music out*/
 extern void InitSound(char far *name);/*load the timbres*/
 extern void ShutdownSound(void);/*stop the music*/
 extern void PlaySong(void far *song);/*play a song*/
-extern long C_0AE3_0004(void);/*free far memory*/
-extern int C_0C97_00BE(void);/*speed of the machine*/
-extern void C_0CED_0106(long t);/*wait (2383 per millisecond)*/
-extern int pascal C_0D23_0027(int lo, int hi);/*random number from lo to hi*/
-extern void pascal C_0D23_004B(int seed);/*seed the random numbers*/
+extern long EMS_totalFree(void);/*free far memory*/
+extern int DrvCalibrate(void);/*speed of the machine*/
+extern void TimerDelay(long t);/*wait (2383 per millisecond)*/
+extern int pascal Random(int lo, int hi);/*random number from lo to hi*/
+extern void pascal SeedRandom(int seed);/*seed the random numbers*/
 extern void pascal ScreenSurface(struct tSurface *, int);/*make the screen surface*/
 extern void pascal BufferSurface(struct tSurface *, int);/*allocate a surface*/
 extern int LoadSuperTM(int adapter);/*load the graphics driver*/
@@ -213,9 +213,9 @@ void Endgame(void);
 	int fd;
 
 	markerFile[3] = n + '0';
-	fd = C_0C02_0000(markerFile);
+	fd = OSI_open(markerFile);
 	if(fd != -1)
-		C_0C02_002D(fd);
+		OSI_close(fd);
 	return fd != -1;
 }
 
@@ -289,7 +289,7 @@ found in one of the removable drives*/
 /*the critical error handler: beep, and fail the operation*/
 /*C_034C_023C*/int CritErrHandler(int errval, int ax, int bp, int si) {
 	sound(440);
-	C_0CED_0106(1191500L);
+	TimerDelay(1191500L);
 	nosound();
 	hardretn(2);
 }
@@ -346,7 +346,7 @@ found in one of the removable drives*/
 /*free a far block and clear its pointer*/
 /*C_034C_03B4*/void FreeFar(void far **p) {
 	if(*p) {
-		C_0BC5_0126(*p);
+		MEM_free(*p);
 		*p = 0;
 	}
 }
@@ -356,17 +356,17 @@ found in one of the removable drives*/
 	long size;
 	void far *buf;
 
-	size = C_0C1F_000A(name, n);
+	size = LIB_entrySize(name, n);
 	if(size < 0) {
 		exitCode = 1;
 		return 0;
 	}
-	buf = C_0BC5_00AD(size, 0);
+	buf = MEM_alloc(size, 0);
 	if(buf == 0) {
 		exitCode = 2;
 		return 0;
 	}
-	buf = C_0C58_0305(name, n, buf, 0, 0L);
+	buf = LZC_load(name, n, buf, 0, 0L);
 	if(buf == 0) {
 		exitCode = 1;
 		return 0;
@@ -379,17 +379,17 @@ found in one of the removable drives*/
 	long size;
 	void far *buf;
 
-	size = C_0C1F_000A(name, n);
+	size = LIB_entrySize(name, n);
 	if(size < 0) {
 		exitCode = 1;
 		return 0;
 	}
-	buf = C_0BC5_00AD(size, 4);
+	buf = MEM_alloc(size, 4);
 	if(buf == 0) {
 		exitCode = 2;
 		return 0;
 	}
-	buf = C_0C58_0305(name, n, buf, 0, 0L);
+	buf = LZC_load(name, n, buf, 0, 0L);
 	if(buf == 0) {
 		exitCode = 1;
 		return 0;
@@ -402,8 +402,8 @@ found in one of the removable drives*/
 	FadeOut();
 	VID_setMode(3);
 	ShutdownSound();
-	C_0BC5_000B(8);
-	C_0BC5_0079(8);
+	MEM_reset(8);
+	MEM_shutdown(8);
 	exit(0);
 }
 
@@ -412,8 +412,8 @@ found in one of the removable drives*/
 	FadeOut();
 	InsertDisk(1);
 	ShutdownSound();
-	C_0BC5_000B(8);
-	C_0BC5_0079(8);
+	MEM_reset(8);
+	MEM_shutdown(8);
 	VID_setMode(3);
 	if(execv("GAME.EXE", D_2B9A) == -1)
 		Fatal();
@@ -423,7 +423,7 @@ found in one of the removable drives*/
 /*C_034C_0592*/int LoadMusic() {
 	if(D_353E == 0 || soundCard == 0)
 		return 0;
-	if(C_0AE3_0004() <= 0)
+	if(EMS_totalFree() <= 0)
 		return 0;
 	InsertDisk(7);
 	introSong = LoadLzc4("music.lzc", 0x12);
@@ -463,7 +463,7 @@ found in one of the removable drives*/
 		if(kbhit())
 			SkipIntro(0);
 		else
-			C_0CED_0106((long)step * 2383);
+			TimerDelay((long)step * 2383);
 	}
 }
 
@@ -490,8 +490,8 @@ found in one of the removable drives*/
 	VID_setMode(3);
 	if(soundCard)
 		ShutdownSound();
-	C_0BC5_000B(8);
-	C_0BC5_0079(8);
+	MEM_reset(8);
+	MEM_shutdown(8);
 	exit(exitCode);
 }
 
@@ -612,10 +612,10 @@ the days, months, years of the endgame*/
 	setcbrk(0);
 	ctrlbrk(Quit);
 	gettime((struct time *)now);
-	C_0BC5_0045(8);
-	C_0D23_004B(now[1]);
+	MEM_init(8);
+	SeedRandom(now[1]);
 	for(i = 0; i < now[1]; i++)
-		C_0D23_0027(0, 2);
+		Random(0, 2);
 	D_2B38 = 0x182;
 	D_2BA2 = 2;
 	soundCard = 3;
@@ -626,23 +626,23 @@ the days, months, years of the endgame*/
 	D_2B9C = 0;
 	D_2B98 = 0;
 	FindDrives();
-	fd = C_0C02_0000("config.se");
+	fd = OSI_open("config.se");
 	if(fd >= 0) {
-		C_0C06_000C(fd, 0L, 6L, cfg);
+		OSI_read(fd, 0L, 6L, cfg);
 		cfg[6] = 0;
 		ParseConfig(cfg);
-		C_0C02_002D(fd);
+		OSI_close(fd);
 	}
 	for(i = 1; i < argc; i++)
 		ParseConfig(argv[i]);
 	if(LoadSuperTM(D_2B68) == 0) {
 		if(D_353E)
 			ShutdownSound();
-		C_0BC5_000B(8);
-		C_0BC5_0079(8);
+		MEM_reset(8);
+		MEM_shutdown(8);
 		exit(1);
 	}
-	pal = (char *)C_0C58_0305("savage.pal", 0, D_2BE4, 0, 0L);
+	pal = (char *)LZC_load("savage.pal", 0, D_2BE4, 0, 0L);
 	if(pal == 0 || pal != (char *)D_2BE4) {
 		exitCode = 1;
 		Fatal();
@@ -678,7 +678,7 @@ the days, months, years of the endgame*/
 		D_353E = 0;
 	else
 		D_353E = 1;
-	if(max(1, 2 - C_0C97_00BE() / 8) != 1)
+	if(max(1, 2 - DrvCalibrate() / 8) != 1)
 		D_2BA2 = 0;
 	if(D_2B98 == 1)
 		Endgame();
@@ -1050,7 +1050,7 @@ put the cursor back); an extended key gives 0x100 + its code, in a char*/
 				key = getch();
 			}
 		} else
-			C_0CED_0106(238300L);
+			TimerDelay(238300L);
 		(*D_2B90)(D_2B72.surface, x, y, x + 8, y + 8, D_2B72.bg);
 		if(kbhit()) {
 			if(!(key = getch())) {
@@ -1058,7 +1058,7 @@ put the cursor back); an extended key gives 0x100 + its code, in a char*/
 				key = getch();
 			}
 		} else
-			C_0CED_0106(238300L);
+			TimerDelay(238300L);
 	}
 	key = (ext << 8) + key;
 	if(mode == 0)
@@ -1099,13 +1099,13 @@ put the cursor back); an extended key gives 0x100 + its code, in a char*/
 			if(!(key = getch()))
 				key = getch();
 		} else
-			C_0CED_0106(238300L);
+			TimerDelay(238300L);
 		(*D_2B90)(D_2B72.surface, x, y, x + 8, y + 8, D_2B72.bg);
 		if(kbhit()) {
 			if(!(key = getch()))
 				key = getch();
 		} else
-			C_0CED_0106(238300L);
+			TimerDelay(238300L);
 	}
 	(*D_2B90)(D_2B72.surface, x, y, x + 8, y + 8, D_2B72.bg);
 	TXT_gotoxy(x, y);
@@ -1121,9 +1121,9 @@ put the cursor back); an extended key gives 0x100 + its code, in a char*/
 	int q;
 
 	FlushKeys();
-	D_2BCC = C_0D23_0027(0, 2) + 16;
-	D_2BCD = C_0D23_0027(0, 2) + 16;
-	D_2BCE = C_0D23_0027(0, 2) + 16;
+	D_2BCC = Random(0, 2) + 16;
+	D_2BCD = Random(0, 2) + 16;
+	D_2BCE = Random(0, 2) + 16;
 	(*D_3516)(&D_2B1A, 0);
 	SetPalette(1);
 	(*D_3516)(&D_2B52, 0);
@@ -1162,7 +1162,7 @@ put the cursor back); an extended key gives 0x100 + its code, in a char*/
 		WaitKeyPrompt();
 	} else if(Awakening()) {
 		D_2BCF = playerName;
-		q = C_0D23_0027(0, 2);
+		q = Random(0, 2);
 		if(AskQuestion(AskQuestion(AskQuestion(q, 0), 1), 2) != 6 && SaveCharacter()) {
 			D_3538 = -1;
 			menuLast = 3;
@@ -1318,13 +1318,13 @@ escaped*/
 /*C_034C_22F5*/int RaiseVirtue(int v) {
 	switch(v) {
 		case 2:
-			D_2BCE += C_0D23_0027(0, 2) + 3;
+			D_2BCE += Random(0, 2) + 3;
 			return 0;
 		case 1:
-			D_2BCD += C_0D23_0027(0, 2) + 3;
+			D_2BCD += Random(0, 2) + 3;
 			return 2;
 		case 0:
-			D_2BCC += C_0D23_0027(0, 2) + 3;
+			D_2BCC += Random(0, 2) + 3;
 			return 1;
 	}
 }
@@ -1341,11 +1341,11 @@ escaped*/
 		VID_waitRetrace();
 		(*D_2BBA)(&D_2B52, &D_2B1A);
 		if(i == 0 || i == 5)
-			C_0CED_0106(95320L);/*40 ms*/
+			TimerDelay(95320L);/*40 ms*/
 		else if(i == 1 || i == 4)
-			C_0CED_0106(71490L);/*30 ms*/
+			TimerDelay(71490L);/*30 ms*/
 		else
-			C_0CED_0106(47660L);/*20 ms*/
+			TimerDelay(47660L);/*20 ms*/
 	}
 	for(i = 0; i < 17; i++) {
 		(*D_2BC6)(&D_2B52, 8, 0x1c, createShapes1, 0);
@@ -1356,9 +1356,9 @@ escaped*/
 		VID_waitRetrace();
 		(*D_2BBA)(&D_2B52, &D_2B1A);
 		if(i < 5)
-			C_0CED_0106((24 - i * 6) * 2383L);
+			TimerDelay((24 - i * 6) * 2383L);
 		else
-			C_0CED_0106(35745L);/*15 ms*/
+			TimerDelay(35745L);/*15 ms*/
 	}
 	for(i = 5; i >= 0; i--) {
 		(*D_2BC6)(&D_2B52, 8, 0x1c, createShapes1, 0);
@@ -1367,11 +1367,11 @@ escaped*/
 		VID_waitRetrace();
 		(*D_2BBA)(&D_2B52, &D_2B1A);
 		if(i == 0 || i == 5)
-			C_0CED_0106(83405L);/*35 ms*/
+			TimerDelay(83405L);/*35 ms*/
 		else if(i == 1 || i == 4)
-			C_0CED_0106(59575L);/*25 ms*/
+			TimerDelay(59575L);/*25 ms*/
 		else
-			C_0CED_0106(35745L);/*15 ms*/
+			TimerDelay(35745L);/*15 ms*/
 	}
 }
 
@@ -1381,12 +1381,12 @@ escaped*/
 	int i;
 	int fd;
 
-	buf = C_0BC5_00AD(0x1d73L, 0);
+	buf = MEM_alloc(0x1d73L, 0);
 	InsertDisk(8);
-	fd = C_0C02_0000("savegame\\objlist");
-	C_0C06_000C(fd, 0L, 0x1d73L, buf);
-	if(D_240C) {
-		C_0C02_002D(fd);
+	fd = OSI_open("savegame\\objlist");
+	OSI_read(fd, 0L, 0x1d73L, buf);
+	if(osiError) {
+		OSI_close(fd);
 		return 0;
 	}
 	buf[0x901] = D_2BCC;
@@ -1414,8 +1414,8 @@ escaped*/
 	buf[0x18f9] |= 1;
 	buf[0x1908] |= 1;
 	buf[0x18f6] |= 1;
-	C_0C12_0000(fd, 0L, 0x1d73L, buf);
-	C_0C02_002D(fd);
+	OSI_write(fd, 0L, 0x1d73L, buf);
+	OSI_close(fd);
 	return 1;
 }
 
@@ -1449,19 +1449,19 @@ created*/
 	char far *buf;
 	int fd;
 
-	buf = C_0BC5_00AD(0x1d73L, 0);
+	buf = MEM_alloc(0x1d73L, 0);
 	InsertDisk(8);
-	fd = C_0C02_0000("savegame\\objlist");
-	C_0C06_000C(fd, 0L, 0x1d73L, buf);
-	if(D_240C) {
-		C_0C02_002D(fd);
+	fd = OSI_open("savegame\\objlist");
+	OSI_read(fd, 0L, 0x1d73L, buf);
+	if(osiError) {
+		OSI_close(fd);
 		return -1;
 	}
 	if(buf[0x1912] & 1) {
-		C_0C02_002D(fd);
+		OSI_close(fd);
 		return 1;
 	}
-	C_0C02_002D(fd);
+	OSI_close(fd);
 	return 0;
 }
 
@@ -1471,19 +1471,19 @@ be read*/
 	char far *buf;
 	int fd;
 
-	buf = C_0BC5_00AD(0x1d73L, 0);
+	buf = MEM_alloc(0x1d73L, 0);
 	InsertDisk(8);
-	fd = C_0C02_0000("savegame\\objlist");
-	C_0C06_000C(fd, 0L, 0x1d73L, buf);
-	if(D_240C) {
-		C_0C02_002D(fd);
+	fd = OSI_open("savegame\\objlist");
+	OSI_read(fd, 0L, 0x1d73L, buf);
+	if(osiError) {
+		OSI_close(fd);
 		return -1;
 	}
 	if(buf[0x1d72] == 1) {
-		C_0C02_002D(fd);
+		OSI_close(fd);
 		return 1;
 	}
-	C_0C02_002D(fd);
+	OSI_close(fd);
 	return 0;
 }
 

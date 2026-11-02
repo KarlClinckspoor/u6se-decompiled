@@ -12,25 +12,25 @@ struct libfile {
 	long length;	/* +10 */
 };
 
-extern int D_240C;	/* error code of the file routines */
+extern int osiError;	/* error code of the file routines */
 
-extern int pascal C_0C27_000A(char far *name, int index, struct libfile *f);
-extern void pascal C_0C27_0176(struct libfile *f);
-extern int pascal C_0C3F_0007(struct libfile *f, void far *buf, long n);
+extern int pascal LIB_open(char far *name, int index, struct libfile *f);
+extern void pascal LIB_close(struct libfile *f);
+extern int pascal LIB_read(struct libfile *f, void far *buf, long n);
 
 /* the length of entry index of the library name, uncompressed (an LZW
    compressed entry starts with it); -1L on an error */
-/*C_0C1F_000A*/long pascal C_0C1F_000A(char far *name, int index)
+/*C_0C1F_000A*/long pascal LIB_entrySize(char far *name, int index)
 {
 	long size;
 	struct libfile f;
 
 	size = -1;
-	if (C_0C27_000A(name, index, &f)) {
+	if (LIB_open(name, index, &f)) {
 		switch (f.type) {
 		case 1:
-			C_0C3F_0007(&f, (void far *)&size, 4L);
-			if (D_240C)
+			LIB_read(&f, (void far *)&size, 4L);
+			if (osiError)
 				size = -1;
 			break;
 		case 2:
@@ -39,7 +39,7 @@ extern int pascal C_0C3F_0007(struct libfile *f, void far *buf, long n);
 		default:
 			size = f.length;
 		}
-		C_0C27_0176(&f);
+		LIB_close(&f);
 	}
 	return size;
 }

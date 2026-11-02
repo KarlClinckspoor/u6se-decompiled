@@ -16,16 +16,16 @@ struct libfile {
 	long length;	/* +10 */
 };
 
-extern int D_240C;	/* error code of the file routines */
+extern int osiError;	/* error code of the file routines */
 
-extern int pascal C_0C02_0000(char far *name);
-extern void pascal C_0C02_002D(int handle);
-extern long pascal C_0C06_000C(int handle, long pos, long size, void far *buf);
-extern long pascal C_0C1C_0002(int handle, long pos, int whence);
+extern int pascal OSI_open(char far *name);
+extern void pascal OSI_close(int handle);
+extern long pascal OSI_read(int handle, long pos, long size, void far *buf);
+extern long pascal OSI_seek(int handle, long pos, int whence);
 
-/* open entry index of the library name into f; 1 if done (0: D_240C = 3 if
+/* open entry index of the library name into f; 1 if done (0: osiError = 3 if
    there is no such entry) */
-/*C_0C27_000A*/int pascal C_0C27_000A(char far *name, int index, struct libfile *f)
+/*C_0C27_000A*/int pascal LIB_open(char far *name, int index, struct libfile *f)
 {
 	int count;
 	int type;
@@ -36,20 +36,20 @@ extern long pascal C_0C1C_0002(int handle, long pos, int whence);
 	long start;
 	int handle;
 
-	handle = C_0C02_0000(name);
+	handle = OSI_open(name);
 	if (handle == -1)
 		goto fail;
-	if (!C_0C06_000C(handle, 0L, 4L, (void far *)&filesize))
+	if (!OSI_read(handle, 0L, 4L, (void far *)&filesize))
 		goto fail;
-	if (!C_0C06_000C(handle, 4L, 4L, (void far *)&first))
+	if (!OSI_read(handle, 4L, 4L, (void far *)&first))
 		goto fail;
 	count = first / 4 - 1;
 	if (index >= count) {
-		D_240C = 3;
+		osiError = 3;
 		goto fail;
 	}
 	pos = (index + 1) * 4U;
-	if (!C_0C06_000C(handle, pos, 4L, (void far *)&start))
+	if (!OSI_read(handle, pos, 4L, (void far *)&start))
 		goto fail;
 	/* the type is the offset's high byte (written with the pseudo-registers:
 	   xor ah,ah, and AH stored back as the 0) */
@@ -63,12 +63,12 @@ extern long pascal C_0C1C_0002(int handle, long pos, int whence);
 		f->last = 1;
 	} else {
 		pos += 4;
-		if (!C_0C06_000C(handle, pos, 4L, (void far *)&end))
+		if (!OSI_read(handle, pos, 4L, (void far *)&end))
 			goto fail;
 		((unsigned char *)&end)[3] = 0;
 	}
 	filesize = end - start;
-	if (!C_0C1C_0002(handle, start, 0))
+	if (!OSI_seek(handle, start, 0))
 		goto fail;
 	f->handle = handle;
 	f->count = count;
@@ -78,12 +78,12 @@ extern long pascal C_0C1C_0002(int handle, long pos, int whence);
 	f->length = filesize;
 	return 1;
 fail:
-	C_0C02_002D(handle);
+	OSI_close(handle);
 	return 0;
 }
 
 /* close the library entry */
-/*C_0C27_0176*/void pascal C_0C27_0176(struct libfile *f)
+/*C_0C27_0176*/void pascal LIB_close(struct libfile *f)
 {
-	C_0C02_002D(f->handle);
+	OSI_close(f->handle);
 }

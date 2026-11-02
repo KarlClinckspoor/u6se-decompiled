@@ -4,12 +4,12 @@
 INCLUDE OSI.INC
 
 DSegStart
-EXTRN _D_2458:WORD	;(saved and given back to C_0CED_00A5)
+EXTRN _timerRate:WORD	;(saved and given back to C_0CED_00A5)
 EXTRN D_205A:WORD	;(07D9) the mouse's x at the last update
 EXTRN D_20A2:WORD	;struct tMouse *: the mouse
 DSegEnd
 
-EXTRN _C_0CED_00A5:FAR	;cdecl (int): sets D_2458
+EXTRN _SetTimerRate:FAR	;cdecl (int): sets D_2458
 EXTRN C_07D9_002A:FAR	;(07D9) the default onMove: does nothing
 EXTRN MOUSE_saveBG:FAR	;MOUSE_saveBG
 EXTRN _VID_initPort:FAR	;VID_initPort
@@ -25,11 +25,11 @@ FProc	MOUSE_init	;086E:0006
 	SUB	SP,2
 	PUSH	SI
 	PUSH	DI
-	MOV	AX,_D_2458
+	MOV	AX,_timerRate
 	MOV	[BP-02],AX
 	XOR	AX,AX
 	PUSH	AX
-	CALL	_C_0CED_00A5
+	CALL	_SetTimerRate
 	POP	AX
 	MOV	BX,[BP+08]
 	XOR	AX,AX
@@ -66,7 +66,7 @@ C_007A:
 C_007B:
 	MOV	AX,[BP-02]
 	PUSH	AX
-	CALL	_C_0CED_00A5
+	CALL	_SetTimerRate
 	POP	AX
 	POP	DI
 	POP	SI

@@ -1,6 +1,6 @@
 ;----------------------------------------
 ;OSI library: writing a file (pascal) from memory that may be EMS (a far
-;pointer with segment C000h-FFFFh is mapped in first, C_0AD2_0024).
+;pointer with segment C000h-FFFFh is mapped in first, EMS_map).
 ;(GAME.EXE's 2E7E is the read routine's twin; this one has no JUMPS NOPs.)
 ;----------------------------------------
 
@@ -8,18 +8,18 @@ DGROUP	GROUP _DATA
 _DATA	SEGMENT WORD PUBLIC 'DATA'
 _DATA	ENDS
 
-EXTRN _D_240C:WORD,_D_240E:DWORD
-EXTRN _C_0AD2_0024:FAR
+EXTRN _osiError:WORD,_osiErrorHandler:DWORD
+EXTRN _EMS_map:FAR
 
 OSIWRITE_TEXT	SEGMENT WORD PUBLIC 'CODE'
 	ASSUME CS:OSIWRITE_TEXT,DS:DGROUP
 
-;int pascal C_0C12_0000(int handle, long pos, long size, void far *buf):
+;int pascal OSI_write(int handle, long pos, long size, void far *buf):
 ;seek to pos (unless pos's high word is -1), write size bytes from buf;
 ;returns 1, or 0 with CF set on an error not retried (a short write is
 ;error -1)
-PUBLIC C_0C12_0000
-C_0C12_0000	PROC FAR	;0C12:0000
+PUBLIC OSI_write
+OSI_write	PROC FAR	;0C12:0000
 	PUSH	BP
 	MOV	BP,SP
 	SUB	SP,4
@@ -31,7 +31,7 @@ L_0008:
 	JZ	L_0080
 	PUSH	WORD PTR [BP+08]
 	PUSH	WORD PTR [BP+06]
-	CALL	_C_0AD2_0024		;map an EMS pointer
+	CALL	_EMS_map		;map an EMS pointer
 	ADD	SP,4
 	MOV	[BP-02],DX
 	MOV	[BP-04],AX
@@ -82,9 +82,9 @@ L_006C:
 L_007D:
 	MOV	AX,0FFFFh
 L_0080:
-	MOV	_D_240C,AX
-	CALL	_D_240E
-	TEST	_D_240C,0FFFFh
+	MOV	_osiError,AX
+	CALL	_osiErrorHandler
+	TEST	_osiError,0FFFFh
 	JNZ	L_0092
 	JMP	L_0008
 L_0092:
@@ -99,7 +99,7 @@ L_009A:
 	MOV	SP,BP
 	POP	BP
 	RET	0Eh
-C_0C12_0000	ENDP
+OSI_write	ENDP
 
 OSIWRITE_TEXT	ENDS
 END

@@ -59,9 +59,9 @@ extern StopAllSounds();
 extern ClearSprites();/*frees all the sparkles*/
 extern DrawSprites(struct tSurface *, int n);/*draws the first n sparkles; returns how many are free*/
 extern VID_waitRetrace();/*waits for the vertical retrace*/
-extern C_0BC5_0126(void far *);/*frees*/
-extern int C_0C97_00BE();
-extern int pascal C_0D23_0027(int lo, int hi);/*random number from lo to hi*/
+extern MEM_free(void far *);/*frees*/
+extern int DrvCalibrate();
+extern int pascal Random(int lo, int hi);/*random number from lo to hi*/
 extern int kbhit(void);
 
 /*1E3E*/char D_1E3E[] = "opoqopoqopoqopoqqrstrq";/*frames of the sun: p, q play a sound*/
@@ -131,7 +131,7 @@ extern int kbhit(void);
 				return;
 			count++;
 		}
-		from = C_0D23_0027(0, 0xd) + 9;
+		from = Random(0, 0xd) + 9;
 		for(f = 0x1f; f >= from; f--) {
 			if(--t < 1) {
 				t = speed;
@@ -323,24 +323,24 @@ extern int kbhit(void);
 	ClearSprites();
 	do {
 		if(!done) {
-			/*DIFFERS: the original does not merge the end of "add = C_0D23_0027(0, 5) == 0"
+			/*DIFFERS: the original does not merge the end of "add = Random(0, 5) == 0"
 			  (0636:0977-0993) with the same code of the last case; this merges it (9 bytes
 			  shorter)*/
 			if(D_353E && (soundCard == 2 || soundCard == 1)) {
 				if(musicMarker >= 4)
-					add = C_0D23_0027(0, 0) == 0;
+					add = Random(0, 0) == 0;
 				else
-					add = C_0D23_0027(0, 5) == 0;
+					add = Random(0, 5) == 0;
 			} else
-				add = C_0D23_0027(0, 0) == 0;
+				add = Random(0, 0) == 0;
 		}
 		if(add && !done) {
 			for(i = 0; i < 5; i++) {
 				if(D_3578[i].frame == -1) {
 					D_3578[i].frame = 0;
-					D_3578[i].x = C_0D23_0027(0, 0x13f);
-					D_3578[i].y = C_0D23_0027(0, 0x7f);
-					D_3578[i].kind = C_0D23_0027(0, 2);
+					D_3578[i].x = Random(0, 0x13f);
+					D_3578[i].y = Random(0, 0x7f);
+					D_3578[i].kind = Random(0, 2);
 					break;
 				}
 			}
@@ -366,18 +366,18 @@ extern int kbhit(void);
 all:
 	for(i = 0; i < 0x1d; i++) {
 		D_3578[i].frame = 0;
-		D_3578[i].x = C_0D23_0027(0, 0x13f);
-		D_3578[i].y = C_0D23_0027(0, 0x7f);
-		D_3578[i].kind = C_0D23_0027(0, 2);
+		D_3578[i].x = Random(0, 0x13f);
+		D_3578[i].y = Random(0, 0x7f);
+		D_3578[i].kind = Random(0, 2);
 	}
 	nFree = 0;
 	j = 0;
 	while(nFree != 0x1e) {
 		if(++j == 4) {
 			D_3578[29].frame = 0;
-			D_3578[29].x = C_0D23_0027(0, 0x13f);
-			D_3578[29].y = C_0D23_0027(0, 0x7f);
-			D_3578[29].kind = C_0D23_0027(0, 2);
+			D_3578[29].x = Random(0, 0x13f);
+			D_3578[29].y = Random(0, 0x7f);
+			D_3578[29].kind = Random(0, 2);
 		}
 		(*D_2BC6)(surf, 0, 0, D_3540[0], 0);
 		nFree = DrawSprites(surf, 0x1e);
@@ -396,7 +396,7 @@ all:
 
 /*the number of frames between two pictures, from the speed of the computer*/
 /*C_0636_0C29*/C_0636_0C29() {
-	return 2 - C_0C97_00BE() / 8 < 1 ? 1 : 2 - C_0C97_00BE() / 8;
+	return 2 - DrvCalibrate() / 8 < 1 ? 1 : 2 - DrvCalibrate() / 8;
 }
 
 /*C_0636_0C5A*/void far *LoadShape(int n) {
@@ -456,8 +456,8 @@ end:
 	(*D_3516)(&save, 0);
 	PAL_restore();
 	for(i = 0; i < 13; i++)
-		C_0BC5_0126(D_3540[i]);
+		MEM_free(D_3540[i]);
 	if(music)
-		C_0BC5_0126(music);
+		MEM_free(music);
 	*screen = save;
 }

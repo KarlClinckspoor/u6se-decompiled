@@ -6,8 +6,8 @@ LINPTR_TEXT	SEGMENT PUBLIC WORD 'CODE'
 	ASSUME CS:LINPTR_TEXT
 
 ;void far * pascal LinearToPtr(long linear): segment linear/16, offset linear%16
-PUBLIC C_0D09_000E
-C_0D09_000E	PROC FAR	;0D09:000E
+PUBLIC LinearToPtr
+LinearToPtr	PROC FAR	;0D09:000E
 	PUSH	BP
 	MOV	BP,SP
 	MOV	DX,[BP+6]	;low word
@@ -25,7 +25,7 @@ C_0D09_000E	PROC FAR	;0D09:000E
 	AND	AX,0Fh
 	POP	BP
 	RET	4
-C_0D09_000E	ENDP
+LinearToPtr	ENDP
 
 LINPTR_TEXT	ENDS
 

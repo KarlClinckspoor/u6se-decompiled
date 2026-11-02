@@ -52,16 +52,16 @@ typedef void (far pascal *tDrv0)(void);
 typedef struct tDrvInfo far *(far pascal *tDrvInit)(void);
 
 /*other modules*/
-extern void far * pascal C_0C58_0305(char far *, int, long, int, long);/*(name, index, 0L, flags, 0L): load entry index of a file into memory*/
-extern C_0BC5_0126(void far *);/*free memory loaded by C_0C58_0305*/
-extern void far *C_0AD2_0024(void far *);/*maps (expanded memory) data, returns its address*/
-extern C_0AD2_00A7(void);/*saves the expanded memory mapping (0: failed)*/
-extern C_0AD2_00DD(void);/*restores it*/
-extern C_0CED_000E(int, void far *, void *, void far *);/*(vector, routine, save, chain): hook an interrupt*/
-extern C_0CED_00A5(int);/*sets the timer rate (Hz)*/
-extern C_0CED_0187(void);/*unhooks the interrupts*/
-extern C_0D11_0102();/*a callback given to the driver*/
-extern int D_23D4;/*expanded memory in use*/
+extern void far * pascal LZC_load(char far *, int, long, int, long);/*(name, index, 0L, flags, 0L): load entry index of a file into memory*/
+extern MEM_free(void far *);/*free memory loaded by LZC_load*/
+extern void far *EMS_map(void far *);/*maps (expanded memory) data, returns its address*/
+extern EMS_saveMap(void);/*saves the expanded memory mapping (0: failed)*/
+extern EMS_restoreMap(void);/*restores it*/
+extern HookVector(int, void far *, void *, void far *);/*(vector, routine, save, chain): hook an interrupt*/
+extern SetTimerRate(int);/*sets the timer rate (Hz)*/
+extern UnhookAll(void);/*unhooks the interrupts*/
+extern LoopDelay();/*a callback given to the driver*/
+extern int emsInUse;/*expanded memory in use*/
 
 /*uninitialised data*/
 extern tDrv2 D_2814;/*driver: program change (channel, program)*/
@@ -93,14 +93,14 @@ extern int D_4066;/*MThd: format*/
 /*20CC*/int sfxReady = 0;/*the sound effects may be updated (0 while they are changed)*/
 /*20CE*/int musicMarker = 0;/*the last 0xFE type 3 event's value*/
 /*20D0*/int musicCondition = 0;/*value the 0xFE type 4 and 5 events test*/
-/*20D2*/int D_20D2 = 1;/*1 when a song starts, 0 when the next song is set (not read here)*/
+/*20D2*/int noSongQueued = 1;/*1 when a song starts, 0 when the next song is set (not read here)*/
 /*20D4*/int musicNotesOn = 1;/*music notes are played*/
 /*20D6*/int musicVolume = 0x100;/*music volume (0x100: full)*/
 /*20D8*/int musicVolumeSet = 0x100;/*music volume set (fades go back to it)*/
 /*20DA*/int fadeStep = 0;/*fade step*/
 /*20DC*/int fadeLevel = 0;/*fade level*/
 /*20DE*/int fadeNoStop = 0;/*the fade does not stop the music*/
-/*20E0*/int D_20E0 = 0;/*the next song is set: 0xFE loops of type 0 are skipped, type 1 ends the song*/
+/*20E0*/int nextSongSet = 0;/*the next song is set: 0xFE loops of type 0 are skipped, type 1 ends the song*/
 /*20E2*/void far *nextSong = 0;/*the song to play when the music stops*/
 /*20E6*/void far *curSong = 0;/*the song playing*/
 /*20EA*/struct tVoice voices[32] = {0};/*the sound effects*/
@@ -655,7 +655,7 @@ PlaySong(void far *);
 				type = *D_3F2A[t]++;
 				len = *D_3F2A[t]++;
 				if (type == 0) {
-					if (D_20E0) {
+					if (nextSongSet) {
 						D_3F2A[t] += len;
 					} else {
 						musicFlags |= 1;
@@ -664,7 +664,7 @@ PlaySong(void far *);
 						D_3F2A[t] -= ofs;
 					}
 				} else if (type == 1) {
-					if (D_20E0) {
+					if (nextSongSet) {
 						musicFlags |= 1;
 						for (i = 2; i <= 10; i++) {
 							if (musicNotesOn && chanUser[i] == 1)
@@ -673,7 +673,7 @@ PlaySong(void far *);
 						return 1;
 					}
 				} else if (type == 2) {
-					if (D_20E0) {
+					if (nextSongSet) {
 						musicFlags |= 1;
 						(*D_34F6)(ch, 0x7b, 0);
 						ofs = D_3F2A[t][0] + (D_3F2A[t][1] << 8);
@@ -775,10 +775,10 @@ PlaySong(void far *);
 			}
 		}
 		if (!musicStopped) {
-			if (D_23D4 == 0 || C_0AD2_00A7() != 0) {
-				C_0AD2_0024(curSong);
+			if (emsInUse == 0 || EMS_saveMap() != 0) {
+				EMS_map(curSong);
 				musicStopped = PlayMidiEvents();
-				C_0AD2_00DD();
+				EMS_restoreMap();
 			}
 			if (musicStopped) {
 				musicFlags |= 1;
@@ -814,8 +814,8 @@ PlaySong(void far *);
 		D_3F2A[i] += 8;
 		TrackAddDelta(i, MidiVarLen(i));
 	}
-	musicStopped = D_20E0 = musicMarker = 0;
-	D_20D2 = 1;
+	musicStopped = nextSongSet = musicMarker = 0;
+	noSongQueued = 1;
 	musicFlags &= ~1;
 	musicFlags |= 2;
 	nextSong = 0;
@@ -848,10 +848,10 @@ PlaySong(void far *);
 
 	if (soundCard) {
 		card = soundCard - 1;
-		D_2BC2 = C_0C58_0305("strax.drv", card, 0L, 0x12, 0L);
-		D_3FB6 = C_0C58_0305(name, card, 0L, 0x10, 0L);
+		D_2BC2 = LZC_load("strax.drv", card, 0L, 0x12, 0L);
+		D_3FB6 = LZC_load(name, card, 0L, 0x10, 0L);
 		if (D_3FB6 == 0 && soundCard != 1) {
-			C_0BC5_0126(D_2BC2);
+			MEM_free(D_2BC2);
 			D_2BC2 = 0;
 			soundCard = 0;
 		}
@@ -868,11 +868,11 @@ PlaySong(void far *);
 			D_34E4 = MK_FP(seg, D_2BC2[9]);
 			D_2B2A = MK_FP(seg, D_2BC2[10]);
 			D_34E8 = (*D_2B6E)();
-			D_34E8->cb1 = C_0CED_000E;
-			D_34E8->cb2 = C_0D11_0102;
+			D_34E8->cb1 = HookVector;
+			D_34E8->cb2 = LoopDelay;
 			(*D_2BAE)(D_3FB6);
 			if (!D_34E8->ok)
-				C_0BC5_0126(D_3FB6);
+				MEM_free(D_3FB6);
 			return 1;
 		}
 	}
@@ -904,14 +904,14 @@ PlaySong(void far *);
 		(*D_2814)(25, 0x8c);
 		(*D_2814)(26, 0x8b);
 	}
-	C_0CED_00A5(soundCard == 3 ? 0x1e00 : 0x3c);
+	SetTimerRate(soundCard == 3 ? 0x1e00 : 0x3c);
 	musicStopped = 1;
 	curSong = 0;
 	nextSong = 0;
 	musicFlags = 0;
 	disable();
-	C_0CED_000E(8, SoundTimer, D_3FDC, (void far *)&D_3FB2);
-	C_0CED_000E(8, D_2BE0, D_3FAA, D_34E8->unk02);
+	HookVector(8, SoundTimer, D_3FDC, (void far *)&D_3FB2);
+	HookVector(8, D_2BE0, D_3FAA, D_34E8->unk02);
 	enable();
 	sfxReady = 1;
 }
@@ -935,7 +935,7 @@ PlaySong(void far *);
 			(*D_34F6)(i, 0x7b, 0);
 		(*D_2BD2)();
 	}
-	C_0CED_0187();
+	UnhookAll();
 }
 
 /*starts the MIDI file song (0: not a MIDI file)*/
@@ -949,8 +949,8 @@ PlaySong(void far *);
 	ok = 1;
 	musicStopped = 1;
 	curSong = song;
-	if (D_23D4 == 0 || C_0AD2_00A7() != 0)
-		p = C_0AD2_0024(song);
+	if (emsInUse == 0 || EMS_saveMap() != 0)
+		p = EMS_map(song);
 	else
 		p = 0;
 	if (p == 0) {
@@ -983,7 +983,7 @@ PlaySong(void far *);
 			RewindTracks(-1);
 		}
 	}
-	C_0AD2_00DD();
+	EMS_restoreMap();
 	return ok;
 }
 
@@ -1008,7 +1008,7 @@ PlaySong(void far *);
 			fadeStep = -(0x8000 / time);
 			nextSong = song;
 			fadeNoStop = 0;
-			D_20D2 = 0;
+			noSongQueued = 0;
 		} else {
 			fadeStep = 0;
 			nextSong = 0;
@@ -1021,8 +1021,8 @@ PlaySong(void far *);
 /*C_08E4_1A97*/void SetNextSong(void far *song, int flags)
 {
 	nextSong = song;
-	D_20E0 = 1;
-	D_20D2 = 0;
+	nextSongSet = 1;
+	noSongQueued = 0;
 	musicFlags = flags;
 }
 

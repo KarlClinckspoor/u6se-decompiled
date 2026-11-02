@@ -1,6 +1,6 @@
 ;----------------------------------------
 ;OSI library: reading a file (pascal) into memory that may be EMS (a far
-;pointer with segment C000h-FFFFh is mapped in first, C_0AD2_0024).
+;pointer with segment C000h-FFFFh is mapped in first, EMS_map).
 ;(GAME.EXE 2E7E.) Assembled by TASM with JUMPS: a conditional jump that
 ;turned out short is followed by three NOPs, written out here.
 ;----------------------------------------
@@ -9,17 +9,17 @@ DGROUP	GROUP _DATA
 _DATA	SEGMENT WORD PUBLIC 'DATA'
 _DATA	ENDS
 
-EXTRN _D_240C:WORD,_D_240E:DWORD
-EXTRN _C_0AD2_0024:FAR
+EXTRN _osiError:WORD,_osiErrorHandler:DWORD
+EXTRN _EMS_map:FAR
 
 OSIREAD_TEXT	SEGMENT WORD PUBLIC 'CODE'
 	ASSUME CS:OSIREAD_TEXT,DS:DGROUP
 
-;int pascal C_0C06_000C(int handle, long pos, long size, void far *buf):
+;int pascal OSI_read(int handle, long pos, long size, void far *buf):
 ;seek to pos (unless pos's high word is -1), read size bytes to buf;
-;returns 1, or 0 with CF set on an error not retried (_D_240C has the error)
-PUBLIC C_0C06_000C
-C_0C06_000C	PROC FAR	;0C06:000C
+;returns 1, or 0 with CF set on an error not retried (osiError has the error)
+PUBLIC OSI_read
+OSI_read	PROC FAR	;0C06:000C
 	PUSH	BP
 	MOV	BP,SP
 	SUB	SP,4
@@ -33,7 +33,7 @@ L_0014:
 L_001F:
 	PUSH	WORD PTR [BP+08]
 	PUSH	WORD PTR [BP+06]
-	CALL	_C_0AD2_0024		;map an EMS pointer
+	CALL	_EMS_map		;map an EMS pointer
 	ADD	SP,4
 	MOV	[BP-02],DX
 	MOV	[BP-04],AX
@@ -101,9 +101,9 @@ L_008E:
 	NOP
 	NOP
 L_009E:
-	MOV	_D_240C,AX
-	CALL	_D_240E
-	TEST	_D_240C,0FFFFh
+	MOV	_osiError,AX
+	CALL	_osiErrorHandler
+	TEST	_osiError,0FFFFh
 	JNZ	L_00B0
 	JMP	L_0014
 L_00B0:
@@ -118,7 +118,7 @@ L_00B8:
 	MOV	SP,BP
 	POP	BP
 	RET	0Eh
-C_0C06_000C	ENDP
+OSI_read	ENDP
 
 OSIREAD_TEXT	ENDS
 END

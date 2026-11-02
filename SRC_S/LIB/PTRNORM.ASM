@@ -6,8 +6,8 @@ PTRNORM_TEXT	SEGMENT PUBLIC WORD 'CODE'
 	ASSUME CS:PTRNORM_TEXT
 
 ;void far * pascal NormalizePtr(void far *p): the same address with an offset below 16
-PUBLIC C_0D0E_0004
-C_0D0E_0004	PROC FAR	;0D0E:0004
+PUBLIC NormalizePtr
+NormalizePtr	PROC FAR	;0D0E:0004
 	PUSH	BP
 	MOV	BP,SP
 	MOV	DX,[BP+8]	;segment
@@ -35,7 +35,7 @@ C_0D0E_0004	PROC FAR	;0D0E:0004
 	AND	AX,0Fh
 	POP	BP
 	RET	4
-C_0D0E_0004	ENDP
+NormalizePtr	ENDP
 
 PTRNORM_TEXT	ENDS
 

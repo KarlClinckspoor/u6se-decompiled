@@ -6,26 +6,26 @@ DGROUP	GROUP _DATA
 _DATA	SEGMENT WORD PUBLIC 'DATA'
 _DATA	ENDS
 
-EXTRN _D_23C9:DWORD,_D_23D4:WORD
-EXTRN _C_0AD2_0024:FAR
+EXTRN _emsMapped:DWORD,_emsInUse:WORD
+EXTRN _EMS_map:FAR
 
 EMSFREE_TEXT	SEGMENT WORD PUBLIC 'CODE'
 	ASSUME CS:EMSFREE_TEXT,DS:DGROUP
 
-;unsigned long C_0AE3_0004(void): the total length of the free blocks of the
+;unsigned long EMS_totalFree(void): the total length of the free blocks of the
 ;EMS heap (0 when EMS is not in use)
-PUBLIC _C_0AE3_0004
-_C_0AE3_0004	PROC FAR	;0AE3:0004
+PUBLIC _EMS_totalFree
+_EMS_totalFree	PROC FAR	;0AE3:0004
 	PUSH	BP
 	MOV	BP,SP
 	SUB	SP,0Ch
 	PUSH	SI
 	PUSH	DI
-	CMP	_D_23D4,0
+	CMP	_emsInUse,0
 	JNZ	L_0016
 	JMP	L_009F
 L_0016:
-	LES	AX,_D_23C9
+	LES	AX,_emsMapped
 	MOV	[BP-08],AX
 	MOV	[BP-06],ES
 	XOR	AX,AX
@@ -37,7 +37,7 @@ L_0016:
 	XOR	AX,AX
 	MOV	[BP-04],AX
 	PUSH	AX
-	CALL	_C_0AD2_0024
+	CALL	_EMS_map
 	ADD	SP,4
 L_003D:
 	MOV	ES,DX
@@ -65,13 +65,13 @@ L_0053:
 	MOV	[BP-02],DX
 	PUSH	DX
 	PUSH	AX
-	CALL	_C_0AD2_0024
+	CALL	_EMS_map
 	ADD	SP,4
 	OR	DX,DX
 	JNZ	L_003D
 	PUSH	WORD PTR [BP-06]
 	PUSH	WORD PTR [BP-08]
-	CALL	_C_0AD2_0024
+	CALL	_EMS_map
 	ADD	SP,4
 	MOV	AX,[BP-0Ch]
 	MOV	DX,[BP-0Ah]
@@ -88,22 +88,22 @@ L_009F:
 	MOV	SP,BP
 	POP	BP
 	RET
-_C_0AE3_0004	ENDP
+_EMS_totalFree	ENDP
 
-;unsigned long C_0AE3_00A9(void): the length of the largest free block of the
+;unsigned long EMS_largestFree(void): the length of the largest free block of the
 ;EMS heap, at most FFFCh (0 when EMS is not in use)
-PUBLIC _C_0AE3_00A9
-_C_0AE3_00A9	PROC FAR	;0AE3:00A9
+PUBLIC _EMS_largestFree
+_EMS_largestFree	PROC FAR	;0AE3:00A9
 	PUSH	BP
 	MOV	BP,SP
 	SUB	SP,0Ch
 	PUSH	SI
 	PUSH	DI
-	CMP	_D_23D4,0
+	CMP	_emsInUse,0
 	JNZ	L_00BB
 	JMP	L_015E
 L_00BB:
-	LES	AX,_D_23C9
+	LES	AX,_emsMapped
 	MOV	[BP-08],AX
 	MOV	[BP-06],ES
 	XOR	AX,AX
@@ -115,7 +115,7 @@ L_00BB:
 	XOR	AX,AX
 	MOV	[BP-04],AX
 	PUSH	AX
-	CALL	_C_0AD2_0024
+	CALL	_EMS_map
 	ADD	SP,4
 L_00E2:
 	MOV	ES,DX
@@ -149,13 +149,13 @@ L_0104:
 	MOV	[BP-02],DX
 	PUSH	DX
 	PUSH	AX
-	CALL	_C_0AD2_0024
+	CALL	_EMS_map
 	ADD	SP,4
 	OR	DX,DX
 	JNZ	L_00E2
 	PUSH	WORD PTR [BP-06]
 	PUSH	WORD PTR [BP-08]
-	CALL	_C_0AD2_0024
+	CALL	_EMS_map
 	ADD	SP,4
 	MOV	AX,[BP-0Ch]
 	MOV	DX,[BP-0Ah]
@@ -180,7 +180,7 @@ L_015E:
 	MOV	SP,BP
 	POP	BP
 	RET
-_C_0AE3_00A9	ENDP
+_EMS_largestFree	ENDP
 
 EMSFREE_TEXT	ENDS
 END
