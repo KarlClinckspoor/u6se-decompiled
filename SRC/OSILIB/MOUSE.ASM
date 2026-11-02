@@ -36,13 +36,13 @@ DSegStart
 EXTRN D_ED10:DWORD	;the graphic driver's entry point (uninitialised data, BSS.ASM)
 GrDriver	EQU	D_ED10
 
-_pMouse	dw 0	;D_2FB4
-_nMouseSem	dw 0	;D_2FB6
+_pMouse	dw 0	;D_2B34
+_nMouseSem	dw 0	;D_2B36
 __2FB8	db 0,0	;??
-D_2FBA	dw 0	;pos x
-D_2FBC	dw 0	;pos y
-D_2FBE	dw 0	;L button
-D_2FC0	dw 0	;R button
+D_2B3A	dw 0	;pos x
+D_2B3C	dw 0	;pos y
+D_2B3E	dw 0	;L button
+D_2B40	dw 0	;R button
 
 DSegEnd
 
@@ -52,7 +52,7 @@ CSegStart	MOUSE_TEXT
 ;
 ;----------------------------------------
 ;init mouse?
-ProcStart	_MOUSE_INIT	;332B:0000
+ProcStart	_MOUSE_INIT	;2ABF:0008
 	MOV	BX,[BP+06]
 	MOV	_pMouse,BX
 	;%%
@@ -83,12 +83,12 @@ C_0050:	;--
 ProcEnd	_MOUSE_INIT
 
 ;dummy callback
-PUBLIC _MOUSE_0055	;332B:0055
+PUBLIC _MOUSE_0055	;2ABF:005D
 _MOUSE_0055	PROC FAR
 	RET
 _MOUSE_0055	ENDP
 
-ProcStart	_MOUSE_POINTER	;332B:0056	;MOUSE_0056
+ProcStart	_MOUSE_POINTER	;2ABF:005E	;MOUSE_0056
 	LES	DI,[BP+06]
 	MOV	AX,[BP+0Ah]
 	;--
@@ -120,7 +120,7 @@ ProcEnd	_MOUSE_POINTER
 ;
 ;----------------------------------------MOUSE_009F
 ;update mouse state
-ProcStart _MOUSE_SERVE	;332B:009F
+ProcStart _MOUSE_SERVE	;2ABF:00A7
 	MOV	BX,_pMouse
 	CMP	[BX].tMouse.installed,0
 	JZ	C_00D4
@@ -129,20 +129,20 @@ ProcStart _MOUSE_SERVE	;332B:009F
 	INT	33h
 	SHR	CX,1	;horizontal pos / 2
 	;--
-	MOV	AX,D_2FBE
+	MOV	AX,D_2B3E
 	XOR	AL,BL
 	AND	AL,1
 	JNZ	C_00D9
 	;--
-	MOV	AX,D_2FC0
+	MOV	AX,D_2B40
 	XOR	AL,BL
 	AND	AL,2
 	JNZ	C_00D9
 	;--
-	CMP	D_2FBA,CX
+	CMP	D_2B3A,CX
 	JNZ	C_00D9
 	;--
-	CMP	D_2FBC,DX
+	CMP	D_2B3C,DX
 	JNZ	C_00D9
 C_00D4:	;-- mouse state didn't change
 	MOV	AX,0
@@ -167,15 +167,15 @@ endif
 	POP	CX
 	POP	BX
 	;--
-	MOV	D_2FBA,CX	;store pos x
-	MOV	D_2FBC,DX	;store pos y
-	MOV	D_2FBE,BX
-	db	83h,26h	;AND D_2FBE,1 (TASM's sign-extended imm8; MASM 3.0 writes 81h)
-	dw	OFFSET DGROUP:D_2FBE
+	MOV	D_2B3A,CX	;store pos x
+	MOV	D_2B3C,DX	;store pos y
+	MOV	D_2B3E,BX
+	db	83h,26h	;AND D_2B3E,1 (TASM's sign-extended imm8; MASM 3.0 writes 81h)
+	dw	OFFSET DGROUP:D_2B3E
 	db	1	;store L button status
-	MOV	D_2FC0,BX
-	db	83h,26h	;AND D_2FC0,2 (TASM's sign-extended imm8; MASM 3.0 writes 81h)
-	dw	OFFSET DGROUP:D_2FC0
+	MOV	D_2B40,BX
+	db	83h,26h	;AND D_2B40,2 (TASM's sign-extended imm8; MASM 3.0 writes 81h)
+	dw	OFFSET DGROUP:D_2B40
 	db	2	;store R button status
 	;--
 	MOV	SI,_pMouse
@@ -202,13 +202,13 @@ ProcEnd	_MOUSE_SERVE
 
 
 ;force next refresh/reset refresh
-ProcStart	_MOUSE_0124	;332B:0124
-	MOV	D_2FBA,8001h
+ProcStart	_MOUSE_0124	;2ABF:012C
+	MOV	D_2B3A,8001h
 ProcEnd	_MOUSE_0124
 ;----------------------------------------
 ;
 ;----------------------------------------MOUSE_0135
-PUBLIC _MOUSE_SHOW	;332B:0135
+PUBLIC _MOUSE_SHOW	;2ABF:013D
 _MOUSE_SHOW	PROC FAR
 	INC	_nMouseSem
 	JNZ	C_0145
@@ -219,7 +219,7 @@ C_0145:	;--
 	RET
 _MOUSE_SHOW	ENDP
 ;----------------------------------------MOUSE_0146(HIDE_MOUSE?)
-PUBLIC _MOUSE_HIDE	;332B:0146
+PUBLIC _MOUSE_HIDE	;2ABF:014E
 _MOUSE_HIDE	PROC FAR
 	DEC	_nMouseSem
 	CMP	_nMouseSem,-1
@@ -232,7 +232,7 @@ C_015B:	;--
 _MOUSE_HIDE	ENDP
 ;----------------------------------------
 ;call graphic function 30h
-PUBLIC _MOUSE_DRAW	;332B:015C
+PUBLIC _MOUSE_DRAW	;2ABF:0164
 _MOUSE_DRAW	PROC FAR	;MOUSE_015C
 	MOV	BX,_pMouse
 	CMP	[BX].tMouse.installed,0
@@ -251,7 +251,7 @@ C_0182:	;--
 _MOUSE_DRAW	ENDP	;MOUSE_015C
 ;----------------------------------------
 ;call graphic function 0Ch
-PUBLIC _MOUSE_SAVE_BG	;332B:0183
+PUBLIC _MOUSE_SAVE_BG	;2ABF:018B
 _MOUSE_SAVE_BG	PROC FAR	;MOUSE_0183
 	MOV	BX,_pMouse
 	CMP	[BX].tMouse.installed,0
@@ -272,7 +272,7 @@ C_01AF:	;--
 _MOUSE_SAVE_BG	ENDP	;MOUSE_0183
 ;----------------------------------------
 ;call graphic function 0Fh
-PUBLIC _MOUSE_01B0	;332B:01B0
+PUBLIC _MOUSE_01B0	;2ABF:01B8
 _MOUSE_01B0	PROC FAR
 	MOV	BX,_pMouse
 	CMP	[BX].tMouse.installed,0
@@ -293,7 +293,7 @@ C_01DC:	;--
 _MOUSE_01B0	ENDP
 ;----------------------------------------
 ;wait on some port?
-PUBLIC _MOUSE_01DD	;332B:01DD
+PUBLIC _MOUSE_01DD	;2ABF:01E5
 _MOUSE_01DD	PROC FAR
 	MOV	AX,40h
 	MOV	ES,AX
@@ -309,7 +309,7 @@ _MOUSE_01DD	ENDP
 ;----------------------------------------
 ;
 ;----------------------------------------MOUSE_01F0
-ProcStart	_MOUSE_IN_AREA	;332B:01F0
+ProcStart	_MOUSE_IN_AREA	;2ABF:01F8
 	PUSH	ES
 	;--
 	MOV	SI,_pMouse
@@ -385,7 +385,7 @@ ProcEnd	_MOUSE_IN_AREA
 
 
 
-ProcStart	_MOUSE_0297	;332B:0297
+ProcStart	_MOUSE_0297	;2ABF:029F
 	MOV	BX,[BP+06]
 	;--
 	MOV	SI,_pMouse
@@ -410,7 +410,7 @@ C_02CA:	;--
 ProcEnd	_MOUSE_0297
 
 
-ProcStart	_MOUSE_02CF	;332B:02CF
+ProcStart	_MOUSE_02CF	;2ABF:02D7
 	CLD
 	LES	DI,[BP+08]
 	MOV	BX,[BP+0Ch]

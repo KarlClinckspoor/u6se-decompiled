@@ -4,7 +4,7 @@
 # in SRC/ ("-" while not decompiled; ../SRC_S/... for the library SAVAGE.EXE shares). "-" as FRAME: data only.
 0268 B F0B main.c 00A8-01F6  # U6 main
 0000 242 421 OSILIB/OSI_FILE.ASM 01F6-0200  # linked after main.c: its code joins C0M's _TEXT, its data follow main's
-0359 6 276E -  # U6 gameloop
+0359 6 276E gameloop.c 0200-03A4  # U6 gameloop
 05D0 4 2FAF console.c 03A4-04C2  # U6 console
 08CB 3 10FB map.c 04C2-069C  # U6 map
 09DA E 823 visible.c 069C-070C  # U6 visible

@@ -6,37 +6,37 @@ EXTRN CompressedFileList:BYTE
 
 DSegStart
 
-D_2FC2	db 0
+D_2B42	db 0
 __2FC3	db 0
 
 segment_0	dw 0
 PUBLIC CpuSpeed
-CpuSpeed	dw 0	;D_2FC6 computer speed?
-D_2FC8	dw 0	;equipment flags?
-D_2FCA	dw 0
-D_2FCC	dw 0
-D_2FCE	db 8 dup(0)
+CpuSpeed	dw 0	;D_2B46 computer speed?
+D_2B48	dw 0	;equipment flags?
+D_2B4A	dw 0
+D_2B4C	dw 0
+D_2B4E	db 8 dup(0)
 	db 8 dup(0)
 	db 8 dup(0)
 	db 8 dup(0)
 	db 8 dup(0)
-D_2FF6	dw 0
+D_2B76	dw 0
 __2FF8	db 4 dup(0)
 PUBLIC OSI_Started
-OSI_Started	dw 0	;D_2FFC
+OSI_Started	dw 0	;D_2B7C
 PUBLIC TextIdle
-TextIdle	dw 1	;D_2FFE
+TextIdle	dw 1	;D_2B7E
 __3000	dw 5
 __3002	dw 4
 PUBLIC DriveErrorCallback
-DriveErrorCallback	dw OFFSET SEG_2AFC_TEXT:OSI_nullCallback,SEG_2AFC_TEXT	;D_3004
+DriveErrorCallback	dw OFFSET SEG_2AFC_TEXT:OSI_nullCallback,SEG_2AFC_TEXT	;D_2B84
 __3008	db 2 dup(0)
-D_300A	dw 0
+D_2B8A	dw 0
 __300C	db 4 dup(0)
 __3010	db 4 dup(0)
-D_3014	dw 0
-D_3016	dw 0
-D_3018	dw 0
+D_2B94	dw 0
+D_2B96	dw 0
+D_2B98	dw 0
 __301A	db 2 dup(0)
 
 DSegEnd
@@ -69,30 +69,30 @@ C_0008	ENDP
 
 ;select drive?
 ProcStart	OSI_selectDrive
-	MOV	D_2FCC,0
+	MOV	D_2B4C,0
 	;--
 	MOV	AX,[BP+06]
 	CALL	C_0008
 	JB	C_005B
-	MOV	D_2FC2,DL
+	MOV	D_2B42,DL
 	;--
 	MOV	AH,0Eh	;select disk
 	INT	21h
 	;--
-	CMP	D_2FCC,0
+	CMP	D_2B4C,0
 	JNZ	C_005B
 	;--
 	MOV	AH,19h	;get current default drive
 	INT	21h
-	CMP	D_2FC2,AL
+	CMP	D_2B42,AL
 	JNZ	C_005B
 	;--
-	MOV	D_2FCC,0
+	MOV	D_2B4C,0
 	;--
 	MOV	AX,1
 	JMP	SHORT C_0067
 C_005B:	;--
-	MOV	D_2FCC,1
+	MOV	D_2B4C,1
 	CALL	DWORD PTR DriveErrorCallback
 	;--
 	XOR	AX,AX
@@ -137,7 +137,7 @@ nbits	dw 0
 fin_char	db 0
 k	db 0
 
-D_3046	db "Out of Memory...",13,10,"$"
+D_2BC6	db "Out of Memory...",13,10,"$"
 __3059	db 0
 
 DSegEnd
@@ -151,13 +151,13 @@ ProcStart	OSI_lowInit
 	PUSH	DS
 	PUSH	CS
 	POP	DS
-	MOV	DX,OFFSET C_3368_00DD
+	MOV	DX,OFFSET C_2AFC_00E5
 	MOV	AL,24h
 	MOV	AH,25h
 	INT	21h
 	PUSH	CS
 	POP	DS
-	MOV	DX,OFFSET C_3368_00F1
+	MOV	DX,OFFSET C_2AFC_00F9
 	MOV	AL,23h
 	MOV	AH,25h
 	INT	21h
@@ -170,8 +170,8 @@ ProcEnd	OSI_lowInit
 
 ;initialize some unused feature[text clipping]?
 C_002E	PROC NEAR
-	MOV	SI,OFFSET DGROUP:D_2FCE
-	MOV	D_300A,SI
+	MOV	SI,OFFSET DGROUP:D_2B4E
+	MOV	D_2B8A,SI
 	;--
 	XOR	AX,AX
 	MOV	CX,4
@@ -190,7 +190,7 @@ C_003A:
 	LOOP	C_003A
 	;--
 	CBW
-	MOV	D_2FF6,AX
+	MOV	D_2B76,AX
 	;--
 	RET
 C_002E	ENDP
@@ -198,7 +198,7 @@ C_002E	ENDP
 ;check computer speed
 C_005E	PROC NEAR
 	MOV	CpuSpeed,0
-	MOV	D_2FCA,0
+	MOV	D_2B4A,0
 	;-- push vector 0x1c
 	MOV	AL,1Ch
 	MOV	AH,35h
@@ -215,12 +215,12 @@ C_005E	PROC NEAR
 	INT	21h
 	POP	DS
 C_0082:	;--
-	CMP	D_2FCA,0
+	CMP	D_2B4A,0
 	JZ	C_0082
-	MOV	D_2FCA,0
+	MOV	D_2B4A,0
 C_008F:	;--
 	INC	CpuSpeed
-	CMP	D_2FCA,0
+	CMP	D_2B4A,0
 	JZ	C_008F
 	;-- restore original vector 0x1c
 	POP	DX
@@ -241,7 +241,7 @@ C_008F:	;--
 	MOV	CpuSpeed,AX
 	;--
 	INT	12h
-	MOV	D_2FC8,AX
+	MOV	D_2B48,AX
 	;--
 	RET
 C_005E	ENDP
@@ -255,7 +255,7 @@ INT_00BE:
 	;--
 	MOV	AX,DGROUP
 	MOV	DS,AX
-	MOV	SI,OFFSET DGROUP:D_2FCA
+	MOV	SI,OFFSET DGROUP:D_2B4A
 	INC	WORD PTR [SI]
 	;--
 	POP	AX
@@ -265,19 +265,19 @@ INT_00BE:
 ;----------------------------------------
 C_00D0	PROC NEAR
 	XOR	AX,AX
-	MOV	D_3014,AX
-	MOV	D_3016,AX
-	MOV	D_3018,AX
+	MOV	D_2B94,AX
+	MOV	D_2B96,AX
+	MOV	D_2B98,AX
 	RET
 C_00D0	ENDP
 ;----------------------------------------
 ;a callback?
-OSI_nullCallback	PROC FAR	;C_3368_00DC
+OSI_nullCallback	PROC FAR	;C_2AFC_00E4
 	RET
-OSI_nullCallback	ENDP	;C_3368_00DC
+OSI_nullCallback	ENDP	;C_2AFC_00E4
 ;----------------------------------------
 ;new int 24h
-C_3368_00DD:
+C_2AFC_00E5:
 	STI
 	PUSH	DS
 	PUSH	BX
@@ -285,7 +285,7 @@ C_3368_00DD:
 	MOV	BX,DGROUP
 	MOV	DS,BX
 	;--
-	MOV	BX,OFFSET DGROUP:D_2FCC
+	MOV	BX,OFFSET DGROUP:D_2B4C
 	MOV	WORD PTR [BX],1
 	;--
 	XOR	AL,AL
@@ -295,7 +295,7 @@ C_3368_00DD:
 	IRET
 ;----------------------------------------
 ;new int 23h
-C_3368_00F1:
+C_2AFC_00F9:
 	STI
 	CLC
 	IRET
@@ -306,7 +306,7 @@ C_3368_00F1:
 C_00F4:
 	MOV	AX,3
 	INT	10h
-	MOV	DX,OFFSET DGROUP:D_3046	;"Out of Memory...",13,10,"$"
+	MOV	DX,OFFSET DGROUP:D_2BC6	;"Out of Memory...",13,10,"$"
 	MOV	AH,9
 	INT	21h
 	CALL	OSI_delay_clean
@@ -315,7 +315,7 @@ C_00F4:
 	JMP	$
 ;----------------------------------------
 ;get file size?
-C_3368_010C	PROC FAR
+C_2AFC_0114	PROC FAR
 	MOV	AL,2
 	MOV	AH,3Dh
 	INT	21h
@@ -336,9 +336,9 @@ C_3368_010C	PROC FAR
 	POP	AX
 C_012A:
 	RET
-C_3368_010C	ENDP
+C_2AFC_0114	ENDP
 ;----------------------------------------
-C_3368_012B	PROC FAR
+C_2AFC_0133	PROC FAR
 	PUSH	DS
 	PUSH	AX
 	PUSH	BX
@@ -392,11 +392,11 @@ C_016D:
 	POP	BX
 	POP	DS
 	RET
-C_3368_012B	ENDP
+C_2AFC_0133	ENDP
 ;----------------------------------------
 EVEN
 ;----------------------------------------
-my_alloc	PROC FAR	;C_3368_0172
+my_alloc	PROC FAR	;C_2AFC_017A
 	PUSH	BX
 	MOV	AH,30h	;dos version
 	INT	21h
@@ -551,7 +551,7 @@ add_code	MACRO
 	INC	free_code
 ENDM
 ;----------------------------------------
-decompress	PROC FAR	;C_3368_01BA
+decompress	PROC FAR	;C_2AFC_01C2
 	MOV	nbits,9
 if 1
 	MOV	output_offset,0
@@ -648,7 +648,7 @@ L23:	JMP	L1
 decompress	ENDP
 
 ;load & inflate?
-C_3368_03E8	PROC FAR
+C_2AFC_03F0	PROC FAR
 	MOV	output_segment,0
 	MOV	pDest,0
 	MOV	input_segment,0
@@ -733,7 +733,7 @@ C_048E:
 C_0497:
 	MOV	BX,pDest
 	RET
-C_3368_03E8	ENDP
+C_2AFC_03F0	ENDP
 ;----------------------------------------
 ;is file name in list?
 C_049C	PROC NEAR
@@ -780,13 +780,13 @@ C_04D5:
 C_049C	ENDP
 ;----------------------------------------
 ;..uncalled load function..
-C_3368_04D9	PROC FAR
+C_2AFC_04E1	PROC FAR
 	CALL	C_049C	;is file name in list?
 	JNB	C_04E3
-	JMP	C_3368_03E8	;load & inflate?
+	JMP	C_2AFC_03F0	;load & inflate?
 C_04E3:	;--
 	PUSH	DX
-	CALL	C_3368_010C	;get file size?
+	CALL	C_2AFC_0114	;get file size?
 	JB	C_052C
 	PUSH	AX
 	OR	AX,AX
@@ -809,7 +809,7 @@ C_0501:
 	POP	DX
 	PUSH	BX
 	PUSH	AX
-	CALL	C_3368_012B
+	CALL	C_2AFC_0133
 	POP	BX
 	POP	CX
 	JNB	C_0521
@@ -836,7 +836,7 @@ C_052D:
 	MOV	BX,1
 	STC
 	RET
-C_3368_04D9	ENDP
+C_2AFC_04E1	ENDP
 
 CSegEnd	SEG_2AFC_TEXT
 

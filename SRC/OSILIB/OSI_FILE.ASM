@@ -11,10 +11,10 @@ DSegStart
 
 PUBLIC OSI_ErrorHandler,OSI_ErrorCode,OSI_ErrorFunc,OSI_ErrorFile
 
-OSI_ErrorHandler	dw OSI_callback,SEG OSI_callback	;D_032E
-OSI_ErrorCode	dw 0	;D_0332 error code
-OSI_ErrorFunc	dw 0	;D_0334 error origin
-OSI_ErrorFile	dw 0	;D_0336 last filename
+OSI_ErrorHandler	dw OSI_callback,SEG OSI_callback	;D_01F6
+OSI_ErrorCode	dw 0	;D_01FA error code
+OSI_ErrorFunc	dw 0	;D_01FC error origin
+OSI_ErrorFile	dw 0	;D_01FE last filename
 
 DSegEnd
 
@@ -61,13 +61,13 @@ _TEXT	SEGMENT PUBLIC BYTE 'CODE'
 C_0207	dw DGROUP	;35BD
 
 PUBLIC OSI_callback
-OSI_callback	PROC FAR
+OSI_callback	PROC FAR	;0000:0244
 	RET
 OSI_callback	ENDP
 
 
 PUBLIC OSI_open
-OSI_open	PROC FAR
+OSI_open	PROC FAR	;0000:0245
 	PUSH	BP
 	MOV	BP,SP
 	PUSH	SI
@@ -91,7 +91,7 @@ OSI_open	ENDP
 
 
 PUBLIC OSI_close
-OSI_close	PROC FAR
+OSI_close	PROC FAR	;0000:0284
 	PUSH	BP
 	MOV	BP,SP
 	PUSH	SI
@@ -111,7 +111,7 @@ OSI_close	ENDP
 
 
 PUBLIC OSI_create
-OSI_create	PROC FAR
+OSI_create	PROC FAR	;0000:02B8
 	PUSH	BP
 	MOV	BP,SP
 	PUSH	SI
@@ -136,7 +136,7 @@ OSI_create	ENDP
 
 
 PUBLIC OSI_delete
-OSI_delete	PROC FAR
+OSI_delete	PROC FAR	;0000:02F8
 	PUSH	BP
 	MOV	BP,SP
 	PUSH	SI
@@ -160,7 +160,7 @@ OSI_delete	ENDP
 
 
 PUBLIC OSI_read
-OSI_read	PROC FAR
+OSI_read	PROC FAR	;0000:0336
 	PUSH	BP
 	MOV	BP,SP
 	SUB	SP,4
@@ -231,7 +231,7 @@ OSI_read	ENDP
 
 
 PUBLIC OSI_write
-OSI_write	PROC FAR
+OSI_write	PROC FAR	;0000:041C
 	PUSH	BP
 	MOV	BP,SP
 	PUSH	SI
@@ -292,7 +292,7 @@ OSI_write	ENDP
 
 
 PUBLIC OSI_rename
-OSI_rename	PROC FAR
+OSI_rename	PROC FAR	;0000:04E1
 	PUSH	BP
 	MOV	BP,SP
 	PUSH	SI
@@ -316,7 +316,7 @@ C_04AB:	;--
 OSI_rename	ENDP
 
 PUBLIC OSI_copy
-OSI_copy	PROC FAR
+OSI_copy	PROC FAR	;0000:0526
 	PUSH	BP
 	MOV	BP,SP
 	SUB	SP,0Eh
@@ -432,7 +432,7 @@ OSI_copy	ENDP
 
 
 PUBLIC OSI_fileSize
-OSI_fileSize	PROC FAR
+OSI_fileSize	PROC FAR	;0000:0617
 	PUSH	BP
 	MOV	BP,SP
 	PUSH	SI
@@ -456,7 +456,7 @@ OSI_fileSize	ENDP
 
 
 PUBLIC OSI_memory
-OSI_memory	PROC FAR
+OSI_memory	PROC FAR	;0000:0634
 	PUSH	BP
 	PUSH	SI
 	PUSH	DI
