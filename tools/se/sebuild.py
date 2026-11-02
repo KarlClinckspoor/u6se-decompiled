@@ -16,7 +16,7 @@ import argparse, hashlib, os, shutil, struct, sys, tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-import dos, target, tcc, tasmorder, secheck  # noqa: E402
+import dos, target, tcc, tasmorder, secheck, sesym  # noqa: E402
 
 
 def main():
@@ -30,7 +30,17 @@ def main():
     missing = [m for m in mods if m[3] == '-']
     if missing:
         sys.exit('%d modules have no source yet (first: frame %s)' % (len(missing), missing[0][0]))
-    files = [m[3] for m in mods]
+    files = []
+    for m in mods:  # a module with several code segments has one line per segment
+        if m[3] not in files:
+            files.append(m[3])
+    # far data compiled huge model (GAME.EXE's msgs.c, monsdata.c) is linked before C0M, as
+    # Ultima VI's MAKEFILE does: their empty code segments go first, their data segments
+    # first in class DATA, so the data end up right before DGROUP
+    def flags_of(f):
+        return sesym.default_flags(os.path.join(src, f)) if f.lower().endswith('.c') else ''
+    first = [f for f in files if '-mh' in flags_of(f).split()]
+    files = first + [f for f in files if f not in first]
     if os.path.exists(os.path.join(src, 'BSS.ASM')):
         files.append('BSS.ASM')
     exe = t['exe']
@@ -47,27 +57,31 @@ def main():
             ext = os.path.splitext(f)[1].upper()
             dos.crlf(os.path.join(src, f), os.path.join(s, base + ext))
             names.append((f, base, ext))
-        for dp, _, fs in os.walk(src):
-            for fn in fs:
-                if fn.lower().endswith(('.h', '.inc')):
-                    dos.crlf(os.path.join(dp, fn), os.path.join(s, fn.upper()))
+        dirs = {os.path.normpath(os.path.join(src, os.path.dirname(f))) for f in files}
+        for d in [src] + sorted(dirs):
+            for dp, _, fs in os.walk(d):
+                for fn in fs:
+                    if fn.lower().endswith(('.h', '.inc')) and not os.path.exists(os.path.join(s, fn.upper())):
+                        dos.crlf(os.path.join(dp, fn), os.path.join(s, fn.upper()))
         lines = ['set PATH=\\TC', 'cd \\S']
         for f, base, ext in names:
             if ext == '.ASM':
                 lines.append('\\TC\\MASM /Mx %s; >> \\BUILD.LOG' % base)
             elif tcc.has_inline_asm(os.path.join(src, f)):
-                fl = tcc.file_flags(os.path.join(src, f), t['flags'])
+                fl = sesym.default_flags(os.path.join(src, f))
                 lines.append('TCC -I\\TC\\INCLUDE %s -S %s.C >> \\BUILD.LOG' % (fl.replace('-c', '').replace('  ', ' '), base))
                 lines.append('\\TC\\MASM /Mx %s.ASM; >> \\BUILD.LOG' % base)
             else:
-                fl = tcc.file_flags(os.path.join(src, f), t['flags'])
+                fl = sesym.default_flags(os.path.join(src, f))
                 lines.append('TCC -I\\TC\\INCLUDE %s %s.C >> \\BUILD.LOG' % (fl, base))
         dos.run(c, lines)
         for f, base, ext in names:
             if ext == '.ASM' and os.path.exists(os.path.join(s, base + '.OBJ')):
                 tasmorder.fix(os.path.join(src, f), os.path.join(s, base + '.OBJ'))
         objs = [base for f, base, ext in names]
-        rsp, line = [], '\\TC\\LIB\\C0M'
+        nfirst = len(first)
+        rsp, line = [], ' '.join(objs[:nfirst] + ['\\TC\\LIB\\C0M'])
+        objs = objs[nfirst:]
         for o in objs:
             if len(line) + len(o) > 100:
                 rsp.append(line + '+')

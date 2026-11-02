@@ -33,7 +33,8 @@ ENDM
 
 DSegStart
 
-EXTRN GrDriver:DWORD
+EXTRN D_ED10:DWORD	;the graphic driver's entry point (uninitialised data, BSS.ASM)
+GrDriver	EQU	D_ED10
 
 _pMouse	dw 0	;D_2FB4
 _nMouseSem	dw 0	;D_2FB6
