@@ -86,7 +86,16 @@ def parse_file(p, fn, t):
             for m in re.finditer(r'/\*([0-9A-F]{4})\*/\s*(?:static\s+)?[\w\s\*]+?\b(D_[0-9A-F]{4}|\w+)\s*[\[=;]', s):
                 if re.search(r'\bextern\b', m.group(0)):
                     continue
-                t.setdefault(('D', int(m.group(1), 16)), (m.group(2), fn, 'c', False))
+                # -p makes variables pascal too (upper case, no underscore)
+                dl = 'pascal' if dpascal and not re.search(r'\bcdecl\b', m.group(0)) else 'c'
+                t.setdefault(('D', int(m.group(1), 16)), (m.group(2), fn, dl, False))
+            # far data (a huge-model module such as msgs.c): /*C_SSSS_OOOO*/ before a variable
+            for m in re.finditer(r'/\*C_([0-9A-F]{4})_([0-9A-F]{4})\*/\s*((?:[\w\*]+\s+)*?)\**\s*(\w+)\s*[\[=;]', s):
+                quals = m.group(3).split()
+                if 'extern' in quals:
+                    continue
+                lang = 'pascal' if dpascal and 'cdecl' not in quals else 'c'
+                t[('C', int(m.group(1), 16), int(m.group(2), 16))] = (m.group(4), fn, lang, 'static' in quals)
         else:
             for m in re.finditer(r'^(?:FProc|ProcStart|NProc)\s+(\w+)\s*;\s*([0-9A-F]{4}):([0-9A-F]{4})', s, re.M):
                 t[('C', int(m.group(2), 16), int(m.group(3), 16))] = (m.group(1), fn, 'asm', False)

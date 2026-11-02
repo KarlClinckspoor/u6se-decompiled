@@ -10,7 +10,7 @@
 08CB 0 10FE -  # U6 map
 09DA E 823 -  # U6 visible
 0A5D 1 3B69 -  # U6 object
-0E13 A 1664 -  # U6 status
+0E13 A 1664 status.c 08A4-0A06  # U6 status
 0F79 E 136 talk.c 0A06-0A36  # U6 talk
 0F8D 4 271C -  # U6 talkdr
 11FF 0 1102 -  # U6 spell
