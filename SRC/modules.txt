@@ -8,7 +8,8 @@
 05D0 4 2FAF console.c 03A4-04C2  # U6 console
 08CB 3 10FB map.c 04C2-069C  # U6 map
 09DA E 823 visible.c 069C-070C  # U6 visible
-0A5D 1 3B69 -  # U6 object
+0A5D 1 3B69 object.c 070C-08A2  # U6 object
+- - 0 PARTYTOP.ASM 08A2-08A4  # data only (U6 SEG_155X.ASM)
 0E13 A 1664 status.c 08A4-0A06  # U6 status
 0F79 E 136 talk.c 0A06-0A36  # U6 talk
 0F8D 4 2720 talkdr.c 0A36-0B3C  # U6 talkdr
