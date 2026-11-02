@@ -17,6 +17,9 @@ Both were built with **Turbo C++ 1.00** (May 1990) and **TLINK 3.0**:
 - Turbo C++ code segments are word aligned (TLINK pads with a zero byte).
 - `INSTALL.EXE` is Turbo C++ 1.00 too, with the unpatched heap.
 
+Both programs now rebuild byte for byte from the sources: `python3 tools/se/sebuild.py
+--target savage` (`SRC_S/`) and `--target game` (`SRC/`).
+
 ## SAVAGE.EXE
 
 76,400 bytes; 699 relocations; header 0C00h bytes; entry 0000:0000; DGROUP 0DAA;
@@ -25,13 +28,13 @@ stack 11DF:0080. Code 55,968 bytes.
 | Frames | Bytes | What | Status |
 |---|---|---|---|
 | 0000 | 13,515 | C0M (0000-0241) + 78 CMSE.LIB modules (0242-34CA), in library order | linked from Turbo C++ |
-| 034C | 11,928 | the main program | being decompiled |
-| 0636, 071C | 4,025 | program modules (character creation, endgame?) | being decompiled |
-| 0731-08E2 (except 07D9) | ~4,500 | the OSI library, a newer version of U.EXE's (0756 = TXTJUST, 078E = TXTPRINT) | being decompiled |
-| 07D9 | 2,310 | program module | being decompiled |
-| 08E4 | 7,091 | library module, 97% like GAME.EXE 2B5C | being decompiled |
-| 0AA0-0D23 | ~10,000 | Savage Empire's library, identical in GAME.EXE (2D17-2F30): files, .LZC, EMS, music, drivers | being decompiled |
-| 0D28-0DA9 | ~2,100 | last modules (driver loading, TM.DRV/SUPERTM.DRV) | being decompiled |
+| 034C | 11,928 | the main program | identical |
+| 0636, 071C | 4,025 | program modules (character creation, endgame?) | identical |
+| 0731-08E2 (except 07D9) | ~4,500 | the OSI library, a newer version of U.EXE's (0756 = TXTJUST, 078E = TXTPRINT) | identical |
+| 07D9 | 2,310 | program module | identical |
+| 08E4 | 7,091 | library module, 97% like GAME.EXE 2B5C | identical |
+| 0AA0-0D23 | ~10,000 | Savage Empire's library, identical in GAME.EXE (2D17-2F30): files, .LZC, EMS, music, drivers | identical |
+| 0D28-0DA9 | ~2,100 | last modules (driver loading, TM.DRV/SUPERTM.DRV) | identical |
 
 The per-module table, with first bytes and lengths, is `SRC_S/modules.txt` (69 modules).
 
@@ -79,8 +82,12 @@ have U6's names (U6 frame = U6 image frame + 0838).
 | 2ABF-2B57 | ~2,500 | OSI assembly (U6's OSILIB modules) | 0.97 |
 | 2B5C | 7,090 | library (= SAVAGE 08E4, 97%) | new |
 | 2D17-2F30 | ~10,000 | Savage Empire's library (= SAVAGE 0AA0-0D11) | new |
-| 2F43, 2F65 | 1,552 | far data: messages, monster tables (U6's `msgs`, `monsdata`) | |
-| 2FA4, 2FA5 | 32 | two 16-byte segments (also in SAVAGE.EXE as 0DA8, 0DA9) | |
+| 2F43, 2F65 | 1,552 | far data: monster tables, messages (`monsdata.c`, `msgs.c`) | |
+| 2FA4, 2FA5 | 32 | C0M's start-up and exit tables (`_INIT_`, `_EXIT_`; also in SAVAGE.EXE as 0DA8, 0DA9) | |
+
+Every module of GAME.EXE has its source in `SRC/` (`SRC/modules.txt`, `SRC/DECOMP.md`);
+some first bytes differ from the table above by a few bytes (a module's last switch table
+can run into the next frame).
 
 The shared library, SAVAGE frame = GAME frame: 0AA0=2D17, 0AB2=2D29, 0AD2=2D49, 0AE3=2D5A,
 0AF9=2D70, 0BB1=2E29, 0BC5=2E3C, 0BE6=2E5D, 0C02=2E79, 0C06=2E7E, 0C1C=2E89, 0C1F=2E8C,
