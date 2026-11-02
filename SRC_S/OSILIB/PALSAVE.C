@@ -8,7 +8,7 @@ struct tRGB { int r, g, b; };
 extern void (pascal *D_2B84)(int index, struct tRGB *c);/*driver: get a palette entry*/
 extern void (pascal *D_2B88)(int index, struct tRGB *c);/*driver: set a palette entry*/
 extern struct tRGB D_36E0[256];/*the saved palette*/
-extern void far C_07D7_0008(void);/*VID_waitRetrace*/
+extern void far VID_waitRetrace(void);/*VID_waitRetrace*/
 
 /*save the 256 colors (waiting for the retrace every 16)*/
 /*C_0737_0001*/PAL_save() {
@@ -16,7 +16,7 @@ extern void far C_07D7_0008(void);/*VID_waitRetrace*/
 
 	for(i = 0; i < 256; i++) {
 		if(!(i & 15))
-			C_07D7_0008();
+			VID_waitRetrace();
 		(*D_2B84)(i, &D_36E0[i]);
 	}
 }
@@ -27,7 +27,7 @@ extern void far C_07D7_0008(void);/*VID_waitRetrace*/
 
 	for(i = 0; i < 256; i++) {
 		if(!(i & 15))
-			C_07D7_0008();
+			VID_waitRetrace();
 		(*D_2B88)(i, &D_36E0[i]);
 	}
 }

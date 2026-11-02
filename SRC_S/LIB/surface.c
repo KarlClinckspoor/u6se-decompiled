@@ -1,6 +1,6 @@
 /* flags: -mm -c -O -G */
 /*
- * SAVAGE.EXE: allocating a drawing surface for the video mode (D_204A: 4 CGA, 7 Hercules,
+ * SAVAGE.EXE: allocating a drawing surface for the video mode (vidMode: 4 CGA, 7 Hercules,
  * 9 Tandy, 13 EGA, 0x13 VGA/MCGA)
  */
 #include <dos.h>
@@ -17,10 +17,10 @@ struct tSurface {
 	char huge *pixels;/*+0C the memory allocated for it*/
 };
 
-extern int D_204A;/*the video mode*/
+extern int vidMode;/*the video mode*/
 extern void (far *D_3516)(struct tSurface *, int);/*a TM.DRV routine (header +18)*/
 
-extern unsigned pascal C_07C3_0061(unsigned n);/*EGA video memory: n blocks of 256 bytes (0xFF: none)*/
+extern unsigned pascal PAL_alloc(unsigned n);/*EGA video memory: n blocks of 256 bytes (0xFF: none)*/
 extern void far *C_0BC5_00AD(long size, int flags);/*allocate far memory (or EMS: flags)*/
 extern void C_0BC5_0126(void far *p);/*free what C_0BC5_00AD allocated*/
 
@@ -32,8 +32,8 @@ extern void C_0BC5_0126(void far *p);/*free what C_0BC5_00AD allocated*/
 
 	h = s->bottom - s->top + 1;
 	w = s->right - s->left + 1;
-	if(D_204A != 0x13) {
-		switch(D_204A) {
+	if(vidMode != 0x13) {
+		switch(vidMode) {
 			case 13:
 				bpl = w >> 3;
 				if((s->left & 7) || (w & 7))
@@ -47,7 +47,7 @@ extern void C_0BC5_0126(void far *p);/*free what C_0BC5_00AD allocated*/
 			break;
 		}
 	}
-	switch(D_204A) {
+	switch(vidMode) {
 		case 0x13:
 			size = (long)h * w;
 		break;
@@ -75,8 +75,8 @@ extern void C_0BC5_0126(void far *p);/*free what C_0BC5_00AD allocated*/
 	w = s->right - s->left + 1;
 	left = s->left;
 	top = s->top;
-	if(D_204A != 0x13) {
-		switch(D_204A) {
+	if(vidMode != 0x13) {
+		switch(vidMode) {
 			case 13:
 				bpl = w >> 3;
 				if((s->left & 7) || (w & 7))
@@ -90,9 +90,9 @@ extern void C_0BC5_0126(void far *p);/*free what C_0BC5_00AD allocated*/
 			break;
 		}
 	}
-	switch(D_204A) {
+	switch(vidMode) {
 		case 13:
-			i = C_07C3_0061((bpl * h + 0x100) >> 8) << 8;
+			i = PAL_alloc((bpl * h + 0x100) >> 8) << 8;
 			if(i == 0xffff)
 				return 0;
 			p = (char huge *)0xa0000000L;
@@ -117,12 +117,12 @@ extern void C_0BC5_0126(void far *p);/*free what C_0BC5_00AD allocated*/
 	ofs = FP_OFF(p);
 	s->lines = malloc(h * 2 + top * 2);
 	if(s->lines == 0) {
-		if(D_204A != 0x13)
+		if(vidMode != 0x13)
 			C_0BC5_0126((void far *)s->pixels);
 		return 0;
 	}
 	for(i = 0; i < h; i ++) {
-		switch(D_204A) {
+		switch(vidMode) {
 			case 13:
 				*(s->lines + i + top) = ofs - (left >> 3);
 				ofs += bpl;
@@ -136,7 +136,7 @@ extern void C_0BC5_0126(void far *p);/*free what C_0BC5_00AD allocated*/
 				ofs += bpl;
 			break;
 			default:
-				if(D_204A != 0x13)
+				if(vidMode != 0x13)
 					x = -1;
 				*(s->lines + i + top) = ofs - left;
 				ofs += w;

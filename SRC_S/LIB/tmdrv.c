@@ -11,8 +11,8 @@ typedef void (far *tDrvFunc)();
 /*the entry points: driver segment and an offset of its header*/
 #define ENTRY(seg, off) ((tDrvFunc)(((long)(seg) << 16) | (off)))
 
-extern char D_00AD[];/*"TM.DRV"*/
-extern char D_00B4[];/*"SUPERTM.DRV"*/
+extern char tmDrvName[];/*"TM.DRV"*/
+extern char superTmDrvName[];/*"SUPERTM.DRV"*/
 
 /*C_0C58_0305: load a file (into buf, or allocated when buf is 0)*/
 extern void far * pascal C_0C58_0305(char far *name, int kind, void far *buf, int flags, long x);
@@ -21,7 +21,7 @@ extern void far *C_0AD2_0024(void far *p);/*map an EMS pointer: handed to the dr
 extern unsigned far *D_201A;/*TM.DRV: its header (an offset per entry point)*/
 extern tDrvFunc D_2020;/*TM.DRV entry points, by header offset: +04*/
 extern tDrvFunc D_2024;/*+06*/
-extern tDrvFunc D_2028;/*+02*/
+extern tDrvFunc drvPutChar;/*+02*/
 extern tDrvFunc D_2B34;/*+1C*/
 extern tDrvFunc D_2B3A;/*+12*/
 extern tDrvFunc D_2B62;/*+1E*/
@@ -59,10 +59,10 @@ extern tDrvFunc D_2BDC;/*+02*/
 		k = 2;
 	else
 		k = kind;
-	D_201A = C_0C58_0305(D_00AD, k, 0L, 0x12, 0L);
+	D_201A = C_0C58_0305(tmDrvName, k, 0L, 0x12, 0L);
 	if(D_201A) {
 		seg = FP_SEG(D_201A);
-		D_2028 = ENTRY(seg, D_201A[0x02 / 2]);
+		drvPutChar = ENTRY(seg, D_201A[0x02 / 2]);
 		D_2020 = ENTRY(seg, D_201A[0x04 / 2]);
 		D_2024 = ENTRY(seg, D_201A[0x06 / 2]);
 		D_2BD6 = ENTRY(seg, D_201A[0x08 / 2]);
@@ -92,7 +92,7 @@ extern tDrvFunc D_2BDC;/*+02*/
 }
 
 /*load TM.DRV, then SUPERTM.DRV, and take its entry points; 0: not loaded*/
-/*C_0D46_016A*/int LoadSuperTM(int kind) {
+/*C_0D46_01AA*/int LoadSuperTM(int kind) {
 	register int k;
 	register int seg;
 
@@ -101,7 +101,7 @@ extern tDrvFunc D_2BDC;/*+02*/
 			k = 2;
 		else
 			k = kind;
-		D_34F2 = C_0C58_0305(D_00B4, k, 0L, 0x12, 0L);
+		D_34F2 = C_0C58_0305(superTmDrvName, k, 0L, 0x12, 0L);
 		if(D_34F2) {
 			seg = FP_SEG(D_34F2);
 			D_2BDC = ENTRY(seg, D_34F2[0x02 / 2]);

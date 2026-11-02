@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 extern int D_3CE0[256];/*colors allocated: at each color of a run, the run's length (0: free)*/
-extern void far C_07D6_0004(void);/*VID_initPort: the CRT status port*/
+extern void far VID_initPort(void);/*VID_initPort: the CRT status port*/
 
 /*204A*/int vidMode = -1;/*the video mode last set (a graphics mode)*/
 
@@ -39,7 +39,7 @@ color:
 	asm int 10h
 	asm pop bp
 	asm pop ds
-	C_07D6_0004();
+	VID_initPort();
 }
 
 /*allocate a run of n free colors: its first color, or -1*/

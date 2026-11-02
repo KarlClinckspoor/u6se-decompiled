@@ -7,9 +7,10 @@ compare the result with the original executable byte for byte.
 <SRC>/modules.txt gives the modules in link order (their sources: .c compiled with the
 flags of their first line or the target's, .asm assembled with MASM 3.0 /Mx and their
 fixups put in TASM's order, tools/se/tasmorder.py). The link is
-    TLINK C0M <modules> BSS, <EXE>, <MAP>, CMSE
+    TLINK /m /i C0M <modules> BSS, <EXE>, <MAP>, CMSE
 with C0M.OBJ and CMSE.LIB from Turbo C++ 1.00 (tools/se/setup.py). BSS.ASM, when there is
-one, lays out the uninitialised data of all the modules.
+one, lays out the uninitialised data of all the modules. /i ("initialise all segments")
+is Origin's: the .EXE holds the uninitialised data and the stack as zeros.
 """
 import argparse, hashlib, os, shutil, struct, sys, tempfile
 
@@ -75,12 +76,12 @@ def main():
         rsp.append(line)
         rsp.append('%s,%s,\\TC\\LIB\\CMSE' % (exe.split('.')[0], exe.split('.')[0]))
         open(os.path.join(s, 'LINK.RSP'), 'w', newline='').write('\r\n'.join(rsp) + '\r\n')
-        dos.run(c, ['set PATH=\\TC', 'cd \\S', 'TLINK /m @LINK.RSP >> \\BUILD.LOG'])
+        dos.run(c, ['set PATH=\\TC', 'cd \\S', 'TLINK /m /i @LINK.RSP >> \\BUILD.LOG'])
         log = open(os.path.join(c, 'BUILD.LOG'), encoding='latin-1').read() if os.path.exists(os.path.join(c, 'BUILD.LOG')) else ''
         if a.log:
             print(log)
         for l in log.splitlines():
-            if any(k in l for k in ('Error', 'Fatal', 'Undefined', 'rror')):
+            if l.startswith(('Error', 'Fatal')) or 'Undefined symbol' in l or ': error' in l.lower():
                 print(l)
         if a.keep:
             shutil.copytree(s, a.keep, dirs_exist_ok=True)

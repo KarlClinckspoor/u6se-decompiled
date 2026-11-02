@@ -9,18 +9,19 @@
 INCLUDE OSI.INC
 
 DSegStart
-PUBLIC D_2016,D_201A,_pText,D_2020,D_2024,drvPutChar,D_202C,D_202E,D_2030,D_2032
+PUBLIC D_2016,_D_201A,_pText,_D_2020,_D_2024,_drvPutChar,D_202C,D_202E,D_2030,D_2032
 
+D_2014	dw 0	;D_2014 (not used by SAVAGE.EXE; it could as well be the last of 071C's data)
 D_2016	LABEL	DWORD	;D_2016 (not used by SAVAGE.EXE)
 	FarNull
-D_201A	LABEL	DWORD	;D_201A int far *: while *D_201A is not 0 the mouse pointer is not redrawn
+_D_201A	LABEL	DWORD	;D_201A int far *: while *D_201A is not 0 the mouse pointer is not redrawn
 	FarNull
 _pText	dw 0	;D_201E struct tText *: the current text window
-D_2020	LABEL	DWORD	;D_2020 driver: copy a line of pixels (ES: segment, SI: scanlines, BX: from y, DI: to y, DX: left, CX: right)
+_D_2020	LABEL	DWORD	;D_2020 driver: copy a line of pixels (ES: segment, SI: scanlines, BX: from y, DI: to y, DX: left, CX: right)
 	FarNull
-D_2024	LABEL	DWORD	;D_2024 driver: fill a line of pixels (ES: segment, SI: scanlines, BX: y, DX: left, CX: right, AL: color)
+_D_2024	LABEL	DWORD	;D_2024 driver: fill a line of pixels (ES: segment, SI: scanlines, BX: y, DX: left, CX: right, AL: color)
 	FarNull
-drvPutChar	LABEL	DWORD	;D_2028 driver: draw the character AX (BX: struct tText *, CX: height, DX: width, SI: 2*y)
+_drvPutChar	LABEL	DWORD	;D_2028 driver: draw the character AX (BX: struct tText *, CX: height, DX: width, SI: 2*y)
 	FarNull
 D_202C	dw 0	;D_202C TXT_clearLine: the line of pixels being filled
 D_202E	dw 0	;D_202E TXT_clearLine: lines of pixels left

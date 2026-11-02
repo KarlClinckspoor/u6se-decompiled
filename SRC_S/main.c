@@ -43,9 +43,9 @@ struct tQuestion {
 };
 
 /*other modules' initialised data*/
-extern struct tText *D_201E;/*the current text window*/
-extern int D_20CA;/*music card: 0 none, 1 Roland, 2 AdLib (main sets 3 first)*/
-extern int D_20CE;/*how far the music has played (the intro waits on it)*/
+extern struct tText *pText;/*the current text window*/
+extern int soundCard;/*music card: 0 none, 1 Roland, 2 AdLib (main sets 3 first)*/
+extern int musicMarker;/*how far the music has played (the intro waits on it)*/
 extern int D_240C;/*the last file operation failed*/
 
 /*uninitialised data*/
@@ -96,29 +96,29 @@ extern void C_0BC5_0126(void far *p);/*free far memory*/
 extern void C_0BC5_000B(int);
 extern void C_0BC5_0045(int);
 extern void C_0BC5_0079(int);
-extern void pascal C_077E_000C(int x, int y);/*move the text cursor*/
-extern int pascal C_0780_0004(char c);/*width of a character*/
-extern void C_078E_0230(char far *fmt, ...);/*print*/
-extern void C_078E_0252(char far *fmt, ...);/*print, word wrapped, %P pauses*/
-extern void pascal C_07C3_0005(int mode);/*set the video mode*/
-extern void C_07D7_0008(void);/*wait for the vertical retrace*/
-extern void pascal C_08CA_0006(struct tSurface *from, struct tSurface *to);/*fade in*/
-extern void pascal C_0896_0004(struct tSurface *, int, int);/*fade out*/
-extern void pascal C_08E2_000A(char far *pal);/*set the palette*/
-extern void C_08E4_1478(int);/*fade the music out*/
-extern void C_08E4_164A(char far *name);/*load the timbres*/
-extern void C_08E4_17BE(void);/*stop the music*/
-extern void C_08E4_19FF(void far *song);/*play a song*/
+extern void pascal TXT_gotoxy(int x, int y);/*move the text cursor*/
+extern int pascal TXT_charWidth(char c);/*width of a character*/
+extern void TXT_printf(char far *fmt, ...);/*print*/
+extern void TXT_sprintf(char far *fmt, ...);/*print, word wrapped, %P pauses*/
+extern void pascal VID_setMode(int mode);/*set the video mode*/
+extern void VID_waitRetrace(void);/*wait for the vertical retrace*/
+extern void pascal FADE_in(struct tSurface *from, struct tSurface *to);/*fade in*/
+extern void pascal FADE_out(struct tSurface *, int, int);/*fade out*/
+extern void pascal PAL_setAll(char far *pal);/*set the palette*/
+extern void FadeOutMusic(int);/*fade the music out*/
+extern void InitSound(char far *name);/*load the timbres*/
+extern void ShutdownSound(void);/*stop the music*/
+extern void PlaySong(void far *song);/*play a song*/
 extern long C_0AE3_0004(void);/*free far memory*/
 extern int C_0C97_00BE(void);/*speed of the machine*/
 extern void C_0CED_0106(long t);/*wait (2383 per millisecond)*/
 extern int pascal C_0D23_0027(int lo, int hi);/*random number from lo to hi*/
 extern void pascal C_0D23_004B(int seed);/*seed the random numbers*/
-extern void pascal C_0D28_000B(struct tSurface *, int);/*make the screen surface*/
-extern void pascal C_0D28_01BC(struct tSurface *, int);/*allocate a surface*/
-extern int C_0D46_01AA(int adapter);/*load the graphics driver*/
-extern int pascal C_0753_0000(int, int, void far *shapes, int n, int what);/*a shape's size*/
-extern void C_0636_0C6D(struct tSurface *, struct tSurface *, int adapter, void far *song);/*the title*/
+extern void pascal ScreenSurface(struct tSurface *, int);/*make the screen surface*/
+extern void pascal BufferSurface(struct tSurface *, int);/*allocate a surface*/
+extern int LoadSuperTM(int adapter);/*load the graphics driver*/
+extern int pascal SHP_edge(int, int, void far *shapes, int n, int what);/*a shape's size*/
+extern void PlayTitle(struct tSurface *, struct tSurface *, int adapter, void far *song);/*the title*/
 
 /*this module's functions used before they are defined*/
 void ResetText(int color);
@@ -244,7 +244,7 @@ found in one of the removable drives*/
 		(*D_2BBA)(&D_2B1A, &D_2B52);
 		while(curDisk != d && diskDrive[d] < 0) {
 			(*D_2BC6)(&D_2B1A, 0x6e, 0x50, diskShapes, curPalette);
-			D_201E = &D_2B72;
+			pText = &D_2B72;
 			D_2B3E.left = 0x76;
 			D_2B3E.top = 0x5f;
 			D_2B3E.right = 0xdf;
@@ -255,8 +255,8 @@ found in one of the removable drives*/
 			if(curPalette == 0 && D_2B68 == 0)
 				D_2B72.bg = 0x12;
 			ResetText(D_2B72.bg);
-			C_078E_0252("Please insert\n%P");
-			C_078E_0252("%s%P", diskNames[d]);
+			TXT_sprintf("Please insert\n%P");
+			TXT_sprintf("%s%P", diskNames[d]);
 			for(i = 0; !i; i = GetKey())
 				FlushKeys();
 			if(i == 0x1b)
@@ -400,8 +400,8 @@ found in one of the removable drives*/
 /*quit (control-break, the main menu's ^Q)*/
 /*C_034C_0508*/int Quit() {
 	FadeOut();
-	C_07C3_0005(3);
-	C_08E4_17BE();
+	VID_setMode(3);
+	ShutdownSound();
 	C_0BC5_000B(8);
 	C_0BC5_0079(8);
 	exit(0);
@@ -411,17 +411,17 @@ found in one of the removable drives*/
 /*C_034C_0540*/void StartGame() {
 	FadeOut();
 	InsertDisk(1);
-	C_08E4_17BE();
+	ShutdownSound();
 	C_0BC5_000B(8);
 	C_0BC5_0079(8);
-	C_07C3_0005(3);
+	VID_setMode(3);
 	if(execv("GAME.EXE", D_2B9A) == -1)
 		Fatal();
 }
 
 /*load the songs; 0 if there is no music*/
 /*C_034C_0592*/int LoadMusic() {
-	if(D_353E == 0 || D_20CA == 0)
+	if(D_353E == 0 || soundCard == 0)
 		return 0;
 	if(C_0AE3_0004() <= 0)
 		return 0;
@@ -481,15 +481,15 @@ found in one of the removable drives*/
 			dst++;
 			src++;
 		}
-		C_08E2_000A(D_281A);
+		PAL_setAll(D_281A);
 	}
 }
 
 /*fatal error: back to text mode, exit with exitCode*/
 /*C_034C_0704*/void Fatal() {
-	C_07C3_0005(3);
-	if(D_20CA)
-		C_08E4_17BE();
+	VID_setMode(3);
+	if(soundCard)
+		ShutdownSound();
 	C_0BC5_000B(8);
 	C_0BC5_0079(8);
 	exit(exitCode);
@@ -500,7 +500,7 @@ main menu*/
 /*C_034C_073F*/void SkipIntro(int keep) {
 	FlushKeys();
 	if(D_353E)
-		C_08E4_1478(200);
+		FadeOutMusic(200);
 	D_2B1A.top = 0;
 	D_2B1A.bottom = 199;
 	D_2B52.left = 0;
@@ -522,7 +522,7 @@ main menu*/
 /*fade the screen out, clear it*/
 /*C_034C_07C4*/void FadeOut() {
 	if(D_2B68 == 0)
-		C_0896_0004(&D_2B1A, 0, 1);
+		FADE_out(&D_2B1A, 0, 1);
 	(*D_3516)(&D_2B1A, 0);
 	SetPalette(curPalette);
 }
@@ -530,7 +530,7 @@ main menu*/
 /*show the back buffer (fade in on VGA)*/
 /*C_034C_07F8*/void FadeIn() {
 	if(D_2B68 == 0)
-		C_08CA_0006(&D_2B52, &D_2B1A);
+		FADE_in(&D_2B52, &D_2B1A);
 	else
 		(*D_2BBA)(&D_2B52, &D_2B1A);
 }
@@ -560,9 +560,9 @@ the days, months, years of the endgame*/
 			case 'T': D_2B68 = 3; break;
 			case 'M': D_2BAC = 1; break;
 			case 'K': D_2BAC = 0; break;
-			case 'N': case 'P': D_353E = 0; D_20CA = 0; break;
-			case 'A': D_353E = 1; D_20CA = 2; break;
-			case 'R': D_353E = 1; D_20CA = 1; break;
+			case 'N': case 'P': D_353E = 0; soundCard = 0; break;
+			case 'A': D_353E = 1; soundCard = 2; break;
+			case 'R': D_353E = 1; soundCard = 1; break;
 			case 'X': D_2B9C = 1; break;
 			case 'L':
 				if(toupper(*s) == 'A') {
@@ -618,7 +618,7 @@ the days, months, years of the endgame*/
 		C_0D23_0027(0, 2);
 	D_2B38 = 0x182;
 	D_2BA2 = 2;
-	D_20CA = 3;
+	soundCard = 3;
 	D_2B66 = 1;
 	D_2BDA = 1;
 	D_2BAC = 0;
@@ -635,9 +635,9 @@ the days, months, years of the endgame*/
 	}
 	for(i = 1; i < argc; i++)
 		ParseConfig(argv[i]);
-	if(C_0D46_01AA(D_2B68) == 0) {
+	if(LoadSuperTM(D_2B68) == 0) {
 		if(D_353E)
-			C_08E4_17BE();
+			ShutdownSound();
 		C_0BC5_000B(8);
 		C_0BC5_0079(8);
 		exit(1);
@@ -648,12 +648,12 @@ the days, months, years of the endgame*/
 		Fatal();
 	}
 	switch(D_2B68) {
-		case 0: C_07C3_0005(0x13); textColor = 0x48; break;
-		case 1: C_07C3_0005(0xd); textColor = 7; break;
-		case 3: C_07C3_0005(9); textColor = 7; break;
+		case 0: VID_setMode(0x13); textColor = 0x48; break;
+		case 1: VID_setMode(0xd); textColor = 7; break;
+		case 3: VID_setMode(9); textColor = 7; break;
 	}
-	C_0D28_000B(&D_2B1A, 0);
-	C_0D28_01BC(&D_2B52, 0);
+	ScreenSurface(&D_2B1A, 0);
+	BufferSurface(&D_2B52, 0);
 	D_2B3E = D_2B1A;
 	D_2B4E = LoadLzc("savage.fnt", 0);
 	if(D_2B4E == 0) {
@@ -673,7 +673,7 @@ the days, months, years of the endgame*/
 		exitCode = 1;
 		Fatal();
 	}
-	C_08E4_164A("savage.tim");
+	InitSound("savage.tim");
 	if(LoadMusic() == 0)
 		D_353E = 0;
 	else
@@ -685,7 +685,7 @@ the days, months, years of the endgame*/
 	else if(D_2B9C == 0) {
 		InsertDisk(5);
 		SetPalette(2);
-		C_0636_0C6D(&D_2B52, &D_2B1A, D_2B68, D_353E ? titleSong : (void far *)0);
+		PlayTitle(&D_2B52, &D_2B1A, D_2B68, D_353E ? titleSong : (void far *)0);
 		SetPalette(1);
 		Intro();
 		FreeFar(&introShapes0);
@@ -729,7 +729,7 @@ the days, months, years of the endgame*/
 	SetPalette(0);
 	(*D_2BC6)(&D_2B52, 0, 0, introShapes0, 0);
 	if(D_353E)
-		C_08E4_19FF(introSong);
+		PlaySong(introSong);
 	FadeIn();
 	(*D_2BC6)(&D_2B52, 0, 0, introShapes0, 1);
 	FreeFar(&introShapes0);
@@ -738,7 +738,7 @@ the days, months, years of the endgame*/
 	if(introShapes == 0)
 		Fatal();
 	if(D_353E) {
-		while(D_20CE < 1)
+		while(musicMarker < 1)
 			if(kbhit())
 				SkipIntro(0);
 	} else
@@ -751,7 +751,7 @@ the days, months, years of the endgame*/
 	if(introShapes2 == 0)
 		Fatal();
 	if(D_353E) {
-		while(D_20CE < 2)
+		while(musicMarker < 2)
 			if(kbhit())
 				SkipIntro(0);
 	} else
@@ -783,7 +783,7 @@ the days, months, years of the endgame*/
 			frame2 = abs(x) % 35;
 			if(frame2 < 15)
 				(*D_2BC6)(&D_2B52, 0, 0, introShapes2, frame);
-			C_07D7_0008();
+			VID_waitRetrace();
 			(*D_2BBA)(&D_2B52, &D_2B1A);
 			if(D_2BA2 == 0)
 				D_2BA2 = 1;
@@ -807,7 +807,7 @@ the days, months, years of the endgame*/
 	(*D_2BC6)(&D_2B52, x3, 0, introShapes, 5);
 	(*D_2BC6)(&D_2B52, x3 + 320, 0, introShapes, 6);
 	(*D_2BC6)(&D_2B52, x3 + 640, 0, introShapes, 7);
-	C_07D7_0008();
+	VID_waitRetrace();
 	(*D_2BBA)(&D_2B52, &D_2B1A);
 	FreeFar(&introShapes2);
 	FreeFar(&introShapes);
@@ -825,9 +825,9 @@ the days, months, years of the endgame*/
 			(*D_2BC6)(&D_2B52, 0, 0, introShapes, 2);
 			(*D_2BC6)(&D_2B52, 0, i, introShapes2, 0);
 			(*D_2BC6)(&D_2B52, 0, 0, introShapes, 5);
-			C_07D7_0008();
+			VID_waitRetrace();
 			(*D_2BBA)(&D_2B52, &D_2B1A);
-			if(D_353E && D_20CE >= 3)
+			if(D_353E && musicMarker >= 3)
 				i -= 4;
 			if(kbhit())
 				SkipIntro(0);
@@ -839,7 +839,7 @@ the days, months, years of the endgame*/
 		(*D_2BC6)(&D_2B52, 0, 0, introShapes2, 0);
 		(*D_2BC6)(&D_2B52, 0, 0, introShapes, 5);
 		(*D_2BC6)(&D_2B52, 0, 0, introShapes, i + 8);
-		C_07D7_0008();
+		VID_waitRetrace();
 		(*D_2BBA)(&D_2B52, &D_2B1A);
 		if(kbhit())
 			SkipIntro(0);
@@ -850,13 +850,13 @@ the days, months, years of the endgame*/
 		(*D_2BC6)(&D_2B52, 0, 0, introShapes2, 0);
 		(*D_2BC6)(&D_2B52, 0, 0, introShapes, 5);
 		(*D_2BC6)(&D_2B52, 0, 0, introShapes, i + 8);
-		C_07D7_0008();
+		VID_waitRetrace();
 		(*D_2BBA)(&D_2B52, &D_2B1A);
 		if(kbhit())
 			SkipIntro(0);
 	}
 	for(i = 0; i < 7; i++) {
-		if(D_353E && D_20CE >= 3)
+		if(D_353E && musicMarker >= 3)
 			break;
 		Wait(200);
 	}
@@ -885,7 +885,7 @@ the days, months, years of the endgame*/
 /*C_034C_1544*/int MenuPick(int *sel, int n) {
 	*sel = n;
 	DrawMenu(*sel, 1);
-	C_07D7_0008();
+	VID_waitRetrace();
 	(*D_2BBA)(&D_2B52, &D_2B1A);
 	return n;
 }
@@ -904,7 +904,7 @@ Journey onward; fromTitle: it comes after the introduction*/
 	if(menuShapes == 0)
 		Fatal();
 	if(D_353E == -1)
-		C_08E4_19FF(menuSong);
+		PlaySong(menuSong);
 	if(D_3538 == 0)
 		menuLast = 2;
 	if(fromTitle == 0) {
@@ -941,14 +941,14 @@ Journey onward; fromTitle: it comes after the introduction*/
 					if(++sel > menuLast)
 						sel = 0;
 					DrawMenu(sel, 0);
-					C_07D7_0008();
+					VID_waitRetrace();
 					(*D_2BBA)(&D_2B52, &D_2B1A);
 				break;
 				case 0x148:/*up*/
 					if(--sel < 0)
 						sel = menuLast;
 					DrawMenu(sel, 0);
-					C_07D7_0008();
+					VID_waitRetrace();
 					(*D_2BBA)(&D_2B52, &D_2B1A);
 				break;
 				case 0x11: case 0x12d:/*^Q, alt-X*/
@@ -1001,7 +1001,7 @@ Journey onward; fromTitle: it comes after the introduction*/
 	if(creditShapes == 0)
 		Fatal();
 	for(i = 0; i < 13; i++)
-		total += C_0753_0000(0, 0, creditShapes, i, 3);
+		total += SHP_edge(0, 0, creditShapes, i, 3);
 	for(y = 197; y + total > 4; y -= 4) {
 		(*D_2BC6)(&D_2B52, 0, 0, menuShapes, 0);
 		D_2B52.left = 100;
@@ -1011,13 +1011,13 @@ Journey onward; fromTitle: it comes after the introduction*/
 		h = 0;
 		for(i = 0; i < 13; i++) {
 			(*D_2BC6)(&D_2B52, 100, y + h, creditShapes, i);
-			h += C_0753_0000(0, 0, creditShapes, i, 3);
+			h += SHP_edge(0, 0, creditShapes, i, 3);
 		}
 		D_2B52.left = 0;
 		D_2B52.right = 319;
 		D_2B52.top = 0;
 		D_2B52.bottom = 199;
-		C_07D7_0008();
+		VID_waitRetrace();
 		(*D_2BBA)(&D_2B52, &D_2B1A);
 		if(kbhit()) {
 			FlushKeys();
@@ -1042,8 +1042,8 @@ put the cursor back); an extended key gives 0x100 + its code, in a char*/
 	fg = D_2B72.fg;
 	D_2B72.fg = 1;
 	while(key == 0) {
-		C_077E_000C(x, y);
-		C_078E_0230("_");
+		TXT_gotoxy(x, y);
+		TXT_printf("_");
 		if(kbhit()) {
 			if(!(key = getch())) {
 				ext = 1;
@@ -1062,20 +1062,20 @@ put the cursor back); an extended key gives 0x100 + its code, in a char*/
 	}
 	key = (ext << 8) + key;
 	if(mode == 0)
-		C_077E_000C(x, y);
+		TXT_gotoxy(x, y);
 	else if(mode > 1) {
-		C_077E_000C(x, y);
+		TXT_gotoxy(x, y);
 		if(key < ' ' || key > 'z')
-			C_078E_0230(" ");
+			TXT_printf(" ");
 		else
-			C_078E_0230("%c", key);
-		C_077E_000C(x, y);
+			TXT_printf("%c", key);
+		TXT_gotoxy(x, y);
 	} else {
-		C_077E_000C(x, y);
+		TXT_gotoxy(x, y);
 		if(key < ' ' || key > 'z')
-			C_078E_0230(" ");
+			TXT_printf(" ");
 		else
-			C_078E_0230("%c", key);
+			TXT_printf("%c", key);
 	}
 	D_2B72.fg = fg;
 	return key;
@@ -1093,8 +1093,8 @@ put the cursor back); an extended key gives 0x100 + its code, in a char*/
 	fg = D_2B72.fg;
 	D_2B72.fg = 1;
 	while(key == 0) {
-		C_077E_000C(x, y);
-		C_078E_0230("]");
+		TXT_gotoxy(x, y);
+		TXT_printf("]");
 		if(kbhit()) {
 			if(!(key = getch()))
 				key = getch();
@@ -1108,7 +1108,7 @@ put the cursor back); an extended key gives 0x100 + its code, in a char*/
 			C_0CED_0106(238300L);
 	}
 	(*D_2B90)(D_2B72.surface, x, y, x + 8, y + 8, D_2B72.bg);
-	C_077E_000C(x, y);
+	TXT_gotoxy(x, y);
 	D_2B72.fg = fg;
 	return key;
 }
@@ -1140,7 +1140,7 @@ put the cursor back); an extended key gives 0x100 + its code, in a char*/
 	createShapes4 = LoadLzc("create.lzc", 4);
 	if(createShapes4 == 0)
 		Fatal();
-	D_201E = &D_2B72;
+	pText = &D_2B72;
 	D_2B3E.left = 0xb1;
 	D_2B3E.top = 0x20;
 	D_2B3E.right = 0x132;
@@ -1155,10 +1155,10 @@ put the cursor back); an extended key gives 0x100 + its code, in a char*/
 	FadeIn();
 	ResetText(-1);
 	if(D_2818 == 0) {
-		C_078E_0252("You must first run the INSTALL program.\n\nCheck your reference card for details.%P");
+		TXT_sprintf("You must first run the INSTALL program.\n\nCheck your reference card for details.%P");
 		WaitKeyPrompt();
 	} else if(D_34EC == -1) {
-		C_078E_0252("A saved game is already in progress. To create a new character, you must first run the INSTALL program.%s%P");
+		TXT_sprintf("A saved game is already in progress. To create a new character, you must first run the INSTALL program.%s%P");
 		WaitKeyPrompt();
 	} else if(Awakening()) {
 		D_2BCF = playerName;
@@ -1203,13 +1203,13 @@ or empty*/
 		key = InputKey(1);
 		if(key == 8 || key == 0x14b) {
 			(*D_2B90)(D_2B72.surface, x, y, D_2B72.surface->right, y + 8, D_2B72.bg);
-			C_077E_000C(x, y);
+			TXT_gotoxy(x, y);
 			if(len > 0) {
 				len--;
-				x -= C_0780_0004(playerName[len]);
+				x -= TXT_charWidth(playerName[len]);
 			}
 			(*D_2B90)(D_2B72.surface, x, y, x + 8, y + 8, D_2B72.bg);
-			C_077E_000C(x, y);
+			TXT_gotoxy(x, y);
 			playerName[len] = 0;
 		} else if(key == 0xd) {
 			done = 1;
@@ -1217,15 +1217,15 @@ or empty*/
 			return 0;
 		else if(key < ' ' || key > 'z' || BadNameChar(key)) {
 			(*D_2B90)(D_2B72.surface, x, y, x + 8, y + 8, D_2B72.bg);
-			C_077E_000C(x, y);
+			TXT_gotoxy(x, y);
 			playerName[len] = 0;
 		} else if(len < 13) {
 			playerName[len] = key;
 			len++;
-			x += C_0780_0004(key);
+			x += TXT_charWidth(key);
 		} else {
 			(*D_2B90)(D_2B72.surface, x, y, x + 8, y + 8, D_2B72.bg);
-			C_077E_000C(x, y);
+			TXT_gotoxy(x, y);
 			playerName[len] = 0;
 		}
 	}
@@ -1238,22 +1238,22 @@ or empty*/
 /*C_034C_1FFD*/int Awakening() {
 	FlushKeys();
 	ResetText(D_2B72.bg);
-	C_078E_0252("You are in a dirt-floored hut... and a tribesman with wise eyes stares down at you.\n%P");
-	C_078E_0252("\nYou feel as though you are floating. You cannot move your limbs. It is like a dream... yet you sense it is not a dream.\n%P");
+	TXT_sprintf("You are in a dirt-floored hut... and a tribesman with wise eyes stares down at you.\n%P");
+	TXT_sprintf("\nYou feel as though you are floating. You cannot move your limbs. It is like a dream... yet you sense it is not a dream.\n%P");
 	if(WaitKeyPrompt() == 0x1b)
 		return 0;
 	ResetText(D_2B72.bg);
-	C_078E_0252("The man speaks: \"Yes, warrior, you can hear. You see Intanya, shaman and healer. Intanya will heal you...\n%P");
-	C_078E_0252("but to concoct his healing potion, he must ask you questions.&\n%P");
+	TXT_sprintf("The man speaks: \"Yes, warrior, you can hear. You see Intanya, shaman and healer. Intanya will heal you...\n%P");
+	TXT_sprintf("but to concoct his healing potion, he must ask you questions.&\n%P");
 	if(WaitKeyPrompt() == 0x1b)
 		return 0;
 	ResetText(D_2B72.bg);
-	C_078E_0252("\"In order to heal your spirit, Intanya must know your spirit, so you must answer with truthful words.&\n%P");
-	C_078E_0252("\n\"Intanya will speak of deeds and choices; you must answer with the choices you would make.&\n%P");
+	TXT_sprintf("\"In order to heal your spirit, Intanya must know your spirit, so you must answer with truthful words.&\n%P");
+	TXT_sprintf("\n\"Intanya will speak of deeds and choices; you must answer with the choices you would make.&\n%P");
 	if(WaitKeyPrompt() == 0x1b)
 		return 0;
 	ResetText(D_2B72.bg);
-	C_078E_0252("\"First, though, Intanya must know the warrior's name, for there is much power in names.\n\n\"What does the warrior call himself?&\n%P");
+	TXT_sprintf("\"First, though, Intanya must know the warrior's name, for there is much power in names.\n\n\"What does the warrior call himself?&\n%P");
 	if(InputName() == 0) {
 		ResetText(D_2B72.bg);
 		return 0;
@@ -1272,23 +1272,23 @@ escaped*/
 		return 6;
 	FlushKeys();
 	ResetText(D_2B72.bg);
-	C_078E_0252("%s%P", questions[q].deed);
+	TXT_sprintf("%s%P", questions[q].deed);
 	if(questions[q].deed2) {
-		C_078E_0252("\n%s%P", questions[q].deed2);
+		TXT_sprintf("\n%s%P", questions[q].deed2);
 		if(questions[q].choice2) {
 			WaitKeyPrompt();
 			ResetText(D_2B72.bg);
-			C_078E_0252("%s%P", questions[q].choice);
-			C_078E_0252("\n%s%P", questions[q].choice2);
+			TXT_sprintf("%s%P", questions[q].choice);
+			TXT_sprintf("\n%s%P", questions[q].choice2);
 		} else {
-			C_078E_0252("\n%s%P", questions[q].choice);
+			TXT_sprintf("\n%s%P", questions[q].choice);
 		}
 	} else {
-		C_078E_0252("\n%s%P", questions[q].choice);
+		TXT_sprintf("\n%s%P", questions[q].choice);
 		if(questions[q].choice2)
-			C_078E_0252("\n%s%P", questions[q].choice2);
+			TXT_sprintf("\n%s%P", questions[q].choice2);
 	}
-	C_078E_0230("\n");
+	TXT_printf("\n");
 	key = -1;
 	while(key != 0x1b && key != 'A' && key != 'B')
 		key = toupper(InputKey(2));
@@ -1338,7 +1338,7 @@ escaped*/
 		(*D_2BC6)(&D_2B52, 8, 0x1c, createShapes1, 0);
 		(*D_2BC6)(&D_2B52, 8, 0x1c, createShapes2, i);
 		(*D_2BC6)(&D_2B52, 8, 0x1c, createShapes1, 1);
-		C_07D7_0008();
+		VID_waitRetrace();
 		(*D_2BBA)(&D_2B52, &D_2B1A);
 		if(i == 0 || i == 5)
 			C_0CED_0106(95320L);/*40 ms*/
@@ -1353,7 +1353,7 @@ escaped*/
 		(*D_2BC6)(&D_2B52, 8, 0x1c, createShapes3, n + 17);
 		(*D_2BC6)(&D_2B52, 8, 0x1c, createShapes3, i);
 		(*D_2BC6)(&D_2B52, 8, 0x1c, createShapes1, 1);
-		C_07D7_0008();
+		VID_waitRetrace();
 		(*D_2BBA)(&D_2B52, &D_2B1A);
 		if(i < 5)
 			C_0CED_0106((24 - i * 6) * 2383L);
@@ -1364,7 +1364,7 @@ escaped*/
 		(*D_2BC6)(&D_2B52, 8, 0x1c, createShapes1, 0);
 		(*D_2BC6)(&D_2B52, 8, 0x1c, createShapes2, i);
 		(*D_2BC6)(&D_2B52, 8, 0x1c, createShapes1, 1);
-		C_07D7_0008();
+		VID_waitRetrace();
 		(*D_2BBA)(&D_2B52, &D_2B1A);
 		if(i == 0 || i == 5)
 			C_0CED_0106(83405L);/*35 ms*/
@@ -1514,7 +1514,7 @@ be read*/
 	(*D_3516)(&D_2B52, 0);
 	(*D_2BC6)(&D_2B52, 0, 0, storyShapes, 0);
 	FadeIn();
-	D_201E = &D_2B72;
+	pText = &D_2B72;
 	D_2B3E.left = 0x19;
 	D_2B3E.top = 0x88;
 	D_2B3E.right = 0x125;
@@ -1525,7 +1525,7 @@ be read*/
 	for(i = 0; i < 10; i++) {
 		ResetText(D_2B72.bg);
 		(*D_2BC6)(&D_2B1A, 0x78, 0x2d, storyShapes, i + 1);
-		C_078E_0252("%s%P", storyTexts[i]);
+		TXT_sprintf("%s%P", storyTexts[i]);
 		if(WaitKeyPrompt() == 0x1b) {
 			FadeOut();
 			FreeFar(&storyShapes);
@@ -1540,9 +1540,9 @@ be read*/
 /*print "one unit" or "n units"*/
 /*C_034C_2992*/void PrintCount(int n, char *unit) {
 	if(n == 1)
-		C_078E_0230("one %s", unit);
+		TXT_printf("one %s", unit);
 	else
-		C_078E_0230("%d %ss", n, unit);
+		TXT_printf("%d %ss", n, unit);
 }
 
 /*the endgame texts*/
@@ -1574,13 +1574,13 @@ be read*/
 	if(endShapes == 0)
 		Fatal();
 	if(D_353E == -1)
-		C_08E4_19FF(menuSong);
+		PlaySong(menuSong);
 	(*D_3516)(&D_2B1A, 0);
 	SetPalette(1);
 	(*D_3516)(&D_2B52, 0);
 	(*D_2BC6)(&D_2B52, 0, 0, endShapes, 0);
 	FadeIn();
-	D_201E = &D_2B72;
+	pText = &D_2B72;
 	D_2B3E.left = 0x19;
 	D_2B3E.top = 0x88;
 	D_2B3E.right = 0x125;
@@ -1588,65 +1588,65 @@ be read*/
 	D_2B72.curX = 0x19;
 	D_2B72.curY = 0x88;
 	ResetText(D_2B72.bg);
-	C_078E_0252("%s%P", endTexts[0]);
+	TXT_sprintf("%s%P", endTexts[0]);
 	WaitKeyPrompt();
 	ResetText(D_2B72.bg);
-	C_078E_0252("%s%P", endTexts[1]);
+	TXT_sprintf("%s%P", endTexts[1]);
 	WaitKeyPrompt();
 	ResetText(D_2B72.bg);
-	C_078E_0252("%s%P", endTexts[2]);
+	TXT_sprintf("%s%P", endTexts[2]);
 	WaitKeyPrompt();
 	(*D_3516)(&D_2B52, 0);
 	(*D_2BC6)(&D_2B52, 0, 0, endShapes, 1);
-	C_07D7_0008();
+	VID_waitRetrace();
 	(*D_2BBA)(&D_2B52, &D_2B1A);
 	ResetText(D_2B72.bg);
-	C_078E_0252("%s%P", endTexts[3]);
+	TXT_sprintf("%s%P", endTexts[3]);
 	WaitKeyPrompt();
 	ResetText(D_2B72.bg);
-	C_078E_0252("%s%P", endTexts[4]);
+	TXT_sprintf("%s%P", endTexts[4]);
 	WaitKeyPrompt();
 	if(endingChoice > 0) {
 		(*D_3516)(&D_2B52, 0);
 		(*D_2BC6)(&D_2B52, 0, 0, endShapes, 2);
-		C_07D7_0008();
+		VID_waitRetrace();
 		(*D_2BBA)(&D_2B52, &D_2B1A);
 		ResetText(D_2B72.bg);
-		C_078E_0252("%s%P", endTexts[5]);
+		TXT_sprintf("%s%P", endTexts[5]);
 		WaitKeyPrompt();
 		ResetText(D_2B72.bg);
-		C_078E_0252("%s%P", endTexts[6]);
+		TXT_sprintf("%s%P", endTexts[6]);
 		WaitKeyPrompt();
 		ResetText(D_2B72.bg);
-		C_078E_0252("%s%P", endTexts[7]);
+		TXT_sprintf("%s%P", endTexts[7]);
 		WaitKeyPrompt();
 	} else if(endingChoice < 0) {
 		(*D_3516)(&D_2B52, 0);
 		(*D_2BC6)(&D_2B52, 0, 0, endShapes, 3);
-		C_07D7_0008();
+		VID_waitRetrace();
 		(*D_2BBA)(&D_2B52, &D_2B1A);
 		ResetText(D_2B72.bg);
-		C_078E_0252("%s%P", endTexts[8]);
+		TXT_sprintf("%s%P", endTexts[8]);
 		WaitKeyPrompt();
 		ResetText(D_2B72.bg);
-		C_078E_0252("%s%P", endTexts[9]);
+		TXT_sprintf("%s%P", endTexts[9]);
 		WaitKeyPrompt();
 	}
 	(*D_3516)(&D_2B52, 0);
 	(*D_2BC6)(&D_2B52, 0, 0, endShapes, 4);
-	C_07D7_0008();
+	VID_waitRetrace();
 	(*D_2BBA)(&D_2B52, &D_2B1A);
 	ResetText(D_2B72.bg);
-	C_078E_0252("%s%P", endTexts[10]);
+	TXT_sprintf("%s%P", endTexts[10]);
 	WaitKeyPrompt();
 	ResetText(D_2B72.bg);
-	C_078E_0252("%s%P", endTexts[11]);
+	TXT_sprintf("%s%P", endTexts[11]);
 	WaitKeyPrompt();
 	ResetText(D_2B72.bg);
-	C_078E_0252("%s%P", endTexts[12]);
+	TXT_sprintf("%s%P", endTexts[12]);
 	WaitKeyPrompt();
 	ResetText(D_2B72.bg);
-	C_078E_0252("%s%P", endTexts[13]);
+	TXT_sprintf("%s%P", endTexts[13]);
 	WaitKeyPrompt();
 	FadeOut();
 	(*D_3516)(&D_2B1A, 0);
@@ -1655,13 +1655,13 @@ be read*/
 	(*D_2BC6)(&D_2B52, 0, 0, endShapes, 1);
 	FadeIn();
 	ResetText(D_2B72.bg);
-	C_078E_0252("%s%P", endTexts[14]);
+	TXT_sprintf("%s%P", endTexts[14]);
 	state = 0;
 	if(D_2BB8 && D_2B2E && D_2BCA) {
 		PrintCount(D_2B2E, "month");
-		C_078E_0230(",\n");
+		TXT_printf(",\n");
 		PrintCount(D_2BB8, "day");
-		C_078E_0230(" and ");
+		TXT_printf(" and ");
 		PrintCount(D_2BCA, "year");
 	} else {
 		if(D_2B2E) {
@@ -1670,7 +1670,7 @@ be read*/
 		}
 		if(D_2BB8) {
 			if(state == 1) {
-				C_078E_0230("\nand ");
+				TXT_printf("\nand ");
 				state = 2;
 			}
 			PrintCount(D_2BB8, "day");
@@ -1679,17 +1679,17 @@ be read*/
 		}
 		if(D_2BCA) {
 			if(state == 1) {
-				C_078E_0230("\nand ");
+				TXT_printf("\nand ");
 				state = 2;
 			}
 			PrintCount(D_2BCA, "year");
 		}
 	}
 	if(state != 2)
-		C_078E_0230(".\n");
+		TXT_printf(".\n");
 	else
-		C_078E_0230(". ");
-	C_078E_0252("%s%P", endTexts[15]);
+		TXT_printf(". ");
+	TXT_sprintf("%s%P", endTexts[15]);
 	WaitKeyPrompt();
 	Quit();
 }

@@ -4,8 +4,8 @@
 INCLUDE OSI.INC
 
 DSegStart
-EXTRN D_201A:DWORD	;int far *: while not 0 the pointer is left alone
-EXTRN D_34F2:DWORD	;int far *: the same
+EXTRN _D_201A:DWORD	;int far *: while not 0 the pointer is left alone
+EXTRN _D_34F2:DWORD	;int far *: the same
 EXTRN D_205A:WORD	;(07D9) the mouse state at the last update: x
 EXTRN D_205C:WORD	;  y
 EXTRN D_205E:BYTE	;  buttons (left: bit 0)
@@ -14,8 +14,8 @@ EXTRN D_2060:BYTE	;  (middle: bit 2)
 EXTRN D_20A2:WORD	;struct tMouse *: the mouse
 DSegEnd
 
-EXTRN C_0884_0003:FAR	;MOUSE_hide
-EXTRN C_0880_0005:FAR	;MOUSE_show
+EXTRN MOUSE_hide:FAR	;MOUSE_hide
+EXTRN MOUSE_show:FAR	;MOUSE_show
 
 CSegStart	MOUSESRV_TEXT
 
@@ -63,17 +63,17 @@ C_004C:
 	AND	[SI].buttonL,1
 	MOV	[SI].buttonR,BL
 	AND	[SI].buttonR,2
-	LES	DI,D_201A
+	LES	DI,_D_201A
 	MOV	AX,ES:[DI]
 	OR	AX,AX
 	JNZ	C_009D
-	LES	DI,D_34F2
+	LES	DI,_D_34F2
 	MOV	AX,ES:[DI]
 	OR	AX,AX
 	JNZ	C_009D
-	CALL	C_0884_0003
+	CALL	MOUSE_hide
 	CALL	[SI].onMove
-	CALL	C_0880_0005
+	CALL	MOUSE_show
 C_009D:
 	MOV	AX,1
 C_00A0:

@@ -4,11 +4,11 @@
 INCLUDE OSI.INC
 
 DSegStart
-EXTRN D_201E:WORD	;struct tText *: the current text window
+EXTRN _pText:WORD	;struct tText *: the current text window
 DSegEnd
 
-EXTRN C_07C1_0004:FAR	;TXT_copyLine
-EXTRN C_07BD_0008:FAR	;TXT_clearLine
+EXTRN TXT_copyLine:FAR	;TXT_copyLine
+EXTRN TXT_clearLine:FAR	;TXT_clearLine
 
 CSegStart	TXTSCRL_TEXT
 
@@ -37,7 +37,7 @@ TXT_scrollUp	ENDP
 
 ;scroll up by one line of text, and clear the line at the bottom
 FProc	TXT_scrollUp1	;07B8:001A
-	MOV	BX,D_201E
+	MOV	BX,_pText
 	MOV	SI,[BX].surface
 	PUSH	SI
 	LES	DI,[BX].font
@@ -52,19 +52,19 @@ C_0030:
 	MOV	BX,AX
 	SUB	BX,ES:[DI]
 	PUSH	AX
-	CALL	C_07C1_0004
+	CALL	TXT_copyLine
 	POP	AX
 	INC	AX
 	JMP	SHORT C_0030
 C_0043:
 	MOV	AX,DX
-	MOV	BX,D_201E
+	MOV	BX,_pText
 	POP	CX
 	SUB	AX,CX
 	INC	AX
 	POP	SI
 	MOV	DX,[SI].left
-	CALL	C_07BD_0008
+	CALL	TXT_clearLine
 	RET
 TXT_scrollUp1	ENDP
 

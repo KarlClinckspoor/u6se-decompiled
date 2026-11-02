@@ -4,7 +4,7 @@
 ;----------------------------------------
 INCLUDE OSI.INC
 
-EXTRN C_0AD2_0024:FAR	;cdecl: the far pointer, normalised (returned in DX:AX)
+EXTRN _C_0AD2_0024:FAR	;cdecl: the far pointer, normalised (returned in DX:AX)
 
 CSegStart	SHPRECT_TEXT
 
@@ -20,7 +20,7 @@ FProc	SHP_rect	;0746:000A
 	PUSH	DI
 	PUSH	WORD PTR [BP+0Ah]
 	PUSH	WORD PTR [BP+08]
-	CALL	C_0AD2_0024
+	CALL	_C_0AD2_0024
 	ADD	SP,4
 	MOV	[BP+0Ah],DX
 	MOV	[BP+08],AX

@@ -4,7 +4,7 @@
 INCLUDE OSI.INC
 
 DSegStart
-EXTRN D_201E:WORD	;struct tText *: the current text window
+EXTRN _pText:WORD	;struct tText *: the current text window
 DSegEnd
 
 CSegStart	TXTBUFC_TEXT
@@ -23,7 +23,7 @@ TXT_bufc	ENDP
 TXT_bufcAL	PROC NEAR	;0782:000D
 	PUSH	SI
 	PUSH	BX
-	MOV	BX,D_201E
+	MOV	BX,_pText
 	MOV	SI,[BX].bufPtr
 	INC	[BX].bufPtr
 	MOV	[SI],AL

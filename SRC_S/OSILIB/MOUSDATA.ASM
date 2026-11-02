@@ -22,4 +22,9 @@ D_20C4	dw 0	;D_20C4 (07D9) how far the mouse moved: y
 D_20C6	db 0	;D_20C6 (07D9) 1: the mouse moved
 DSegEnd
 
+;an empty code segment, as Origin's macros always gave a module: being WORD aligned, it
+;puts one byte of padding after 0892 (0896's code starts at an even address)
+CSegStart	MOUSDATA_TEXT
+CSegEnd	MOUSDATA_TEXT
+
 END

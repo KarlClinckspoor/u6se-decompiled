@@ -10,7 +10,7 @@ DSegEnd
 CSegStart	VSYNC_TEXT
 
 ;wait for the beginning of a vertical retrace
-FProc	VID_waitRetrace	;07D7:0008
+FProc	_VID_waitRetrace	;07D7:0008
 	MOV	DX,D_2032
 C_000C:
 	IN	AL,DX
@@ -21,7 +21,7 @@ C_0011:
 	TEST	AL,8
 	JZ	C_0011
 	RET
-VID_waitRetrace	ENDP
+_VID_waitRetrace	ENDP
 
 CSegEnd	VSYNC_TEXT
 

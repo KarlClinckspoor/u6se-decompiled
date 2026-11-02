@@ -1,7 +1,7 @@
 /* flags: -mm -c -O -G */
 /*
  * SAVAGE.EXE: the drawing surfaces of the screen and of the back buffer, for each video
- * mode (D_204A: 4 CGA, 7 Hercules, 9 Tandy, 13 EGA, 0x13 VGA/MCGA)
+ * mode (vidMode: 4 CGA, 7 Hercules, 9 Tandy, 13 EGA, 0x13 VGA/MCGA)
  * (inline assembly: compiled through the assembler, its fixups in TASM's order)
  */
 
@@ -16,13 +16,13 @@ struct tSurface {
 	char huge *pixels;/*+0C the memory allocated for it*/
 };
 
-extern int D_204A;/*the video mode*/
+extern int vidMode;/*the video mode*/
 extern void (far *D_3516)(struct tSurface *, int);/*a TM.DRV routine (header +18)*/
 extern unsigned D_407C[200];/*the screen's line offsets*/
 extern struct tSurface *D_420C;/*the screen*/
 extern struct tSurface *D_420E;/*the back buffer*/
 
-extern int pascal C_0D6B_00F9(struct tSurface *s, int x, int n);/*AllocSurface*/
+extern int pascal AllocSurface(struct tSurface *s, int x, int n);/*AllocSurface*/
 
 /*make s the screen (EGA: its second page); x: handed to the driver (*D_3516) unless -1
   (always -1 but in VGA/MCGA); 0: out of memory*/
@@ -34,9 +34,9 @@ extern int pascal C_0D6B_00F9(struct tSurface *s, int x, int n);/*AllocSurface*/
 	s->top = 0;
 	s->right = 319;
 	s->bottom = 199;
-	switch(D_204A) {
+	switch(vidMode) {
 		case 13:
-			if(C_0D6B_00F9(s, x, 0) == 0)
+			if(AllocSurface(s, x, 0) == 0)
 				return 0;
 			i = s->seg;
 			/*the CRT controller's start address (high byte): the surface*/
@@ -85,7 +85,7 @@ extern int pascal C_0D6B_00F9(struct tSurface *s, int x, int n);/*AllocSurface*/
 				D_407C[i] = D_407C[i - 4] + 160;
 		break;
 		default:
-			if(D_204A != 0x13)
+			if(vidMode != 0x13)
 				x = -1;
 			s->seg = 0xa000;
 			s->lines = D_407C;
@@ -105,5 +105,5 @@ done:
 	s->right = 319;
 	s->top = 0;
 	s->bottom = 199;
-	return C_0D6B_00F9(s, x, 0);
+	return AllocSurface(s, x, 0);
 }

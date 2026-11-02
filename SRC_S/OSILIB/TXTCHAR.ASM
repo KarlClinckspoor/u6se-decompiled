@@ -6,12 +6,12 @@
 INCLUDE OSI.INC
 
 DSegStart
-EXTRN D_201E:WORD	;struct tText *: the current text window
-EXTRN D_2028:DWORD	;driver: draw a character
+EXTRN _pText:WORD	;struct tText *: the current text window
+EXTRN _drvPutChar:DWORD	;driver: draw a character
 EXTRN D_2030:WORD	;added to the cursor's x to see whether a character fits
 DSegEnd
 
-EXTRN C_07B8_001A:FAR	;TXT_scrollUp1
+EXTRN TXT_scrollUp1:FAR	;TXT_scrollUp1
 
 CSegStart	TXTCHAR_TEXT
 
@@ -45,7 +45,7 @@ C_001E:
 	JMP	SHORT C_0079
 C_0024:
 	PUSH	AX
-	MOV	BX,D_201E
+	MOV	BX,_pText
 	LES	SI,[BX].font
 	MOV	BP,AX
 	MOV	CX,ES:[SI]	;height
@@ -53,7 +53,7 @@ C_0024:
 	XOR	DH,DH
 	CLD
 C_0038:
-	MOV	BX,D_201E
+	MOV	BX,_pText
 	LES	SI,[BX].font
 	MOV	AX,[BX].curX
 	ADD	AX,D_2030
@@ -73,7 +73,7 @@ C_0054:
 	SHL	AX,1
 	MOV	SI,AX
 	POP	AX
-	CALL	D_2028
+	CALL	_drvPutChar
 	PUSH	AX
 C_006A:
 	POP	AX
@@ -83,7 +83,7 @@ TXT_putcAL	ENDP
 ;carriage return
 FProc	TXT_cr	;0784:006C
 C_006C:
-	MOV	BX,D_201E
+	MOV	BX,_pText
 	MOV	SI,[BX].surface
 	MOV	AX,[SI].left
 	MOV	[BX].curX,AX
@@ -105,7 +105,7 @@ C_0079:
 	ADD	AX,ES:[DI]
 	CMP	AX,[SI].bottom
 	JL	C_0097
-	CALL	C_07B8_001A
+	CALL	TXT_scrollUp1
 	JMP	SHORT C_009A
 C_0097:
 	MOV	[BX].curY,AX

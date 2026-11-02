@@ -4,7 +4,7 @@
 INCLUDE OSI.INC
 
 DSegStart
-EXTRN D_201E:WORD	;struct tText *: the current text window
+EXTRN _pText:WORD	;struct tText *: the current text window
 DSegEnd
 
 CSegStart	TXTGOTO_TEXT
@@ -13,7 +13,7 @@ CSegStart	TXTGOTO_TEXT
 FProc	TXT_gotoxy	;077E:000C
 	PUSH	BP
 	MOV	BP,SP
-	MOV	BX,D_201E
+	MOV	BX,_pText
 	MOV	AX,[BP+08]
 	MOV	[BX].curX,AX
 	MOV	AX,[BP+06]

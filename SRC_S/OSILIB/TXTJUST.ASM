@@ -7,11 +7,11 @@
 INCLUDE OSI.INC
 
 DSegStart
-EXTRN D_201E:WORD	;struct tText *: the current text window
+EXTRN _pText:WORD	;struct tText *: the current text window
 DSegEnd
 
-EXTRN C_0784_0016:FAR	;TXT_putcAL: print the character AL
-EXTRN C_0784_0079:FAR	;TXT_newLine: new line
+EXTRN TXT_putcAL:FAR	;TXT_putcAL: print the character AL
+EXTRN TXT_newLine:FAR	;TXT_newLine: new line
 
 CSegStart	TXTJUST_TEXT
 
@@ -37,7 +37,7 @@ TXT_putsES	PROC NEAR	;0756:0015
 	MOV	WORD PTR pStr,DI
 	MOV	WORD PTR pStr+2,ES
 	MOV	strPos,0
-	MOV	BP,D_201E
+	MOV	BP,_pText
 	MOV	AL,DS:[BP].justify
 	MOV	mode,AL
 	MOV	BX,DS:[BP].surface
@@ -131,7 +131,7 @@ C_00F1:
 C_00F4:	;-- the next line
 	MOV	SI,lineEnd
 	LES	BX,pStr
-	MOV	BP,D_201E
+	MOV	BP,_pText
 	MOV	strPos,SI
 	MOV	AL,ES:[BX+SI-01]
 	CMP	AL,0
@@ -139,7 +139,7 @@ C_00F4:	;-- the next line
 	CMP	AL,0Ah
 	JZ	C_012C
 	PUSH	AX
-	CALL	C_0784_0079
+	CALL	TXT_newLine
 	LES	BX,pStr
 	MOV	SI,strPos
 C_011E:	;-- skip the spaces
@@ -204,7 +204,7 @@ C_017F:
 	CMP	AL,0
 	JZ	C_019A
 	PUSH	SI
-	CALL	C_0784_0016
+	CALL	TXT_putcAL
 	POP	SI
 	INC	SI
 	JMP	SHORT C_017F
@@ -228,8 +228,8 @@ C_01B6:	;-- the leading spaces as they are
 	CMP	BYTE PTR ES:[BX+SI],' '
 	JNZ	C_01E3
 	MOV	AL,' '
-	CALL	C_0784_0016
-	MOV	BP,D_201E
+	CALL	TXT_putcAL
+	MOV	BP,_pText
 	LES	DI,DS:[BP].font
 	MOV	AL,ES:[DI+04+' ']
 	LES	BX,pStr
@@ -243,10 +243,10 @@ C_01E3:	;-- the first word
 	CMP	AL,' '
 	JZ	C_0213
 	PUSH	AX
-	CALL	C_0784_0016
+	CALL	TXT_putcAL
 	POP	BX
 	XOR	BH,BH
-	MOV	BP,D_201E
+	MOV	BP,_pText
 	LES	DI,DS:[BP].font
 	MOV	AL,ES:[BX+DI+04]
 	LES	BX,pStr
@@ -289,11 +289,11 @@ C_024D:
 	JZ	C_028A
 	PUSH	SI
 	PUSH	AX
-	CALL	C_0784_0016
+	CALL	TXT_putcAL
 	POP	AX
 	CMP	AL,' '
 	JNZ	C_0286
-	MOV	BP,D_201E
+	MOV	BP,_pText
 	MOV	AL,spaceAdd
 	XOR	AH,AH
 	ADD	DS:[BP].curX,AX

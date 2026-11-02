@@ -77,6 +77,11 @@ class AddrNames(dict):
     def get(self, name, default=None):
         if dict.__contains__(self, name):
             return dict.__getitem__(self, name)
+        # TLINK ignores case (no /c): so does the lookup
+        if not hasattr(self, '_ci') or len(self._ci) != dict.__len__(self):
+            self._ci = {k.upper(): v for k, v in dict.items(self)}
+        if name.upper() in self._ci:
+            return self._ci[name.upper()]
         mm = self.pat.fullmatch(name)
         return self.conv(mm) if mm else default
 
@@ -222,7 +227,7 @@ def main():
                     have = addr2name.get((sg, off)) or 'C_%04X_%04X' % (sg, off)
                     if want is None:
                         known = addr2name.get((sg, off))
-                        if known and known != f.target:
+                        if known and known.upper() != f.target.upper():
                             problems.append((where, 'far %s: original calls %s (%04x:%04x)' % (f.target, have, sg, off)))
                         else:
                             learned.append((f.target, '%04X:%04X' % (sg, off)))

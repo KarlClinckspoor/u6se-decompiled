@@ -3,8 +3,8 @@
 ;----------------------------------------
 INCLUDE OSI.INC
 
-EXTRN C_0750_0006:FAR	;SHP_count
-EXTRN C_0742_0006:FAR	;SHP_size
+EXTRN SHP_count:FAR	;SHP_count
+EXTRN SHP_size:FAR	;SHP_size
 
 CSegStart	SHPMAXSZ_TEXT
 
@@ -20,7 +20,7 @@ FProc	SHP_maxSize	;073C:000C
 	PUSH	AX
 	MOV	AX,[BP+06]
 	PUSH	AX
-	CALL	C_0750_0006
+	CALL	SHP_count
 	MOV	[BP-02],AX	;index
 	XOR	AX,AX
 	MOV	[BP-06],AX	;the largest
@@ -32,7 +32,7 @@ C_002F:
 	MOV	BX,[BP+06]
 	PUSH	BX
 	PUSH	AX
-	CALL	C_0742_0006
+	CALL	SHP_size
 	CMP	DX,[BP-04]
 	JNZ	C_0047
 	CMP	AX,[BP-06]

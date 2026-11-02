@@ -7,16 +7,16 @@ DSegStart
 EXTRN D_20A2:WORD	;struct tMouse *: the mouse
 EXTRN D_20C0:WORD	;where the pointer is drawn: x
 EXTRN D_20C2:WORD	;  y
-EXTRN D_2BC6:DWORD	;driver: draw a shape (struct tSurface *s, int x, int y, void far *shapes, int index)
+EXTRN _D_2BC6:DWORD	;driver: draw a shape (struct tSurface *s, int x, int y, void far *shapes, int index)
 DSegEnd
 
-EXTRN C_088A_003B:FAR	;MOUSE_clamp
+EXTRN MOUSE_clamp:FAR	;MOUSE_clamp
 
 CSegStart	MOUSEDRW_TEXT
 
 ;draw the pointer at the mouse position (kept in the surface)
 FProc	MOUSE_draw	;0892:0008
-	CALL	C_088A_003B
+	CALL	MOUSE_clamp
 	MOV	BX,D_20A2
 	MOV	CX,[BX].posX
 	MOV	DX,[BX].posY
@@ -35,7 +35,7 @@ C_0025:
 	MOV	D_20C0,CX
 	PUSH	CX
 	PUSH	[BX].mSurface
-	CALL	D_2BC6
+	CALL	_D_2BC6
 	ADD	SP,0Ch
 	RET
 MOUSE_draw	ENDP

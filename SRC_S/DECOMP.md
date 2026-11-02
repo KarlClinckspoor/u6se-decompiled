@@ -98,5 +98,17 @@ Findings that matter for the rest:
 - Uninitialised data: DS 2814-4210 (Origin's), 4210-4344 (the run-time library's).
   `tools/se/mkbss.py --start 2814 --end 4210` writes BSS.ASM.
 
-Next: the full link (`tools/se/sebuild.py`), which still has to be tried: BSS.ASM, link
-order, relocation order.
+**The full link is identical**: `python3 tools/se/sebuild.py --target savage` builds a
+SAVAGE.EXE equal to the original, header and relocation table included (sha1
+809c9cff8201cd5c1443589e4cf62d2dae1da2e2). What the link needed:
+- `TLINK /i` (initialise all segments): the file holds the uninitialised data and the
+  stack as zeros, so its minimum allocation is 0.
+- `drvdata.c`, a data-only module linked first (DS:00A8-00BF: video modes, "TM.DRV",
+  "SUPERTM.DRV"), used by LIB/tmdrv.c at the end of the code.
+- `OSILIB/MOUSDATA.ASM` has an empty WORD-aligned code segment, as Origin's macros gave
+  every module: it pads one byte after 0892. `OSILIB/OSIDATA.ASM` starts with an unused
+  zero word at DS:2014 (it may as well have been 071C's).
+- `LIB/LIBOPEN.C` was compiled through the assembler (`#pragma inline`): the .EXE has its
+  relocations in ascending order, as an assembler writes them, not Turbo C's descending.
+- `tools/se/mkbss.py --start 2814 --end 4210` writes BSS.ASM; `sesym.py apply` links the
+  modules by name (it knows that C calls pascal routines without an underscore).

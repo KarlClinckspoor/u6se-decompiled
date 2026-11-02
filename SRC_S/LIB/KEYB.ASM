@@ -39,6 +39,8 @@ xlat	LABEL BYTE	;0CB5:001C	scan code translation: a Tandy 1000's to the standard
 	db	0D0h,0D1h,0D2h,0D3h,0D4h,0D5h,0D6h,0D7h,0D8h,0D7h,0D8h,0DBh,0DCh,0DDh,0DEh,0DFh	;D0
 	db	0E0h,0E1h,0E2h,0E3h,0E4h,0E5h,0E6h,0E7h,0E8h,0E9h,0EAh,0EBh,0ECh,0EDh,0EEh,0EFh	;E0
 	db	0F0h,0F1h,0F2h,0F3h,0F4h,0F5h,0F6h,0F7h,0F8h,0F9h,0FAh,0FBh,0FCh,0FDh,0FEh,0FFh	;F0
+	PUBLIC	C_0CB5_011C	;(the key table: events.asm reads it)
+C_0CB5_011C	LABEL	BYTE
 keys	db	128 dup(0)	;0CB5:011C	1 for each key down (by scan code)
 
 ;empty the BIOS keyboard buffer

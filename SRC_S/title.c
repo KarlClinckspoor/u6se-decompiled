@@ -35,8 +35,8 @@ struct tLetter {
 };
 
 extern unsigned char far C_07D9_0021;/*nonzero when a key was pressed (the event module's code segment)*/
-extern int D_20CA;/*the sound card? (1, 2: sounds are played; 3)*/
-extern int D_20CE;/*how far the music has got?*/
+extern int soundCard;/*the sound card? (1, 2: sounds are played; 3)*/
+extern int musicMarker;/*how far the music has got?*/
 extern int (*D_2B6A)();/*the graphics driver: draws a shape, reports its rectangle*/
 extern void (pascal *D_2B9E)();/*the sound driver: plays a sound*/
 extern int (*D_2BBA)();/*the graphics driver: shows a surface*/
@@ -48,17 +48,17 @@ extern void far *D_3540[13];/*the shapes of TITLE.LZC*/
 extern void far *D_3574;
 extern struct tSprite D_3578[30];
 
-extern void far *C_034C_03DB(char *name, int n);/*item n of an LZC file, loaded*/
-extern C_0737_002E();
-extern pascal C_0896_0004(struct tSurface *, int, int);
-extern pascal C_08CA_0006(struct tSurface *, struct tSurface *);
-extern C_08E4_08A7(void far *, int);/*stops a sound*/
-extern C_08E4_1478(int);
-extern C_08E4_19FF(void far *);
-extern C_08E4_08F0();
-extern C_071C_0006();/*frees all the sparkles*/
-extern C_071C_0026(struct tSurface *, int n);/*draws the first n sparkles; returns how many are free*/
-extern C_07D7_0008();/*waits for the vertical retrace*/
+extern void far *LoadLzc(char *name, int n);/*item n of an LZC file, loaded*/
+extern PAL_restore();
+extern pascal FADE_out(struct tSurface *, int, int);
+extern pascal FADE_in(struct tSurface *, struct tSurface *);
+extern StopSound(void far *, int);/*stops a sound*/
+extern FadeOutMusic(int);
+extern PlaySong(void far *);
+extern StopAllSounds();
+extern ClearSprites();/*frees all the sparkles*/
+extern DrawSprites(struct tSurface *, int n);/*draws the first n sparkles; returns how many are free*/
+extern VID_waitRetrace();/*waits for the vertical retrace*/
 extern C_0BC5_0126(void far *);/*frees*/
 extern int C_0C97_00BE();
 extern int pascal C_0D23_0027(int lo, int hi);/*random number from lo to hi*/
@@ -85,7 +85,7 @@ extern int kbhit(void);
 };
 
 /*C_0636_0003*/void Show(struct tSurface *surf, struct tSurface *screen) {
-	C_07D7_0008();
+	VID_waitRetrace();
 	(*D_2BBA)(surf, screen);
 }
 
@@ -100,7 +100,7 @@ extern int kbhit(void);
 	DrawBackground(surf, 0x18);
 	for(i = 0; i < 10; i++)
 		(*D_2BC6)(surf, D_1E69[i].x, D_1E69[i].y, D_3540[i + 1], 0);
-	C_08CA_0006(surf, screen);
+	FADE_in(surf, screen);
 }
 
 /*the letters of the title change*/
@@ -125,7 +125,7 @@ extern int kbhit(void);
 			}
 			if(kbhit())
 				C_07D9_0021 = 0xff;
-			if(D_20CE >= 1)
+			if(musicMarker >= 1)
 				return;
 			if(C_07D9_0021)
 				return;
@@ -142,13 +142,13 @@ extern int kbhit(void);
 			}
 			if(kbhit())
 				C_07D9_0021 = 0xff;
-			if(D_20CE >= 1)
+			if(musicMarker >= 1)
 				return;
 			if(C_07D9_0021)
 				return;
 			count++;
 		}
-	} while((D_353E && D_20CA != 3) || count <= 30);
+	} while((D_353E && soundCard != 3) || count <= 30);
 }
 
 /*the sun sets*/
@@ -160,18 +160,18 @@ extern int kbhit(void);
 	t = 1;
 	for(f = 0; f < 0x14; f++) {
 		if(D_1E3E[f] == 'p') {
-			if(D_20CA == 2) {
+			if(soundCard == 2) {
 				t = 1;
 				(*D_2B9E)(0x12, 0x30, 0x60);
-			} else if(D_20CA == 1) {
+			} else if(soundCard == 1) {
 				t = 1;
 				(*D_2B9E)(0xa, 0x25, 0x60);
 			}
 		} else if(D_1E3E[f] == 'q') {
-			if(D_20CA == 2) {
+			if(soundCard == 2) {
 				(*D_2B9E)(0x12, 0x30, 0);
 				t = 1;
-			} else if(D_20CA == 1) {
+			} else if(soundCard == 1) {
 				(*D_2B9E)(0xa, 0x25, 0);
 				t = 1;
 			}
@@ -200,11 +200,11 @@ extern int kbhit(void);
 	(*D_2BC6)(surf, D_1E69[7].x, D_1E69[7].y, D_3540[8], D_1E55[7][0x1f] - 'a');
 	(*D_2BC6)(surf, D_1E69[8].x, D_1E69[8].y, D_3540[9], D_1E55[8][0x1f] - 'a');
 	(*D_2BC6)(surf, D_1E69[9].x, D_1E69[9].y, D_3540[10], D_1E3E[20] - 'a');
-	if(D_353E && (D_20CA == 2 || D_20CA == 1)) {
+	if(D_353E && (soundCard == 2 || soundCard == 1)) {
 		do {
 			if(kbhit())
 				C_07D9_0021 = 0xff;
-		} while(D_20CE < 2 && C_07D9_0021 == 0);
+		} while(musicMarker < 2 && C_07D9_0021 == 0);
 		Show(surf, screen);
 	}
 }
@@ -319,15 +319,15 @@ extern int kbhit(void);
 
 	done = 0;
 	count = 0;
-	C_08E4_08F0();
-	C_071C_0006();
+	StopAllSounds();
+	ClearSprites();
 	do {
 		if(!done) {
 			/*DIFFERS: the original does not merge the end of "add = C_0D23_0027(0, 5) == 0"
 			  (0636:0977-0993) with the same code of the last case; this merges it (9 bytes
 			  shorter)*/
-			if(D_353E && (D_20CA == 2 || D_20CA == 1)) {
-				if(D_20CE >= 4)
+			if(D_353E && (soundCard == 2 || soundCard == 1)) {
+				if(musicMarker >= 4)
 					add = C_0D23_0027(0, 0) == 0;
 				else
 					add = C_0D23_0027(0, 5) == 0;
@@ -346,7 +346,7 @@ extern int kbhit(void);
 			}
 		}
 		(*D_2BC6)(surf, 0, 0, D_3540[0], 0);
-		nFree = C_071C_0026(surf, 5);
+		nFree = DrawSprites(surf, 5);
 		C_0636_0564(surf, x, 0x100);
 		Show(surf, screen);
 		count++;
@@ -354,8 +354,8 @@ extern int kbhit(void);
 			goto all;
 		/*DIFFERS: the original keeps both "done = 1" (0636:0A9A, 0AA7); this merges them
 		  (2 bytes shorter)*/
-		if(D_353E && (D_20CA == 2 || D_20CA == 1)) {
-			if(D_20CE >= 5)
+		if(D_353E && (soundCard == 2 || soundCard == 1)) {
+			if(musicMarker >= 5)
 				done = 1;
 		} else if(count > 10)
 			done = 1;
@@ -380,7 +380,7 @@ all:
 			D_3578[29].kind = C_0D23_0027(0, 2);
 		}
 		(*D_2BC6)(surf, 0, 0, D_3540[0], 0);
-		nFree = C_071C_0026(surf, 0x1e);
+		nFree = DrawSprites(surf, 0x1e);
 		C_0636_0564(surf, x, 0x100);
 		Show(surf, screen);
 		if(kbhit())
@@ -390,7 +390,7 @@ all:
 	}
 	for(i = 0x1d; i >= 0; i--) {
 		if(D_3578[i].frame != -1)
-			C_08E4_08A7(D_3578[i].sound, i);
+			StopSound(D_3578[i].sound, i);
 	}
 }
 
@@ -400,7 +400,7 @@ all:
 }
 
 /*C_0636_0C5A*/void far *LoadShape(int n) {
-	return C_034C_03DB("TITLE.LZC", n);
+	return LoadLzc("TITLE.LZC", n);
 }
 
 /*plays the title on surf, shown on screen; mode: the video mode (3: shapes 7-9 are not
@@ -424,7 +424,7 @@ all:
 	D_3540[12] = LoadShape(12);
 	C_07D9_0021 = 0;
 	if(music)
-		C_08E4_19FF(music);
+		PlaySong(music);
 	C_0636_0051(surf, screen);
 	if(C_07D9_0021 == 0xff)
 		goto end;
@@ -437,8 +437,8 @@ all:
 	C_0636_05FA(surf, screen, speed);
 	if(C_07D9_0021 != 0xff) {
 		i = C_0636_0764(surf, screen, speed);
-		if(D_353E && (D_20CA == 2 || D_20CA == 1)) {
-			while(D_20CE < 3) {
+		if(D_353E && (soundCard == 2 || soundCard == 1)) {
+			while(musicMarker < 3) {
 				if(kbhit())
 					C_07D9_0021 = 0xff;
 				if(C_07D9_0021 == 0xff)
@@ -451,10 +451,10 @@ all:
 end:
 	C_07D9_0021 = 0;
 	if(music)
-		C_08E4_1478(0);
-	C_0896_0004(&save, 0, 1);
+		FadeOutMusic(0);
+	FADE_out(&save, 0, 1);
 	(*D_3516)(&save, 0);
-	C_0737_002E();
+	PAL_restore();
 	for(i = 0; i < 13; i++)
 		C_0BC5_0126(D_3540[i]);
 	if(music)

@@ -5,12 +5,12 @@ INCLUDE OSI.INC
 
 DSegStart
 EXTRN D_2061:WORD	;(07D9) the pointer is shown when 0, hidden when below
-EXTRN D_201A:DWORD	;int far *: while not 0 the pointer is left alone
-EXTRN D_34F2:DWORD	;int far *: the same
+EXTRN _D_201A:DWORD	;int far *: while not 0 the pointer is left alone
+EXTRN _D_34F2:DWORD	;int far *: the same
 DSegEnd
 
-EXTRN C_07D8_0008:FAR	;VID_inRetrace
-EXTRN C_0888_0006:FAR	;MOUSE_restoreBG
+EXTRN VID_inRetrace:FAR	;VID_inRetrace
+EXTRN MOUSE_restoreBG:FAR	;MOUSE_restoreBG
 
 CSegStart	MOUSEHID_TEXT
 
@@ -26,16 +26,16 @@ FProc	MOUSE_hide	;0884:0003
 	CMP	busy,0
 	JNZ	C_0042
 	INC	busy
-	LES	DI,D_201A
+	LES	DI,_D_201A
 	MOV	AX,ES:[DI]
 	OR	AX,AX
 	JNZ	C_003D
-	LES	DI,D_34F2
+	LES	DI,_D_34F2
 	MOV	AX,ES:[DI]
 	OR	AX,AX
 	JNZ	C_003D
-	CALL	C_07D8_0008
-	CALL	C_0888_0006
+	CALL	VID_inRetrace
+	CALL	MOUSE_restoreBG
 C_003D:
 	DEC	busy
 C_0042:

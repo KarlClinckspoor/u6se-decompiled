@@ -25,10 +25,10 @@ struct tText {
 	char justify;/*+10*/
 };
 
-extern struct tText *pText;/*D_201E: the current text window*/
-extern void pascal C_0756_0002(char far *s);/*TXT_puts: print a string, word-wrapped and justified*/
-extern void pascal C_0784_0002(int c);/*TXT_putc: print a character*/
-extern void pascal C_0782_0000(int c);/*TXT_bufc: add a character to the window's string buffer*/
+extern struct tText *pText;/*pText: the current text window*/
+extern void pascal TXT_puts(char far *s);/*TXT_puts: print a string, word-wrapped and justified*/
+extern void pascal TXT_putc(int c);/*TXT_putc: print a character*/
+extern void pascal TXT_bufc(int c);/*TXT_bufc: add a character to the window's string buffer*/
 
 /*output a string, a character at a time*/
 /*C_078E_0000*/static outstr(void (pascal *out)(int), char far *s) {
@@ -62,7 +62,7 @@ extern void pascal C_0782_0000(int c);/*TXT_bufc: add a character to the window'
 					case 'Y': pText->curY = va_arg(ap, int); break;
 					case 'B': pText->bgColor = va_arg(ap, int); break;
 					case 'F': pText->fgColor = va_arg(ap, int); break;
-					case 'P': C_0756_0002(pText->buffer); break;
+					case 'P': TXT_puts(pText->buffer); break;
 					case 'J': pText->justify = va_arg(ap, int); break;
 					default: (*out)(c2); break;
 				}
@@ -79,7 +79,7 @@ extern void pascal C_0782_0000(int c);/*TXT_bufc: add a character to the window'
 	register va_list ap;
 
 	va_start(ap, fmt);
-	format(C_0784_0002, fmt, ap);
+	format(TXT_putc, fmt, ap);
 }
 
 /*format into the window's string buffer*/
@@ -88,7 +88,7 @@ extern void pascal C_0782_0000(int c);/*TXT_bufc: add a character to the window'
 
 	va_start(ap, fmt);
 	pText->bufPtr = pText->buffer;
-	format(C_0782_0000, fmt, ap);
+	format(TXT_bufc, fmt, ap);
 }
 
 /*and add to it*/
@@ -96,5 +96,5 @@ extern void pascal C_0782_0000(int c);/*TXT_bufc: add a character to the window'
 	register va_list ap;
 
 	va_start(ap, fmt);
-	format(C_0782_0000, fmt, ap);
+	format(TXT_bufc, fmt, ap);
 }

@@ -4,7 +4,7 @@
 INCLUDE OSI.INC
 
 DSegStart
-EXTRN D_201E:WORD	;struct tText *: the current text window
+EXTRN _pText:WORD	;struct tText *: the current text window
 DSegEnd
 
 CSegStart	TXTCWID_TEXT
@@ -15,7 +15,7 @@ FProc	TXT_charWidth	;0780:0004
 	MOV	BP,SP
 	PUSH	DS
 	PUSH	SI
-	MOV	BX,D_201E
+	MOV	BX,_pText
 	LDS	SI,[BX].font
 	MOV	BX,[BP+06]
 	XOR	BH,BH

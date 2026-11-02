@@ -4,8 +4,8 @@
 INCLUDE OSI.INC
 
 DSegStart
-EXTRN D_201E:WORD	;struct tText *: the current text window
-EXTRN D_2024:DWORD	;driver: fill a line of pixels
+EXTRN _pText:WORD	;struct tText *: the current text window
+EXTRN _D_2024:DWORD	;driver: fill a line of pixels
 EXTRN D_202C:WORD	;the line of pixels being filled
 EXTRN D_202E:WORD	;lines of pixels left
 DSegEnd
@@ -20,7 +20,7 @@ FProc	TXT_clearLine	;07BD:0008
 	CLD
 	PUSH	DX
 	MOV	D_202C,AX
-	MOV	SI,D_201E
+	MOV	SI,_pText
 	MOV	DI,[SI].surface
 	MOV	CX,[DI].right
 	MOV	BP,CX
@@ -34,7 +34,7 @@ FProc	TXT_clearLine	;07BD:0008
 C_002D:
 	MOV	CX,BP
 	MOV	BX,D_202C
-	CALL	D_2024
+	CALL	_D_2024
 	INC	D_202C
 	DEC	D_202E
 	JNZ	C_002D

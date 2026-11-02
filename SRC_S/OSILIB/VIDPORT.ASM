@@ -10,7 +10,7 @@ DSegEnd
 CSegStart	VIDPORT_TEXT
 
 ;D_2032 = the display's input status register 1 (3BAh or 3DAh)
-FProc	VID_initPort	;07D6:0004
+FProc	_VID_initPort	;07D6:0004
 	PUSH	ES
 	MOV	AX,40h
 	MOV	ES,AX
@@ -19,7 +19,7 @@ FProc	VID_initPort	;07D6:0004
 	MOV	D_2032,DX
 	POP	ES
 	RET
-VID_initPort	ENDP
+_VID_initPort	ENDP
 
 CSegEnd	VIDPORT_TEXT
 

@@ -4,7 +4,7 @@
 ;----------------------------------------
 INCLUDE OSI.INC
 
-EXTRN C_0746_000A:FAR	;SHP_rect
+EXTRN SHP_rect:FAR	;SHP_rect
 
 CSegStart	SHPSIZE_TEXT
 
@@ -26,7 +26,7 @@ FProc	SHP_size	;0742:0006
 	PUSH	WORD PTR [BP+0Ah]
 	PUSH	WORD PTR [BP+08]
 	PUSH	WORD PTR [BP+06]
-	CALL	C_0746_000A
+	CALL	SHP_rect
 	MOV	AX,[BP-04]
 	SUB	AX,[BP-08]
 	INC	AX

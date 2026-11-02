@@ -5,6 +5,7 @@
    offset tells how many there are. */
 
 /* an open library entry */
+#pragma inline	/*compiled through the assembler: the .EXE has its relocations in ascending order, as an assembler writes them*/
 struct libfile {
 	int handle;	/* +00 */
 	int last;	/* +02 1: the last entry (it ends at the end of the file) */

@@ -89,9 +89,13 @@ def main():
         cmap, amap = {}, {}  # address name -> name for C code / for assembly
         rename_asm_defs = {}  # file -> {asm label: new label (gets an underscore)}
         used_by_c = set()
+        pascal_in_c = set()  # routines C declares pascal: their link name has no underscore
         for p in files():
             if p.lower().endswith(('.c', '.h')):
-                used_by_c.update(re.findall(r'\b(C_[0-9A-F]{4}_[0-9A-F]{4}|D_[0-9A-F]{4})\b', read(p)))
+                src = read(p)
+                used_by_c.update(re.findall(r'\b(C_[0-9A-F]{4}_[0-9A-F]{4}|D_[0-9A-F]{4})\b', src))
+                pascal_in_c.update(re.findall(r'\bpascal\b[^;{()]*?\b(C_[0-9A-F]{4}_[0-9A-F]{4})\s*\(', src))
+        used_by_c -= pascal_in_c
         for k, v in t.items():
             addr = 'C_%04X_%04X' % k[1:] if k[0] == 'C' else 'D_%04X' % k[1]
             if v[2] in ('c', 'pascal') and v[0] == addr:

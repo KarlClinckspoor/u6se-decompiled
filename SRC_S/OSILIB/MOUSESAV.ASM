@@ -7,7 +7,7 @@ DSegStart
 EXTRN D_20A2:WORD	;struct tMouse *: the mouse
 EXTRN D_20C0:WORD	;where the pointer is drawn: x
 EXTRN D_20C2:WORD	;  y
-EXTRN D_3530:DWORD	;driver: save the background (struct tSurface *s, void far *buf, int x, int y, void far *shapes, int index)
+EXTRN _D_3530:DWORD	;driver: save the background (struct tSurface *s, void far *buf, int x, int y, void far *shapes, int index)
 DSegEnd
 
 CSegStart	MOUSESAV_TEXT
@@ -29,7 +29,7 @@ FProc	MOUSE_saveBG	;088A:000C
 	PUSH	WORD PTR [BX].saveBuf+2
 	PUSH	WORD PTR [BX].saveBuf
 	PUSH	[BX].mSurface
-	CALL	D_3530
+	CALL	_D_3530
 	ADD	SP,10h
 	RET
 MOUSE_saveBG	ENDP
