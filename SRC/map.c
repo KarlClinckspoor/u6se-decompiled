@@ -38,7 +38,7 @@ struct tClipInfo/*size:9*/ {
 extern int16 OSI_open(char *);/*OSI_open*/
 extern OSI_close(int16);/*OSI_close*/
 extern int32 OSI_read(int16, int32, int32, void far *);/*OSI_read*/
-extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
+extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
 
 /*other game modules*/
 extern char StatusDirty;
@@ -406,7 +406,7 @@ static /*C_08CB_0003*/cacheChunk(int16 chunkIdx) {
 						if(COMBAT_TileDistance(objNum, MapX, MapY) < 2)
 							MoveObj(objNum, MapX, MapY, MapZ);
 						else
-							TryStraightMove(objNum, C_2B57_001F(0, 3) << 1, 1);
+							TryStraightMove(objNum, OSI_rand(0, 3) << 1, 1);
 					} else {
 						allArrived = 0;
 					}

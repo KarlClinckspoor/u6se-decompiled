@@ -93,9 +93,9 @@ struct tBgArea {
 extern int16 OSI_open(char *);/*OSI_open*/
 extern OSI_close(int16);/*OSI_close*/
 extern int32 OSI_read(int16, int32, int32, void far *);/*OSI_read*/
-extern cdecl C_2ABF_013D();/*MOUSE_SHOW*/
-extern cdecl C_2ABF_014E();/*MOUSE_HIDE*/
-extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
+extern cdecl MOUSE_SHOW();/*MOUSE_SHOW*/
+extern cdecl MOUSE_HIDE();/*MOUSE_HIDE*/
+extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
 
 /*other game modules*/
 extern LoadFileGr();/*LoadFileGr*/
@@ -125,7 +125,7 @@ extern MUS_PlaySfx(int16);/*(ShakeScreen: sound?)*/
 extern DISK_confirm(int16);/*DISK_confirm*/
 
 /*Savage Empire's library*/
-extern int16 osiError;
+extern int16 cdecl osiError;
 extern void far * cdecl MEM_alloc(int32 size, int16 flags);
 extern cdecl MEM_shutdown(int16);
 extern int32 LIB_entrySize(char far *name, int16 index);
@@ -201,8 +201,8 @@ extern int16 D_ED18;/*width - 1 of the shaken rectangle*/
 #define TILE_FRAME(i) (BaseTile[GetType(i)] + GetFrame(i))
 #define IsTileWin(tile) (TileFlag[tile] & 0x08)
 #define IsTileNos(tile) (TileFlag[tile] & 0x20)
-#define HideMouse if(MouseOn) C_2ABF_014E();
-#define ShowMouse if(MouseOn) C_2ABF_013D();
+#define HideMouse if(MouseOn) MOUSE_HIDE();
+#define ShowMouse if(MouseOn) MOUSE_SHOW();
 
 /*====---- ----====*/
 /*driver init parameter, indexed by adapter type:
@@ -757,7 +757,7 @@ int16 far /*C_276B_0F76*/*MagicWind(int16 objNum, int16 x, int16 y, int16 missil
 		impact_x[i] =
 		impact_y[i] = -1;
 	}
-	stonesLeft = C_2B57_001F(10, 30);
+	stonesLeft = OSI_rand(10, 30);
 	GR_DEFINE_SPRITE(7, 0x18e, 0, 0x7f, 0x7f);
 	D_ED14 = D_ED16 = 168;
 	D_ED1A = D_ED1C = 7;
@@ -767,9 +767,9 @@ int16 far /*C_276B_0F76*/*MagicWind(int16 objNum, int16 x, int16 y, int16 missil
 		for(i = 0; i < 6; i ++)
 			if(stone_x[i] < 0)
 				break;
-		if(stonesLeft && i < 6 && C_2B57_001F(0, 7) == 0) {
-			impact_x[i] = TIL2SCR(x) + C_2B57_001F(1, 30) + C_2B57_001F(1, 30) - 23;
-			impact_y[i] = TIL2SCR(y) + C_2B57_001F(1, 30) + C_2B57_001F(1, 30) - 23;
+		if(stonesLeft && i < 6 && OSI_rand(0, 7) == 0) {
+			impact_x[i] = TIL2SCR(x) + OSI_rand(1, 30) + OSI_rand(1, 30) - 23;
+			impact_y[i] = TIL2SCR(y) + OSI_rand(1, 30) + OSI_rand(1, 30) - 23;
 			stone_x[i] = impact_x[i] - 50;
 			stone_y[i] = impact_y[i] - 50;
 			stonesLeft --;
@@ -821,7 +821,7 @@ int16 far /*C_276B_0F76*/*MagicWind(int16 objNum, int16 x, int16 y, int16 missil
 				stone_y[i] ++;
 				if(impact_x[i] == stone_x[i] && impact_y[i] == stone_y[i]) {
 					stone_x[i] = -1;
-					soundArg = C_2B57_001F(400, 500);
+					soundArg = OSI_rand(400, 500);
 					scr_x = SCR2TIL(impact_x[i]);
 					scr_y = SCR2TIL(impact_y[i]);
 					for(objNum = FindLoc(scr_x, scr_y, MapZ); objNum >= 0; objNum = NextLoc()) {
@@ -863,8 +863,8 @@ int16 far /*C_276B_0F76*/*MagicWind(int16 objNum, int16 x, int16 y, int16 missil
 	DrawMapWindow(0);
 	for(i = 0; i < duration; i ++) {
 		MUS_PlaySfx(1);
-		ofs_x = C_2B57_001F(8 - ampl, ampl + 8);
-		ofs_y = C_2B57_001F(16 - ampl, ampl + 16);
+		ofs_x = OSI_rand(8 - ampl, ampl + 8);
+		ofs_y = OSI_rand(16 - ampl, ampl + 16);
 		GR_COPY_TO_SCREEN(ofs_x, ofs_y, ofs_x + D_ED18, ofs_y + 0x8f, 16, 16);
 		StopAllSounds();
 	}

@@ -188,7 +188,7 @@ extern int16 EGG_generate(int16, int16, int16, int16);/*(type, x, y, z): creates
 extern LoadConversation(int16, unsigned char far *);/*LoadConversation(npc, buffer)*/
 extern int16 HasConversation(int16);/*has the npc a conversation script?*/
 extern ClearMapWindow(int16);
-extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
+extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
 extern cdecl MEM_shutdown(int16);
 extern cdecl ShutdownSound(void);
 extern char far NotInSoloMsg[];/*"Not in solo mode!\n" (far messages)*/
@@ -345,7 +345,7 @@ word of <input>*/
 name (which follows OP_SCRIPT_MARK and the npc num, and ends with the first
 opcode byte) into TalkNpcName, after "a " for the NPCs >= 0x40;
 returns TalkNpcName*/
-/*C_0F8D_0094*/static unsigned char *TALK_GetNpcName(int16 objNum) {
+/*C_0F8D_0094*/unsigned char *TALK_GetNpcName(int16 objNum) {
 	int16 i, j;
 
 	i = 0;
@@ -536,7 +536,7 @@ lstack and leaves its result in the lowest operand's slot.*/
 				case OP_RND:/*random number in [min, max] (8 bits)*/
 					cparam0 = lstack[sidx - 2];
 					cparam1 = lstack[sidx - 1];
-					lstack[sidx - 2] = C_2B57_001F(cparam0, cparam1);
+					lstack[sidx - 2] = OSI_rand(cparam0, cparam1);
 					sidx -= 2;
 				break;
 				case OP_TEST_OBJ:/*(npc, object type)*/
@@ -950,16 +950,16 @@ resume afterwards*/
 		break;
 		case 2: case 5:/*hostile creatures (type 0x143) appear around the party*/
 			if(!(TalkFlags[0x28] & 0x80)) {
-				count = C_2B57_001F(5, 10);
+				count = OSI_rand(5, 10);
 				for(k = 0; k < count; k ++) {
-					r0 = C_2B57_001F(0, 1);
-					r1 = C_2B57_001F(0, 1);
-					if(C_2B57_001F(0, 1)) {
-						x = MapX + C_2B57_001F(0, 10) - 5;
-						y = MapY + (C_2B57_001F(0, 1) << 3) - 4;
+					r0 = OSI_rand(0, 1);
+					r1 = OSI_rand(0, 1);
+					if(OSI_rand(0, 1)) {
+						x = MapX + OSI_rand(0, 10) - 5;
+						y = MapY + (OSI_rand(0, 1) << 3) - 4;
 					} else {
-						x = MapX + (C_2B57_001F(0, 1) << 3) - 4;
-						y = MapY + C_2B57_001F(0, 10) - 5;
+						x = MapX + (OSI_rand(0, 1) << 3) - 4;
+						y = MapY + OSI_rand(0, 10) - 5;
 					}
 					if(CanMoveTo(Party[Active], x, y)) {
 						npc = EGG_generate(0x143, x, y, MapZ);
@@ -971,16 +971,16 @@ resume afterwards*/
 			}
 		break;
 		case 1: case 3: case 4:/*hostile creatures (type 0x140) appear around the party*/
-			count = C_2B57_001F(2, 10);
+			count = OSI_rand(2, 10);
 			for(k = 0; k < count; k ++) {
-				r0 = C_2B57_001F(0, 1);
-				r1 = C_2B57_001F(0, 1);
-				if(C_2B57_001F(0, 1)) {
-					x = MapX + C_2B57_001F(0, 10) - 5;
-					y = MapY + (C_2B57_001F(0, 1) << 3) - 4;
+				r0 = OSI_rand(0, 1);
+				r1 = OSI_rand(0, 1);
+				if(OSI_rand(0, 1)) {
+					x = MapX + OSI_rand(0, 10) - 5;
+					y = MapY + (OSI_rand(0, 1) << 3) - 4;
 				} else {
-					x = MapX + (C_2B57_001F(0, 1) << 3) - 4;
-					y = MapY + C_2B57_001F(0, 10) - 5;
+					x = MapX + (OSI_rand(0, 1) << 3) - 4;
+					y = MapY + OSI_rand(0, 10) - 5;
 				}
 				if(CanMoveTo(Party[Active], x, y)) {
 					npc = EGG_generate(0x140, x, y, MapZ);

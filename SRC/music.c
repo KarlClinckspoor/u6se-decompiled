@@ -38,7 +38,7 @@ struct tSfxStep {
 };
 
 /*OSI routines (asm)*/
-extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
+extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
 extern cdecl MOUSE_SERVE();/*MOUSE_SERVE*/
 
 /*other game modules*/
@@ -209,7 +209,7 @@ else 0 or 1 at random*/
 			song = 2;
 		else if(InCombat)
 			song = 8;
-		else if(C_2B57_001F(0, 1) == 0)
+		else if(OSI_rand(0, 1) == 0)
 			song = 0;
 		else
 			song = 1;
@@ -274,7 +274,7 @@ and queues the area song (3 on level 3, 2 underground, else 0 or 1);
 		song = 3;
 	else if(MapZ > 0)
 		song = 2;
-	else if(C_2B57_001F(0, 1) == 0)
+	else if(OSI_rand(0, 1) == 0)
 		song = 0;
 	else
 		song = 1;

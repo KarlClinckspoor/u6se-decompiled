@@ -12,6 +12,7 @@ TARGETS = {
                    flags='-mm -c -O -Z -d'),
     # GAME.EXE: the game (pascal)
     'game': dict(exe='GAME.EXE', src='SRC', dgroup=0x2FA6, syms='game_syms.txt', bss=0x3250,
+                 link_first=['SEGORDER.ASM'],  # linked before C0M (see the file)
                  flags='-mm -p -c -O -Z -d'),
 }
 

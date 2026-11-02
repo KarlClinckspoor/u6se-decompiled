@@ -44,8 +44,8 @@ extern OSI_callback();/*OSI_callback: an error handler that does nothing*/
 extern int16 OSI_open(char *path);/*OSI_open*/
 extern int16 OSI_close(int16 handle);/*OSI_close*/
 extern FileErrorHandler();/*FileErrorHandler (main)*/
-extern C_2AF5_001B(int16 driveLetter);/*OSI_selectDrive*/
-extern int16 C_2AFB_0006();/*OSI_getDrive: the current drive's letter*/
+extern OSI_selectDrive(int16 driveLetter);/*OSI_selectDrive*/
+extern int16 OSI_getDrive();/*OSI_getDrive: the current drive's letter*/
 extern void (*DriveErrorCallback)();/*DriveErrorCallback: called by OSI_selectDrive when selection fails*/
 extern cdecl MOUSE_SERVE();/*MOUSE_SERVE*/
 
@@ -115,7 +115,7 @@ extern unsigned char D_ED1E, D_ED1F;/*DosVerMajor, DosVerMinor*/
 
 	CurrentDrive =
 	drive = DiskDrive[diskNum];
-	C_2AF5_001B(drive + 'A' - 1);
+	OSI_selectDrive(drive + 'A' - 1);
 	for(disk = 1; disk < 9; disk++)
 		if(DISK_IsInDrive(disk))
 			DiskDrive[disk] = drive;
@@ -176,7 +176,7 @@ extern unsigned char D_ED1E, D_ED1F;/*DosVerMajor, DosVerMinor*/
 			if(keyOrIndex == 3) {
 				CurrentDisk = diskNum;
 				DiskDrive[diskNum] = CurrentDrive - ('A' - 1);
-				C_2AF5_001B(CurrentDrive);
+				OSI_selectDrive(CurrentDrive);
 				return;
 			}
 			/*search the disk in all the removable drives*/
@@ -184,7 +184,7 @@ extern unsigned char D_ED1E, D_ED1F;/*DosVerMajor, DosVerMinor*/
 			for(keyOrIndex = 0; keyOrIndex < 26; keyOrIndex++) {
 				if(DriveType[keyOrIndex] != 2)
 					continue;
-				C_2AF5_001B(keyOrIndex + 'A');
+				OSI_selectDrive(keyOrIndex + 'A');
 				if(DISK_IsInDrive(diskNum)) {
 					foundDrive = keyOrIndex + 1;
 					DiskDrive[diskNum] = foundDrive;
@@ -200,7 +200,7 @@ extern unsigned char D_ED1E, D_ED1F;/*DosVerMajor, DosVerMinor*/
 		}
 		if(DiskDrive[diskNum] != CurrentDrive) {
 			CurrentDrive = DiskDrive[diskNum];
-			C_2AF5_001B(CurrentDrive + 'A' - 1);
+			OSI_selectDrive(CurrentDrive + 'A' - 1);
 		}
 		CurrentDisk = diskNum;
 	}
@@ -281,12 +281,12 @@ extern unsigned char D_ED1E, D_ED1F;/*DosVerMajor, DosVerMinor*/
 			DriveType[0] =
 			DriveType[1] = 0;
 		}
-		drive = C_2AFB_0006();
+		drive = OSI_getDrive();
 		if(drive > 'B')
 			DriveType[drive - 'A'] = 1;
 	}
 
 	CurrentDisk = 1;
-	DiskDrive[1] = C_2AFB_0006() + 1 - 'A';
+	DiskDrive[1] = OSI_getDrive() + 1 - 'A';
 	DISK_ScanDrive(1);
 }

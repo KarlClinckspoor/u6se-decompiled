@@ -87,9 +87,9 @@ extern OSI_close(int16);/*OSI_close*/
 extern int32 OSI_read(int16, int32, int32, void far *);/*OSI_read*/
 extern int32 OSI_fileSize(int16);/*OSI_fileSize*/
 extern int16 OSI_Started;/*OSI_Started*/
-extern C_2AFC_000A();/*OSI_lowInit?*/
-extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
-extern C_2B57_0044(int16);/*OSI_randomize*/
+extern OSI_lowInit();/*OSI_lowInit?*/
+extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
+extern OSI_randomize(int16);/*OSI_randomize*/
 
 /*other game modules*/
 extern char AnimateAtPrompt;/*AnimateAtPrompt*/
@@ -111,18 +111,18 @@ extern MUS_InitDriver();
 extern MUS_PlaySong(int16);
 extern MUS_PlayAreaSong();
 extern InitGraphicsDriver(int16);/*InitGraphicsDriver*/
-extern int16 C_29D1_000E(int16);/*KBD_GetKey*/
+extern int16 KBD_GetKey(int16);/*KBD_GetKey*/
 extern DISK_confirm(int16);/*DISK_confirm*/
 extern DISK_full();/*DISK_full*/
 extern DISK_init();/*DISK_init*/
 extern cdecl MOUSE_INIT(struct tMouse *);/*MOUSE_INIT*/
 extern cdecl MOUSE_POINTER(void far *, int16);/*MOUSE_POINTER*/
-extern cdecl C_2ABF_013D();/*MOUSE_SHOW*/
+extern cdecl MOUSE_SHOW();/*MOUSE_SHOW*/
 
 /*Savage Empire's library*/
-extern int16 soundCard;
-extern int16 osiError;
-extern char far *lzcWorkArea;
+extern int16 cdecl soundCard;
+extern int16 cdecl osiError;
+extern char far * cdecl lzcWorkArea;
 extern cdecl MEM_init(int16);
 extern cdecl MEM_shutdown(int16);
 extern void far * cdecl MEM_alloc(int32 size, int16 flags);
@@ -274,7 +274,7 @@ extern union tHandler D_ED10;/*GrDriver*/
 			CON_printf(OSI_ErrorFile);
 			CON_printf("\n");
 			/*wait for a key (flushing the keyboard buffer)*/
-			while(!(key = C_29D1_000E(1)));
+			while(!(key = KBD_GetKey(1)));
 		}
 		CON_setClip(savedClip);
 	}
@@ -474,9 +474,9 @@ extern union tHandler D_ED10;/*GrDriver*/
 	/*seed the random generator from the time of day*/
 	gettime((struct time *)now);
 	MEM_init(8);
-	C_2B57_0044(now[1]);
+	OSI_randomize(now[1]);
 	for(i = 0; i < now[1]; i++)
-		C_2B57_001F(0, 2);
+		OSI_rand(0, 2);
 	/*config: CONFIG.SE (6 characters) then the command line arguments*/
 	fileHandle = OSI_open("config.se");
 	if(fileHandle >= 0) {
@@ -498,7 +498,7 @@ extern union tHandler D_ED10;/*GrDriver*/
 	lzcWorkArea = D_3EB6;
 
 	DISK_init();
-	C_2AFC_000A();
+	OSI_lowInit();
 	/*install the file error handler*/
 	OSI_ErrorHandler.f = FileErrorHandler;
 	/*the surfaces (scanline offset tables) are only used by the mouse code:
@@ -663,7 +663,7 @@ extern union tHandler D_ED10;/*GrDriver*/
 	}
 
 	if(MouseOn)
-		C_2ABF_013D();
+		MOUSE_SHOW();
 	MUS_PlayAreaSong();
 
 	/*-- game loop --*/

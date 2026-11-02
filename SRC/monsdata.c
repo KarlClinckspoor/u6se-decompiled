@@ -1,4 +1,4 @@
-/* flags: -d -mh -p -c -Z -O */
+/* flags: -d -mh -p -c -Z -O -zTFAR_DATA */
 /*
 	The monster tables (far data segment 2F43, after the code), Ultima VI's
 	monsdata.c rewritten for Savage Empire. A "monster class" is the index of
@@ -72,4 +72,6 @@
 /*40*/	0x2840,0x2840,0x0051,0x2020,0x3000,0x6000,0x1011,0x1011
 };
 
-/*(14 bytes to the next paragraph: the next segment is paragraph aligned)*/
+/*14 zero bytes up to msgs.c's segment (2F65:0000), referenced by nothing: an unused table
+  or Origin's padding (huge-model data segments are only word aligned)*/
+/*C_2F43_0212*/unsigned char MonsterUnused[14] = {0};

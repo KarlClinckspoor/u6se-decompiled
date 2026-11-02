@@ -65,10 +65,10 @@ struct tGr {
 #define GR_SET_ANIM_FRAME(a,b)        (D_ED10.iii.ofs = 0x4b, (*D_ED10.f)(a,b))
 
 /*OSI library (asm)*/
-extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
+extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
 extern cdecl MOUSE_SERVE();/*MOUSE_SERVE*/
-extern cdecl C_2ABF_0164();/*MOUSE_DRAW*/
-extern cdecl C_2ABF_018B();/*MOUSE_SAVE_BG*/
+extern cdecl MOUSE_DRAW();/*MOUSE_DRAW*/
+extern cdecl MOUSE_SAVE_BG();/*MOUSE_SAVE_BG*/
 extern int16 cdecl MOUSE_IN_AREA(struct tSurface *);/*MOUSE_IN_AREA*/
 
 /*far data*/
@@ -323,10 +323,10 @@ extern union tHandler D_ED10;/*GrDriver*/
 #define Tile_11x11 D_C08A
 #define GrInfo D_ED0C
 
-#define OSI_rand C_2B57_001F
+#define OSI_rand OSI_rand
 #define MOUSE_SERVE MOUSE_SERVE
-#define MOUSE_DRAW C_2ABF_0164
-#define MOUSE_SAVE_BG C_2ABF_018B
+#define MOUSE_DRAW MOUSE_DRAW
+#define MOUSE_SAVE_BG MOUSE_SAVE_BG
 #define MOUSE_IN_AREA MOUSE_IN_AREA
 #define CON_UpdateMousePointer CON_UpdateMousePointer
 #define GAME_Restore GAME_Restore

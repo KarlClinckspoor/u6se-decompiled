@@ -34,15 +34,11 @@ def main():
     for m in mods:  # a module with several code segments has one line per segment
         if m[3] not in files:
             files.append(m[3])
-    # far data compiled huge model (GAME.EXE's msgs.c, monsdata.c) is linked before C0M, as
-    # Ultima VI's MAKEFILE does: their empty code segments go first, their data segments
-    # first in class DATA, so the data end up right before DGROUP
-    def flags_of(f):
-        return sesym.default_flags(os.path.join(src, f)) if f.lower().endswith('.c') else ''
-    first = [f for f in files if '-mh' in flags_of(f).split()]
-    files = first + [f for f in files if f not in first]
+    first = list(t.get('link_first', []))  # modules linked before C0M
+    files = first + files
     if os.path.exists(os.path.join(src, 'BSS.ASM')):
         files.append('BSS.ASM')
+
     exe = t['exe']
     with tempfile.TemporaryDirectory() as tmp:
         c = os.path.join(tmp, 'c')
@@ -95,7 +91,7 @@ def main():
         if a.log:
             print(log)
         for l in log.splitlines():
-            if l.startswith(('Error', 'Fatal')) or 'Undefined symbol' in l or ': error' in l.lower():
+            if (l.startswith(('Error', 'Fatal')) and not l.startswith('Errors')) or 'Undefined symbol' in l or ': error' in l.lower():
                 print(l)
         if a.keep:
             shutil.copytree(s, a.keep, dirs_exist_ok=True)

@@ -105,6 +105,8 @@ def parse_file(p, fn, t):
         else:
             for m in re.finditer(r'^(?:FProc|ProcStart|NProc)\s+(\w+)\s*;\s*([0-9A-F]{4}):([0-9A-F]{4})', s, re.M):
                 t[('C', int(m.group(2), 16), int(m.group(3), 16))] = (m.group(1), fn, 'asm', False)
+            for m in re.finditer(r'^\s*PUBLIC\s+(\w+)\s*;\s*([0-9A-F]{4}):([0-9A-F]{4})', s, re.M):
+                t[('C', int(m.group(2), 16), int(m.group(3), 16))] = (m.group(1), fn, 'asm', False)
             for m in re.finditer(r'^(\w+)\s+PROC\s+\w+\s*;\s*([0-9A-F]{4}):([0-9A-F]{4})', s, re.M):
                 t[('C', int(m.group(2), 16), int(m.group(3), 16))] = (m.group(1), fn, 'asm', False)
             for m in re.finditer(r'^(\w+)\s+(?:db|dw|dd|LABEL)\b[^;\n]*;\s*D_([0-9A-F]{4})\b', s, re.M):

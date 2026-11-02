@@ -77,11 +77,11 @@ def main():
              '', '_BSS\tSEGMENT WORD PUBLIC \'BSS\'', '_BSS\tENDS', 'DGROUP\tGROUP _BSS', '',
              '_BSS\tSEGMENT WORD PUBLIC \'BSS\'']
     for off in sorted(v):
-        lines.append('\tORG\t%04Xh' % (off - start))
+        lines.append('\tORG\t0%04Xh' % (off - start))
         for n in sorted(v[off]):
             lines.append('\tPUBLIC\t%s' % n)
             lines.append('%s\tLABEL\tBYTE\t;D_%04X' % (n, off))
-    lines.append('\tORG\t%04Xh' % (end - start))
+    lines.append('\tORG\t0%04Xh' % (end - start))
     lines += ['_BSS\tENDS', '\tEND', '']
     open(os.path.join(t['src'], 'BSS.ASM'), 'w').write('\n'.join(lines))
     print('%d variables, %d names -> %s' % (len(v), sum(len(x) for x in v.values()), os.path.join(t['src'], 'BSS.ASM')))

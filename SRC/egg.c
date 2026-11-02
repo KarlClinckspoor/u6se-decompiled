@@ -80,7 +80,7 @@ extern int16 C_130F_0002(int16);
 extern int16 COMBAT_TryTeleport(int16, int16);/*COMBAT_TryTeleport*/
 extern int16 C_1DBD_18FD(int16, int16);
 extern C_2701_04A7();
-extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
+extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
 
 #define GetType(i) (D_9CFA[i] & 0x3ff)
 #define GetFrame(i) (D_9CFA[i] >> 10)
@@ -125,7 +125,7 @@ extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 /*C_2667_00A2*/mkRandom(int16 val) {
 	int16 half = val >> 1;
 	if(half)
-		val = (val - half) + C_2B57_001F(0, half) + C_2B57_001F(0, half);
+		val = (val - half) + OSI_rand(0, half) + OSI_rand(0, half);
 	return val;
 }
 
@@ -244,7 +244,7 @@ extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 		onlyOne = 1;
 	if(!(D_329C[egg_objNum] & 0x40)) {
 		/*Quantity of egg: percent chance of hatching*/
-		if(C_2B57_001F(1, 100) <= GetQuan(egg_objNum)) {
+		if(OSI_rand(1, 100) <= GetQuan(egg_objNum)) {
 			hostileOffscreen = 0;
 			isFirstBorn = 1;
 			for(embryo_objNum = FindInv(egg_objNum); embryo_objNum >= 0; embryo_objNum = NextInv()) {
@@ -253,19 +253,19 @@ extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 				typParam = GetType(embryo_objNum);
 				numMonsters = GetQuan(embryo_objNum);
 				if(typParam == 0x7f || typParam == 0xcb)
-					numMonsters = C_2B57_001F(10, 20);
+					numMonsters = OSI_rand(10, 20);
 				if(typParam == 0x143) {
 					if(onlyOne)
 						numMonsters = 1;
 					else if(MapZ == 1)
-						numMonsters = C_2B57_001F(5, 15);
+						numMonsters = OSI_rand(5, 15);
 				} else if(!(typParam == 0x12d || typParam == 0x11a || (typParam >= 0x136 && typParam <= 0x146))) {
 					numMonsters = 1;
 				} else if(GetQuan(egg_objNum) <= 100) {
-					numMonsters = C_2B57_001F(1, numMonsters);
+					numMonsters = OSI_rand(1, numMonsters);
 				}
 				if(typParam == 0x7f || typParam == 0xcb)
-					numMonsters = C_2B57_001F(10, 20);
+					numMonsters = OSI_rand(10, 20);
 				for(i = 0; i < numMonsters; i ++) {
 					if(objTyp < 0x11a) {
 						/*not a creature: plain object*/
@@ -277,8 +277,8 @@ extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 							monster = AddMapObj(objTyp, 0x20, quan, GetX(egg_objNum), GetY(egg_objNum), MapZ);
 							D_9CFA[monster] = GetType(monster) + (3 << 10);
 						} else {
-							rx = GetX(egg_objNum) + C_2B57_001F(0, 6) - 3;
-							ry = GetY(egg_objNum) + C_2B57_001F(0, 6) - 3;
+							rx = GetX(egg_objNum) + OSI_rand(0, 6) - 3;
+							ry = GetY(egg_objNum) + OSI_rand(0, 6) - 3;
 							if(
 								!C_1DBD_18FD(rx, ry) &&
 								!(D_B4FA[GetTileAtXYZ(rx, ry, MapZ)] & 2) &&

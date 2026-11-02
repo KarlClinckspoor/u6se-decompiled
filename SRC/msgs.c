@@ -1,9 +1,11 @@
-/* flags: -d -mh -p -c -Z -O */
+/* flags: -d -mh -p -c -Z -O -zTFAR_DATA */
 /*
 	The far message strings (segment 2F65, after the code): messages printed
 	with CON_printf by the combat, movement, command and system modules. A '`'
 	makes the console capitalise the next character (the start of an inserted
-	name). Compiled huge model, so they are in a far data segment of their own
+	name). Compiled huge model with the data class FAR_DATA (-zT), so they are in
+	a far data segment of their own, placed after the code and before C0M's
+	start-up tables and DGROUP
 	(Ultima VI's msgs.c, rewritten for Savage Empire). Other modules declare a
 	message as `extern char far Name[];`.
 */

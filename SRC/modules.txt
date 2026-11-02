@@ -53,6 +53,6 @@
 2F2B 4 22 ../SRC_S/LIB/PTRLIN.ASM
 2F2D 6 38 ../SRC_S/LIB/PTRNORM.ASM
 2F30 E 11E ../SRC_S/LIB/CALIB.ASM 2F42-2F64  # then 4 bytes up to the paragraph of the far data
-2F43 0 212 monsdata.c  # monster tables (-mh); then 14 bytes to the next paragraph
-2F65 0 3E3 msgs.c  # far messages (-mh); then 13 bytes to the next paragraph
+2F43 0 220 monsdata.c  # monster tables (-mh, class FAR_DATA)
+2F65 0 3E3 msgs.c  # far messages (-mh, class FAR_DATA); then 13 bytes to the start-up tables (paragraph aligned)
 # (2FA4, 2FA5: C0M's start-up and exit tables, _INIT_ and _EXIT_, made by the link)

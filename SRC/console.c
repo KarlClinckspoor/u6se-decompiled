@@ -76,8 +76,8 @@ struct tGr {
 /*mouse (OSI assembly)*/
 extern cdecl MOUSE_POINTER(void far *, int16);/*MOUSE_POINTER*/
 extern cdecl MOUSE_SERVE();/*MOUSE_SERVE*/
-extern cdecl C_2ABF_013D();/*MOUSE_SHOW*/
-extern cdecl C_2ABF_014E();/*MOUSE_HIDE*/
+extern cdecl MOUSE_SHOW();/*MOUSE_SHOW*/
+extern cdecl MOUSE_HIDE();/*MOUSE_HIDE*/
 extern int16 cdecl MOUSE_IN_AREA(struct tSurface *);/*MOUSE_IN_AREA*/
 /*OSI file routines (asm)*/
 extern int16 OSI_open(char *);/*OSI_open*/
@@ -85,7 +85,7 @@ extern OSI_close(int16);/*OSI_close*/
 extern int16 OSI_create(char *);/*OSI_create*/
 extern int32 OSI_read(int16, int32, int32, void far *);/*OSI_read*/
 extern int32 OSI_write(int16, int32, int32, void far *);/*OSI_write*/
-extern int16 C_29D1_000E(int16);/*KBD_GetKey*/
+extern int16 KBD_GetKey(int16);/*KBD_GetKey*/
 extern cdecl TimerDelay(long);/*wait (2383 per millisecond)*/
 /*other game modules*/
 extern PaletteAnimation();/*PaletteAnimation (main)*/
@@ -279,15 +279,15 @@ extern union tHandler D_ED10;/*GrDriver*/
 
 #define MOUSE_POINTER MOUSE_POINTER
 #define MOUSE_SERVE MOUSE_SERVE
-#define MOUSE_SHOW C_2ABF_013D
-#define MOUSE_HIDE C_2ABF_014E
+#define MOUSE_SHOW MOUSE_SHOW
+#define MOUSE_HIDE MOUSE_HIDE
 #define MOUSE_IN_AREA MOUSE_IN_AREA
 #define OSI_open OSI_open
 #define OSI_close OSI_close
 #define OSI_create OSI_create
 #define OSI_read OSI_read
 #define OSI_write OSI_write
-#define KBD_GetKey C_29D1_000E
+#define KBD_GetKey KBD_GetKey
 #define PaletteAnimation PaletteAnimation
 #define DrawMapWindow DrawMapWindow
 #define DisplayTick DisplayTick
@@ -935,7 +935,7 @@ direction (MkDirection, -1 = center) and, if AllowMouseMov, update the
 walk target MouseMapX/Y (map coordinates of the pointed tile). The target
 is kept while the pointer stays on the same tile, unless the party is next
 to it on the same row/column or the button was just pressed.*/
-static /*C_05D0_1011*/mkMouseDir() {
+/*C_05D0_1011*/mkMouseDir() {
 	int16 tileX, tileY;
 	int16 dir;
 
@@ -1343,7 +1343,7 @@ mkMouseSelection()/MouseInEquipView() can hit-test it.*/
   party member; plus the status view hotkeys ('*' '/' F10 '+' '-' F1~F8 '`').
 CookedInput == 0 returns the raw key (used for "more" prompts).
 returns a key code or a command code, never 0*/
-/*C_05D0_1B11*/static CON_ReadCommand() {
+/*C_05D0_1B11*/CON_ReadCommand() {
 	int16 ch, buttons;
 	int16 mouseX, mouseY, newX, newY;
 

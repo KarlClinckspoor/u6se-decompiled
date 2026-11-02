@@ -49,7 +49,7 @@ extern OSI_delete(char *);/*OSI_delete*/
 extern int32 OSI_read(int16, int32, int32, void far *);/*OSI_read*/
 extern int32 OSI_write(int16, int32, int32, void far *);/*OSI_write*/
 extern OSI_rename(char *, char *);/*OSI_rename*/
-extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
+extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
 extern void far *LZC_load(char far *name, int16 index, void far *out, int16 memflags, char far *work);
 
 /*other game modules*/
@@ -64,7 +64,7 @@ extern int16 MapCoordMask;/*MapCoordMask*/
 extern int16 ViewX, ViewY;/*ViewX, ViewY*/
 extern int16 VisibilityDirty;/*VisibilityDirty*/
 extern int16 MapX, MapY, MapZ;/*MapX, MapY, MapZ*/
-extern unsigned char D_27FB;
+extern unsigned char SpellFx[];/*gamestat.c*/
 extern int16 DiskFullChoice;/*DiskFullChoice*/
 extern unsigned char D_329C[];/*ObjStatus*/
 extern char far *D_3EB6;/*the .lzc loader's work area*/
@@ -182,7 +182,7 @@ extern DISK_confirm(int16);/*DISK_confirm*/
 #define OSI_read OSI_read
 #define OSI_write OSI_write
 #define OSI_rename OSI_rename
-#define OSI_rand C_2B57_001F
+#define OSI_rand OSI_rand
 #define ApplyTerrainEffects ApplyTerrainEffects
 #define CON_printf CON_printf
 #define GetWeight GetWeight
@@ -2159,7 +2159,7 @@ int16 QuanType(int16);
 						newFrame = (6 << 10);
 					if(ObjStatus[objNum] & 0x04)
 						newFrame = (2 << 10);
-					if(D_27FB && (NPCStatus[objNum] & 0x20))
+					if(SpellFx[1] && (NPCStatus[objNum] & 0x20))
 						newFrame = (4 << 10);
 					if(ObjStatus[objNum] & 0x80)
 						newFrame = (6 << 10);

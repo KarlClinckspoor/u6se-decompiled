@@ -108,7 +108,7 @@ extern DrawSkyBar();/*DrawSkyBar*/
 extern char far MustBePartyModeMsg[];/*MustBePartyModeMsg: "You must be in party mode to enter.\n"*/
 extern int16 C_1DBD_0A29(int16);/*tests a tile (U6 nearest: IsBridgeEndTile)*/
 extern int16 GetMonsterClass(int16);/*GetMonsterClass*/
-extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
+extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
 extern int16 far MonsterFlags[];
 
 extern char DirIncrX[], DirIncrY[];/*DirIncrX, DirIncrY*/
@@ -199,7 +199,7 @@ extern int16 D_EBCA;/*PTH_Found*/
 #define FindLoc FindLoc
 #define MoveObj MoveObj
 #define GetMonsterClass GetMonsterClass
-#define OSI_rand C_2B57_001F
+#define OSI_rand OSI_rand
 
 #define DirIncrX DirIncrX
 #define DirIncrY DirIncrY

@@ -24,8 +24,8 @@ struct tClipInfo/*size:9*/ {
 };
 
 /*OSI*/
-extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
-#define OSI_rand C_2B57_001F
+extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
+#define OSI_rand OSI_rand
 /*main*/
 extern BuildConfigString(char *);
 /*gameloop*/
@@ -46,8 +46,8 @@ extern CON_setClip(struct tClipInfo *);
 extern CON_gotoxy(int16, int16);
 extern CON_itoa(uint16, char far *, int16, int16);
 extern cdecl CON_printf(char far *, ...);
-extern int16 C_2ABF_013D(void);/*MOUSE_SHOW*/
-extern int16 C_2ABF_014E(void);/*MOUSE_HIDE*/
+extern int16 cdecl MOUSE_SHOW(void);/*MOUSE_SHOW*/
+extern int16 cdecl MOUSE_HIDE(void);/*MOUSE_HIDE*/
 /*map*/
 extern PartyTeleport(int16, int16, int16, int16);
 extern MAP_LoadAround(void);
@@ -344,8 +344,8 @@ extern union tHandler D_ED10;/*GrDriver*/
 #define SCR2TIL(i) ((i) >> 4)
 #define TIL2SCR(i) ((i) << 4)
 #define IsTileIg(tile) (TileFlag2[tile] & 0x10)
-#define HideMouse if(MouseOn) C_2ABF_014E();
-#define ShowMouse if(MouseOn) C_2ABF_013D();
+#define HideMouse if(MouseOn) MOUSE_HIDE();
+#define ShowMouse if(MouseOn) MOUSE_SHOW();
 
 /*this module*/
 int16 FindTypeAt(int16, int16, int16, int16);
@@ -564,7 +564,7 @@ void C_1DBD_5069(int16, int16, int16);
 
 /*party member object for party slot partyIdx; when the party is in a
  vehicle the whole party is represented by Party[0] (the vehicle)*/
-/*C_1DBD_092C*/static GetPartyObjOrVehicle(int16 partyIdx) {
+/*C_1DBD_092C*/GetPartyObjOrVehicle(int16 partyIdx) {
 	if(IN_VEHICLE)
 		return Party[0];
 	else

@@ -36,12 +36,12 @@ struct tClipInfo/*size:9*/ {
 #undef abs
 
 /*far tables (monsdata.c, segment 2F43, indexed by GetMonsterClass() + 1) and far messages (msgs.c, segment 2F65)*/
-extern unsigned char far C_2F43_0063[];/*MonsterStr + 1*/
-extern unsigned char far C_2F43_0093[];/*MonsterDex + 1*/
-extern unsigned char far C_2F43_00F3[];/*MonsterArmor + 1*/
-extern unsigned char far C_2F43_0123[];/*MonsterDamage + 1*/
-extern unsigned char far C_2F43_0153[];/*MonsterHP + 1*/
-extern int16 far C_2F43_01B4[];/*MonsterFlags + 1*/
+extern unsigned char far MonsterStr[];
+extern unsigned char far MonsterDex[];
+extern unsigned char far MonsterArmor[];
+extern unsigned char far MonsterDamage[];
+extern unsigned char far MonsterHP[];
+extern int16 far MonsterFlags[];
 extern char far CriticalMsg[];/*CriticalMsg*/
 extern char far HeavilyMsg[];/*HeavilyMsg*/
 extern char far LightlyMsg[];/*LightlyMsg*/
@@ -197,7 +197,7 @@ extern C_2701_04D7(void);
 extern MUS_PlaySfx(int16);/*MUS_PlaySfx*/
 extern int16 Missiles(int16, int16, int16, int16 *, int16 *, int16, int16, int16);/*Missiles*/
 extern int16 far *Explosion(int16, int16, int16);/*Explosion(x, y, tile): list of the objects hit, -1 terminated*/
-extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
+extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
 
 #define DirIncrX DirIncrX
 #define DirIncrY DirIncrY
@@ -310,13 +310,7 @@ extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 #define MUS_PlaySfx MUS_PlaySfx
 #define Missiles Missiles
 #define Explosion Explosion
-#define OSI_rand C_2B57_001F
-#define MonsterStr C_2F43_0063
-#define MonsterDex C_2F43_0093
-#define MonsterArmor C_2F43_00F3
-#define MonsterDamage C_2F43_0123
-#define MonsterHP C_2F43_0153
-#define MonsterFlags C_2F43_01B4
+#define OSI_rand OSI_rand
 #define CriticalMsg CriticalMsg
 #define HeavilyMsg HeavilyMsg
 #define LightlyMsg LightlyMsg
@@ -735,7 +729,7 @@ COMBAT_beginAttacked(void);
 		deadShape = DeadShape[idx + 1];
 		objCls = GetMonsterClass(objType);
 	}
-	if(deadShape && !(MonsterFlags[objCls] & 0x1000) && !(MonsterFlags[objCls] & 0x800)) {
+	if(deadShape && !(MonsterFlags[objCls + 1] & 0x1000) && !(MonsterFlags[objCls + 1] & 0x800)) {
 		if(!C_130F_00CA(objNum) && !C_130F_0070(objNum)) {
 			ObjShapeType[objNum] = deadShape;
 		} else {
@@ -795,12 +789,12 @@ COMBAT_beginAttacked(void);
 		}
 	}
 	if(isDead && objCls >= 0) {
-		if((MonsterFlags[objCls] & 0x800) || (MonsterFlags[objCls] & 0x1000)) {
+		if((MonsterFlags[objCls + 1] & 0x800) || (MonsterFlags[objCls + 1] & 0x1000)) {
 			deadShape = 0;
-			if((MonsterFlags[objCls] & 0x1000) && CLOSE_ENOUGH(5, GetX(objNum), GetY(objNum), MapX, MapY))
+			if((MonsterFlags[objCls + 1] & 0x1000) && CLOSE_ENOUGH(5, GetX(objNum), GetY(objNum), MapX, MapY))
 				C_0359_0D58(1);
 		}
-		if((MonsterFlags[objCls] & 0x2000) && objNum >= 0x10 && !C_130F_00CA(objNum) && !C_130F_0070(objNum)) {
+		if((MonsterFlags[objCls + 1] & 0x2000) && objNum >= 0x10 && !C_130F_00CA(objNum) && !C_130F_0070(objNum)) {
 			if((obj = AddMapObj(0xf8, 0x20, 0, GetX(objNum), GetY(objNum), MapZ)) >= 0)
 				ObjShapeType[obj] = GetType(obj) + (OSI_rand(0, 2) << 10);
 		}
@@ -1455,7 +1449,7 @@ COMBAT_beginAttacked(void);
 	else
 		objCls = -1;
 	if(objCls >= 0) {
-		damage = MonsterDamage[objCls];
+		damage = MonsterDamage[objCls + 1];
 	} else if(GetType(objNum) == 0x15 && GetQual(objNum) == 1) {
 		damage = 40;
 	} else {
@@ -1658,11 +1652,11 @@ COMBAT_beginAttacked(void);
 				if(OrigShapeType[objNum] & 0) {
 					xp = 500;
 				} else {
-					if(MonsterFlags[objCls] & 0x20)
-						xp = MonsterStr[objCls] * MonsterDamage[objCls];
+					if(MonsterFlags[objCls + 1] & 0x20)
+						xp = MonsterStr[objCls + 1] * MonsterDamage[objCls + 1];
 					else
-						xp = MonsterDex[objCls] * MonsterDamage[objCls];
-					xp += (MonsterHP[objCls] + MonsterArmor[objCls]) * MonsterDex[objCls];
+						xp = MonsterDex[objCls + 1] * MonsterDamage[objCls + 1];
+					xp += (MonsterHP[objCls + 1] + MonsterArmor[objCls + 1]) * MonsterDex[objCls + 1];
 					xp >>= 4;
 				}
 			}
@@ -1867,7 +1861,7 @@ COMBAT_beginAttacked(void);
 	}
 	if(objNum_weapon == objNum_att) {
 		objCls = GetMonsterClass(objTyp);
-		strOverDex = MonsterFlags[objCls] & 0x20;
+		strOverDex = MonsterFlags[objCls + 1] & 0x20;
 	} else {
 		strOverDex = (
 			objTyp == 0x18 || objTyp == 0x1d || objTyp == 0x22 || objTyp == 0x76 ||
@@ -1941,7 +1935,7 @@ COMBAT_beginAttacked(void);
 		return;
 	if(!IsPlrControl(victim)) {
 		objCls = GetMonsterClass(GetType(victim));
-		if(NPCMode[attacker] == 2 && objCls >= 0 && (MonsterFlags[objCls] & 0x4000) && damage > 0) {
+		if(NPCMode[attacker] == 2 && objCls >= 0 && (MonsterFlags[objCls + 1] & 0x4000) && damage > 0) {
 			CON_printf(AttacksMsg, GetObjectString(victim));
 			PromptFlag = 1;
 		}
@@ -2002,7 +1996,7 @@ COMBAT_beginAttacked(void);
 	}
 	objCls = GetMonsterClass(GetType(attacker));
 	if(
-		IsNPC(defender) && (MonsterFlags[objCls] & 0x40) && OSI_rand(0, 3) == 0 &&
+		IsNPC(defender) && (MonsterFlags[objCls + 1] & 0x40) && OSI_rand(0, 3) == 0 &&
 		!IsProtected(defender) && !IsInvulnerable(defender)
 	) {
 		CON_printf(PoisonedMsg, pObjStr);
@@ -2499,7 +2493,7 @@ COMBAT_beginAttacked(void);
 		dst2 = (opp_x - x) * (opp_x - x) + (opp_y - y) * (opp_y - y);
 		if(
 			dst2 < min_dst2 ||
-			(dst2 == min_dst2 && MonsterDamage[GetMonsterClass(GetType(i))] > MonsterDamage[GetMonsterClass(GetType(ret))])
+			(dst2 == min_dst2 && MonsterDamage[GetMonsterClass(GetType(i)) + 1] > MonsterDamage[GetMonsterClass(GetType(ret)) + 1])
 		) {
 			min_dst2 = dst2;
 			ret = i;

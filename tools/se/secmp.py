@@ -258,6 +258,8 @@ def main():
                 if f.tkind == 'ext':
                     want = syms.get(f.target)
                     have = addr2name.get((sg, off)) or 'C_%04X_%04X' % (sg, off)
+                    if want is None and not f.target.startswith('_') and syms.get('_' + f.target) is not None:
+                        problems.append((where, '%s: defined as _%s (cdecl): declare it cdecl' % (f.target, f.target)))
                     if want is None:
                         known = addr2name.get((sg, off))
                         if known and known.upper() != f.target.upper():
@@ -307,6 +309,9 @@ def main():
                 elif f.tkind == 'ext':
                     want = dsyms.get(f.target)
                     if want is None:
+                        other = dsyms.get('_' + f.target) if not f.target.startswith('_') else None
+                        if other is not None:  # declared pascal (-p), defined cdecl: the link fails
+                            problems.append((where, '%s: defined as _%s (cdecl): declare it cdecl' % (f.target, f.target)))
                         learned.append((f.target, '%04X' % (v - f.disp)))
                         dsyms[f.target] = v - f.disp
                     elif (want + f.disp) & 0xFFFF != v:

@@ -90,7 +90,7 @@ extern MagicalHalo(int16, int16);/*MagicalHalo*/
 extern DrawPortrait(int16, int16, int16);/*DrawPortrait*/
 extern C_276B_1BAF();
 extern PeerMap();/*PeerMap*/
-extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
+extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
 
 #define GetType(i) (D_9CFA[i] & 0x3ff)
 #define GetFrame(i) (D_9CFA[i] >> 10)
@@ -254,7 +254,7 @@ extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 	int16 y;
 
 	for(; *list > -1; list ++) {
-		points = C_2B57_001F(1, 10);
+		points = OSI_rand(1, 10);
 		D_6DF4[*list] = (MaxHP(*list) > D_6DF4[*list] + points)?D_6DF4[*list] + points:MaxHP(*list);
 		if(D_6CF0[*list] & 8)
 			D_6CF0[*list] &= ~8;
@@ -275,7 +275,7 @@ extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 	int16 objType, dx, dy, alignment;
 	int16 objNum, i;
 
-	i = C_2B57_001F(0, 15);
+	i = OSI_rand(0, 15);
 	MUS_PlaySfx(10);
 	if(GetType(npc) != 0x133)
 		objType = 0x14b;
@@ -284,8 +284,8 @@ extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 	if(!D_EADE) {
 		objNum = EGG_generate(objType, MapX, MapY, MapZ);
 		for(i = 0; i < 8; i ++) {
-			dx = C_2B57_001F(0, 10);
-			dy = C_2B57_001F(0, 10);
+			dx = OSI_rand(0, 10);
+			dy = OSI_rand(0, 10);
 			if(CanMoveTo(objNum, MapX + dx - 5, MapY + dy - 5)) {
 				MoveObj(objNum, MapX + dx - 5, MapY + dy - 5, MapZ);
 				alignment = D_6CF0[npc] & 0x60;

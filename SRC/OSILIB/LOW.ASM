@@ -68,7 +68,7 @@ C_0021:	;--
 C_0008	ENDP
 
 ;select drive?
-ProcStart	OSI_selectDrive
+ProcStart	OSI_selectDrive	;2AF5:001B
 	MOV	D_2B4C,0
 	;--
 	MOV	AX,[BP+06]
@@ -106,7 +106,7 @@ CSegEnd	SEG_2AF5_TEXT
 CSegStart	SEG_2AFB_TEXT
 
 ;get current default drive?
-ProcStart	OSI_getDrive
+ProcStart	OSI_getDrive	;2AFB:0006
 	MOV	AH,19h	;get current default drive
 	INT	21h
 	XOR	AH,AH
@@ -146,7 +146,7 @@ DSegEnd
 CSegStart	SEG_2AFC_TEXT
 
 ;init OSI low?
-ProcStart	OSI_lowInit
+ProcStart	OSI_lowInit	;2AFC:000A
 	;-- set new int 24h & 23h
 	PUSH	DS
 	PUSH	CS
