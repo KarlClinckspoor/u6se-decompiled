@@ -16,7 +16,7 @@
 11FF 4 10FE spell.c 0B3C-0D34  # U6 spell
 130F 2 501B npctrack.c 0D34-0DE0  # U6 npctrack
 1810 D 5AC6 combat.c 0DE0-1122  # U6 combat
-1DBD 3 8AA6 -  # U6 objcmd
+1DBD 3 8AA6 objcmd.c 1122-2360  # U6 objcmd
 2667 9 9A1 egg.c 2360-2364  # U6 egg
 2701 A 69B music.c 2364-24CC  # U6 music
 276B 5 2669 gfx.c 24CC-27E8  # U6 gfx
