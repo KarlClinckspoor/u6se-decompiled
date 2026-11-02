@@ -6,7 +6,7 @@
 0000 242 421 OSILIB/OSI_FILE.ASM 01F6-0200
 0268 B F0B main.c 00A8-01F6  # U6 main
 0359 6 276E -  # U6 gameloop
-05D0 4 2FAF -  # U6 console
+05D0 4 2FAF console.c 03A4-04C2  # U6 console
 08CB 3 10FB map.c 04C2-069C  # U6 map
 09DA E 823 visible.c 069C-070C  # U6 visible
 0A5D 1 3B69 -  # U6 object

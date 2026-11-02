@@ -44,11 +44,12 @@ struct coord {
 #define CLOSE_ENOUGH0(d,x1,y1,x2,y2) (DELTA0(x1,x2) <= (d) && DELTA0(y1,y2) <= (d))
 #define CLOSE_ENOUGH0_S(d,x1,y1,x2,y2) (DELTA0(x1,x2) < (d) && DELTA0(y1,y2) < (d))
 
-/*Turbo C's variable arguments: the address of "..." (each argument a word)*/
+/*Turbo C's variable arguments: the address of "..." (each argument a word); written so
+  that Turbo C++ 1.00 steps the pointer first, as Origin's code does*/
 #define VA_LIST void **
 #define VA_START(ap, last) ap = ...
-#define VA_INT(ap) *(int16 *)ap++
-#define VA_CHAR(ap) *(char *)ap++
-#define VA_STR(ap) (char *)*ap++
+#define VA_INT(ap) (((int16 *)++(ap))[-1])
+#define VA_CHAR(ap) (((char *)++(ap))[-2])
+#define VA_STR(ap) (((char **)++(ap))[-1])
 
 #endif

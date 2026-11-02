@@ -107,6 +107,12 @@ def switch_tables(blob, shift=0):
         n = (struct.unpack('<H', g.group(1))[0] if g.group(1) else g.group(2)[0]) + 1
         if n <= 256 and t + 2 * n <= len(blob):
             out.append((t, 2 * n))
+    # value-search tables: mov cx,N / mov bx,T / mov ax,[cs:bx] (N values, then N addresses)
+    for mm in re.finditer(rb'\xb9(..)\xbb(..)\x2e(?:\x8b|\x39|\x3b)\x07', blob, re.S):
+        n = struct.unpack('<H', mm.group(1))[0]
+        t = (struct.unpack('<H', mm.group(2))[0] - shift) & 0xFFFF
+        if n <= 256 and t + 4 * n <= len(blob):
+            out.append((t, 4 * n))
     return out
 
 

@@ -89,6 +89,12 @@ def parse_file(p, fn, t):
                 # -p makes variables pascal too (upper case, no underscore)
                 dl = 'pascal' if dpascal and not re.search(r'\bcdecl\b', m.group(0)) else 'c'
                 t.setdefault(('D', int(m.group(1), 16)), (m.group(2), fn, dl, False))
+            # function pointers: /*XXXX*/void (*name)(...)
+            for m in re.finditer(r'/\*([0-9A-F]{4})\*/\s*(?:static\s+)?[\w\s\*]*?\(\s*(?:far\s+)?\*\s*(\w+)\s*\)\s*\(', s):
+                if re.search(r'\bextern\b', m.group(0)):
+                    continue
+                dl = 'pascal' if dpascal and not re.search(r'\bcdecl\b', m.group(0)) else 'c'
+                t.setdefault(('D', int(m.group(1), 16)), (m.group(2), fn, dl, False))
             # far data (a huge-model module such as msgs.c): /*C_SSSS_OOOO*/ before a variable
             for m in re.finditer(r'/\*C_([0-9A-F]{4})_([0-9A-F]{4})\*/\s*((?:[\w\*]+\s+)*?)\**\s*(\w+)\s*[\[=;]', s):
                 quals = m.group(3).split()
