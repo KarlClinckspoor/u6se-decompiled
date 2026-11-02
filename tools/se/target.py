@@ -8,10 +8,10 @@ ROOT = os.path.dirname(os.path.dirname(HERE))
 
 TARGETS = {
     # SAVAGE.EXE: launcher, title, intro, character creation, endgame (cdecl)
-    'savage': dict(exe='SAVAGE.EXE', src='SRC_S', dgroup=0x0DAA, syms='savage_syms.txt',
+    'savage': dict(exe='SAVAGE.EXE', src='SRC_S', dgroup=0x0DAA, syms='savage_syms.txt', bss=0x27FE,
                    flags='-mm -c -O -Z -d'),
     # GAME.EXE: the game (pascal)
-    'game': dict(exe='GAME.EXE', src='SRC', dgroup=0x2FA6, syms='game_syms.txt',
+    'game': dict(exe='GAME.EXE', src='SRC', dgroup=0x2FA6, syms='game_syms.txt', bss=0x3250,
                  flags='-mm -p -c -O -Z -d'),
 }
 

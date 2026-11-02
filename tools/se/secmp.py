@@ -177,7 +177,13 @@ def main():
         print('Warning sesym table: %s' % e)
     addr2name = {v: k for k, v in syms.items()}
     syms = AddrNames(syms, r'_?C_([0-9A-F]{4})_([0-9A-F]{4})', lambda mm: (int(mm.group(1), 16), int(mm.group(2), 16)))
-    dsyms = AddrNames(dsyms, r'_?D_([0-9A-F]{4})', lambda mm: int(mm.group(1), 16))
+    dmap = {}
+    if not os.path.abspath(a.obj).startswith(os.path.abspath(target.T['src']) + os.sep):
+        # a source of the other program (GAME.EXE's copy of SAVAGE.EXE's library): its
+        # uninitialised data named by the other program's addresses
+        import shared
+        dmap = shared.data_map()
+    dsyms = AddrNames(dsyms, r'_?D_([0-9A-F]{4})', lambda mm: dmap.get(int(mm.group(1), 16), int(mm.group(1), 16)))
     m = omf.parse_obj(path)
     cseg = [s for s in m.segs[1:] if s.cls == 'CODE']
     if len(cseg) != 1:

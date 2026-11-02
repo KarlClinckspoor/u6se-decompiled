@@ -61,3 +61,57 @@ def translated(parse_file):
                 if 0 <= rel < o['data'][1] - o['data'][0]:
                     out[('D', m['data'][0] + rel)] = v
     return out
+
+
+def data_map():
+    """{other program's DS offset: this program's} for the uninitialised data the shared modules
+    use: their code is the same in both programs but for DS offsets, so the operands of the two
+    copies, instruction by instruction, pair the addresses. (The initialised data move with
+    their modules' _DATA ranges, translated() above.) Cached in build/."""
+    import json
+    me = target.T
+    cache = os.path.join(target.ROOT, 'build', 'shared_dmap_%s.json' % me['name'])
+    mine = [m for m in read_modules(me['src']) if m['src'].startswith('..') and m['frame'] is not None]
+    if not mine:
+        return {}
+    srcs = [os.path.join(me['src'], 'modules.txt')]
+    for name, t in target.TARGETS.items():
+        if name != me['name']:
+            srcs.append(os.path.join(target.ROOT, t['src'], 'modules.txt'))
+    stamp = max(os.path.getmtime(p) for p in srcs if os.path.exists(p))
+    if os.path.exists(cache) and os.path.getmtime(cache) >= stamp:
+        return {int(k): v for k, v in json.load(open(cache)).items()}
+    from capstone import Cs, CS_ARCH_X86, CS_MODE_16
+    from capstone.x86 import X86_OP_MEM, X86_OP_IMM
+    md = Cs(CS_ARCH_X86, CS_MODE_16)
+    md.detail = True
+    gimg = target.load_image(me['exe_path'])[0]
+    out = {}
+    for name, t in target.TARGETS.items():
+        if name == me['name']:
+            continue
+        o = target.get(name)
+        oimg = target.load_image(o['exe_path'])[0]
+        oinit = o['bss']  # where its uninitialised data start
+        others = {os.path.normpath(os.path.join(o['src'], m['src'])): m for m in read_modules(o['src'])}
+        for m in mine:
+            om = others.get(os.path.normpath(os.path.join(me['src'], m['src'])))
+            if not om or om['frame'] is None:
+                continue
+            n = min(m['len'], om['len'])
+            gs, os_ = m['frame'] * 16 + m['at'], om['frame'] * 16 + om['at']
+            for gi, oi in zip(md.disasm(gimg[gs:gs + n], 0), md.disasm(oimg[os_:os_ + n], 0)):
+                if gi.address != oi.address or gi.size != oi.size:
+                    break
+                for go, oo in zip(gi.operands, oi.operands):
+                    if go.type == oo.type == X86_OP_MEM:
+                        a, b = oo.mem.disp & 0xFFFF, go.mem.disp & 0xFFFF
+                    elif go.type == oo.type == X86_OP_IMM:
+                        a, b = oo.imm & 0xFFFF, go.imm & 0xFFFF
+                    else:
+                        continue
+                    if a != b and a >= oinit:
+                        out.setdefault(a, b)
+    os.makedirs(os.path.dirname(cache), exist_ok=True)
+    json.dump(out, open(cache, 'w'))
+    return out
