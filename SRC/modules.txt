@@ -14,7 +14,7 @@
 0F79 E 136 talk.c 0A06-0A36  # U6 talk
 0F8D 4 2720 talkdr.c 0A36-0B3C  # U6 talkdr
 11FF 4 10FE spell.c 0B3C-0D34  # U6 spell
-130F 2 501B -  # U6 npctrack
+130F 2 501B npctrack.c 0D34-0DE0  # U6 npctrack
 1810 D 5AC6 combat.c 0DE0-1122  # U6 combat
 1DBD 3 8AA6 -  # U6 objcmd
 2667 9 9A1 egg.c 2360-2364  # U6 egg
