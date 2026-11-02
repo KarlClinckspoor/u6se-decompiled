@@ -13,7 +13,7 @@
  * MusicAdapter: 0 none, 1 a music card (soundCard: 1 Roland, 2 AdLib, 3 the
  * third driver). musicMarker - 1 is the song being played (the songs set it).
  * Songs (by use): 0 and 1 overland, 2 underground, 3 MapZ 3, 4 dawn,
- * 5 combat queue, 6 and 7 jingles, 8 after the jingles, 9/10 by D_0DE4's sign,
+ * 5 combat queue, 6 and 7 jingles, 8 after the jingles, 9/10 by CombatOutcome's sign,
  * 11 and 12 the two battle jingles, 11 also when the party is knocked out.
  */
 #include "se.h"
@@ -39,35 +39,35 @@ struct tSfxStep {
 
 /*OSI routines (asm)*/
 extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
-extern cdecl C_2ABF_00A7();/*MOUSE_SERVE*/
+extern cdecl MOUSE_SERVE();/*MOUSE_SERVE*/
 
 /*other game modules*/
-extern int16 D_00A8;/*IsZFile*/
-extern int16 D_00D4;/*MusicAdapter*/
-extern unsigned char D_00D8;/*MouseOn*/
-extern char D_0202;
-extern int16 D_0206;
-extern int16 D_0208;/*MapAnimEnabled*/
-extern char D_03AE;/*AnimateAtPrompt*/
-extern int16 D_03B1;
-extern struct tClipInfo *D_03EC;/*CurClip*/
-extern int16 D_0DE4;
-extern unsigned char D_27EB;/*Time_H*/
-extern unsigned char D_27F2;/*Active*/
-extern int16 D_27F8;/*MapZ*/
-extern int16 D_2810;/*sound on*/
-extern char D_2860;/*InCombat*/
+extern int16 IsZFile;/*IsZFile*/
+extern int16 MusicAdapter;/*MusicAdapter*/
+extern unsigned char MouseOn;/*MouseOn*/
+extern char StatusDirty;
+extern int16 IdleAnimTick;
+extern int16 MapAnimEnabled;/*MapAnimEnabled*/
+extern char AnimateAtPrompt;/*AnimateAtPrompt*/
+extern int16 EndPagingAtPrompt;
+extern struct tClipInfo *CurClip;/*CurClip*/
+extern int16 CombatOutcome;
+extern unsigned char Time_H;/*Time_H*/
+extern unsigned char Active;/*Active*/
+extern int16 MapZ;/*MapZ*/
+extern int16 SoundFlag;/*sound on*/
+extern char InCombat;/*InCombat*/
 extern char far *D_3EB6;/*the .lzc loader's work area*/
-extern C_0268_0574();/*PaletteAnimation*/
-extern C_0359_0CD4();/*DisplayTick*/
-extern C_0359_1806();
-extern C_05D0_264F(int16);/*CON_putch0*/
-extern cdecl C_05D0_2DB9(char far *, ...);/*CON_printf*/
+extern PaletteAnimation();/*PaletteAnimation*/
+extern DisplayTick();/*DisplayTick*/
+extern RefreshStatus();
+extern CON_putch0(int16);/*CON_putch0*/
+extern cdecl CON_printf(char far *, ...);/*CON_printf*/
 extern C_08CB_0C73();
-extern C_276B_172E();
-extern C_2A81_0098(int16);/*DISK_confirm*/
-extern char far C_2F65_0225[];/*UnconsciousMsg*/
-extern char far C_2F65_025B[];/*AwakenAtIntanyaMsg*/
+extern ResetMapView();
+extern DISK_confirm(int16);/*DISK_confirm*/
+extern char far UnconsciousMsg[];/*UnconsciousMsg*/
+extern char far AwakenAtIntanyaMsg[];/*AwakenAtIntanyaMsg*/
 
 /*Savage Empire's library (cdecl)*/
 extern int16 cdecl soundCard;
@@ -134,24 +134,24 @@ extern int16 MUS_LoadSongs();
 /*init the sound: with a music card, loads the songs (needs expanded memory),
 then starts the sound driver with the timbres of savage.tim*/
 /*C_2701_000A*/MUS_InitDriver() {
-	if(!D_2810) {
+	if(!SoundFlag) {
 		soundCard = 0;
 	} else {
 		if(soundCard == 2 || soundCard == 1) {
-			C_2A81_0098(7);
+			DISK_confirm(7);
 			if(emsInUse == 0 || MUS_LoadSongs() == 0) {
-				D_00D4 = 0;
-				C_05D0_2DB9("No EMS found; no music possible.\n");
+				MusicAdapter = 0;
+				CON_printf("No EMS found; no music possible.\n");
 			}
 		}
-		C_2A81_0098(5);
+		DISK_confirm(5);
 		if(soundCard == 1) {
-			C_05D0_2DB9("Initializing Roland...");
-			C_05D0_264F(-1);
+			CON_printf("Initializing Roland...");
+			CON_putch0(-1);
 		}
 		InitSound("savage.tim");
 		if(soundCard == 1)
-			C_05D0_2DB9("done!\n");
+			CON_printf("done!\n");
 	}
 }
 
@@ -162,7 +162,7 @@ after a failure the next ones are not loaded. Returns 0 on failure*/
 	int16 i;
 	int16 failed = 0;
 
-	C_2A81_0098(7);
+	DISK_confirm(7);
 	for(i = 0; i < 18; i++) {
 		if(failed)
 			D_ECBC[i] = 0;
@@ -187,7 +187,7 @@ after a failure the next ones are not loaded. Returns 0 on failure*/
 /*plays song <song> (fading the current one out), or fades the music out
 (-1)*/
 /*C_2701_0190*/MUS_PlaySong(register int16 song) {
-	if(D_00D4) {
+	if(MusicAdapter) {
 		if(song == -1)
 			FadeOutMusic(60);
 		else if(musicMarker - 1 == -1)
@@ -202,12 +202,12 @@ else 0 or 1 at random*/
 /*C_2701_01F1*/MUS_PlayAreaSong() {
 	int16 song;
 
-	if(D_00D4) {
-		if(D_27F8 == 3)
+	if(MusicAdapter) {
+		if(MapZ == 3)
 			song = 3;
-		else if(D_27F8 > 0)
+		else if(MapZ > 0)
 			song = 2;
-		else if(D_2860)
+		else if(InCombat)
 			song = 8;
 		else if(C_2B57_001F(0, 1) == 0)
 			song = 0;
@@ -222,19 +222,19 @@ it to reach its marker, then queues song 1*/
 /*C_2701_023F*/C_2701_023F() {
 	int16 i = 0;
 
-	if(!D_00D4)
+	if(!MusicAdapter)
 		return;
-	if(D_27EB <= 11 && D_27EB >= 5 && D_27F8 == 0) {
+	if(Time_H <= 11 && Time_H >= 5 && MapZ == 0) {
 		FadeToSong(D_ECBC[4], 60, 0);
 		while(musicMarker - 1 != 4 && ++i < 100) {
-			D_0206 = 1;
-			if(D_03AE) {
-				C_0359_0CD4();
-				C_0268_0574();
+			IdleAnimTick = 1;
+			if(AnimateAtPrompt) {
+				DisplayTick();
+				PaletteAnimation();
 			}
 			TimerDelay(150000L);
-			if(D_00D8)
-				C_2ABF_00A7();
+			if(MouseOn)
+				MOUSE_SERVE();
 		}
 		SetNextSong(D_ECBC[1], 0);
 	}
@@ -244,17 +244,17 @@ it to reach its marker, then queues song 1*/
 /*C_2701_02D6*/C_2701_02D6() {
 	int16 i = 0;
 
-	if(D_00D4) {
+	if(MusicAdapter) {
 		FadeToSong(D_ECBC[7], 15, 0);
 		while(musicMarker - 1 != 7 && ++i < 100) {
-			D_0206 = 1;
-			if(D_03AE) {
-				C_0359_0CD4();
-				C_0268_0574();
+			IdleAnimTick = 1;
+			if(AnimateAtPrompt) {
+				DisplayTick();
+				PaletteAnimation();
 			}
 			TimerDelay(150000L);
-			if(D_00D8)
-				C_2ABF_00A7();
+			if(MouseOn)
+				MOUSE_SERVE();
 		}
 		SetNextSong(D_ECBC[8], 0);
 	}
@@ -268,11 +268,11 @@ and queues the area song (3 on level 3, 2 underground, else 0 or 1);
 	int16 song;
 	int16 i = 0;
 
-	if(!D_00D4)
+	if(!MusicAdapter)
 		return;
-	if(D_27F8 == 3)
+	if(MapZ == 3)
 		song = 3;
-	else if(D_27F8 > 0)
+	else if(MapZ > 0)
 		song = 2;
 	else if(C_2B57_001F(0, 1) == 0)
 		song = 0;
@@ -287,14 +287,14 @@ and queues the area song (3 on level 3, 2 underground, else 0 or 1);
 	if(jingle >= 0) {
 		FadeToSong(D_ECBC[jingle], 30, 0);
 		while(musicMarker - 1 != jingle && ++i < 100) {
-			D_0206 = 1;
-			if(D_03AE) {
-				C_0359_0CD4();
-				C_0268_0574();
+			IdleAnimTick = 1;
+			if(AnimateAtPrompt) {
+				DisplayTick();
+				PaletteAnimation();
 			}
 			TimerDelay(150000L);
-			if(D_00D8)
-				C_2ABF_00A7();
+			if(MouseOn)
+				MOUSE_SERVE();
 		}
 		SetNextSong(D_ECBC[song], 0);
 	} else {
@@ -302,11 +302,11 @@ and queues the area song (3 on level 3, 2 underground, else 0 or 1);
 	}
 }
 
-/*doubles D_0DE4; while song 8 plays, queues song 9 or 10 by its sign*/
+/*doubles CombatOutcome; while song 8 plays, queues song 9 or 10 by its sign*/
 /*C_2701_045E*/C_2701_045E() {
-	D_0DE4 *= 2;
-	if(D_00D4 && musicMarker - 1 == 8) {
-		if(D_0DE4 < 0)
+	CombatOutcome *= 2;
+	if(MusicAdapter && musicMarker - 1 == 8) {
+		if(CombatOutcome < 0)
 			SetNextSong(D_ECBC[9], 4);
 		else
 			SetNextSong(D_ECBC[10], 4);
@@ -315,7 +315,7 @@ and queues the area song (3 on level 3, 2 underground, else 0 or 1);
 
 /*out of combat, while one of the songs 0-4 plays: queues song 5*/
 /*C_2701_04A7*/C_2701_04A7() {
-	if(D_00D4 && D_2860 != 1 && musicMarker - 1 <= 4)
+	if(MusicAdapter && InCombat != 1 && musicMarker - 1 <= 4)
 		SetNextSong(D_ECBC[5], 4);
 }
 
@@ -323,17 +323,17 @@ and queues the area song (3 on level 3, 2 underground, else 0 or 1);
 /*C_2701_04D7*/C_2701_04D7() {
 	int16 i = 0;
 
-	if(D_00D4) {
+	if(MusicAdapter) {
 		FadeToSong(D_ECBC[6], 15, 0);
 		while(musicMarker - 1 != 6 && ++i < 100) {
-			D_0206 = 1;
-			if(D_03AE) {
-				C_0359_0CD4();
-				C_0268_0574();
+			IdleAnimTick = 1;
+			if(AnimateAtPrompt) {
+				DisplayTick();
+				PaletteAnimation();
 			}
 			TimerDelay(150000L);
-			if(D_00D8)
-				C_2ABF_00A7();
+			if(MouseOn)
+				MOUSE_SERVE();
 		}
 		SetNextSong(D_ECBC[8], 0);
 	}
@@ -345,41 +345,41 @@ party awakens in Intanya's hut (C_08CB_0C73)*/
 	int16 song;
 	int16 i = 0;
 
-	if(D_27F2 == 0x10)
+	if(Active == 0x10)
 		return;
-	if(D_00D4)
+	if(MusicAdapter)
 		FadeOutMusic(90);
-	D_03EC->attrFlags |= 0x10;
-	C_05D0_2DB9(C_2F65_0225);
-	D_0208 = 1;
-	D_0202 = 1;
-	C_0359_1806();
-	C_276B_172E();
-	D_03AE = 0;
-	if(D_00D4) {
+	CurClip->attrFlags |= 0x10;
+	CON_printf(UnconsciousMsg);
+	MapAnimEnabled = 1;
+	StatusDirty = 1;
+	RefreshStatus();
+	ResetMapView();
+	AnimateAtPrompt = 0;
+	if(MusicAdapter) {
 		PlaySong(D_ECBC[11]);
-		if(D_27F8 == 3)
+		if(MapZ == 3)
 			song = 3;
-		else if(D_27F8 > 0)
+		else if(MapZ > 0)
 			song = 2;
 		else
 			song = 1;
 		while(musicMarker - 1 != 11 && ++i < 100) {
 			TimerDelay(150000L);
-			if(D_00D8)
-				C_2ABF_00A7();
+			if(MouseOn)
+				MOUSE_SERVE();
 		}
 		SetNextSong(D_ECBC[song], 0);
 	}
-	C_05D0_2DB9(C_2F65_025B);
+	CON_printf(AwakenAtIntanyaMsg);
 	C_08CB_0C73();
-	D_03B1 = 1;
-	D_03AE = 1;
+	EndPagingAtPrompt = 1;
+	AnimateAtPrompt = 1;
 }
 
 /*plays sound effect <sfx> (0-33) when the sound is on*/
 /*C_2701_0648*/MUS_PlaySfx(int16 sfx) {
-	if(D_2810 && sfx < 34)
+	if(SoundFlag && sfx < 34)
 		PlaySound(&(MUS_Sfx[sfx]), 0, 0x7f, 0x3f, 0, 2);
 }
 
@@ -387,7 +387,7 @@ party awakens in Intanya's hut (C_08CB_0C73)*/
 /*C_2701_0684*/C_2701_0684() {
 	if(soundCard) {
 		StopAllSounds();
-		if(!D_2810)
+		if(!SoundFlag)
 			FadeOutMusic(0);
 	}
 }

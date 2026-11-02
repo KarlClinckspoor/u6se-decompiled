@@ -57,79 +57,79 @@ typedef struct {
 } t40x40;
 
 /*console*/
-extern cdecl C_05D0_2DB9(char far *, ...);/*CON_printf*/
+extern cdecl CON_printf(char far *, ...);/*CON_printf*/
 /*map*/
-extern C_08CB_053A();/*MAP_LoadAround*/
-extern C_08CB_0564(int16);/*PartyEnter*/
-extern C_08CB_0754(int16, int16, int16, int16);/*PartyExit*/
-extern unsigned char C_08CB_107B(int16, int16, int16);/*GetTileAtXYZ*/
+extern MAP_LoadAround();/*MAP_LoadAround*/
+extern PartyEnter(int16);/*PartyEnter*/
+extern PartyExit(int16, int16, int16, int16);/*PartyExit*/
+extern unsigned char GetTileAtXYZ(int16, int16, int16);/*GetTileAtXYZ*/
 /*object*/
-extern int16 C_0A5D_0001(int16, int16, int16);/*OBJ_IsLocLoaded(x, y, z)*/
-extern int16 C_0A5D_039A();/*NextLoc*/
-extern int16 C_0A5D_05C4(int16, int16, int16);/*FindLoc(x, y, z)*/
+extern int16 OBJ_IsLocLoaded(int16, int16, int16);/*OBJ_IsLocLoaded(x, y, z)*/
+extern int16 NextLoc();/*NextLoc*/
+extern int16 FindLoc(int16, int16, int16);/*FindLoc(x, y, z)*/
 extern int16 C_0A5D_0D5B(int16, int16 *, int16 *);/*the parts of a creature made of several objects (frame shifts, types); 0 if none*/
 extern int16 C_0A5D_0DEF(int16);/*OBJ_PartHeadType: type of the head of a multi-tile creature part, 0 if none*/
-extern int16 C_0A5D_0EB6(int16, int16, int16, int16, int16, int16);/*AddMapObj(type and frame, status, amount, x, y, z)*/
-extern C_0A5D_1506(int16);/*DeleteObj*/
-extern int16 C_0A5D_1C76(int16, int16, int16, int16);/*MoveObj(objNum, x, y, z)*/
-extern C_0A5D_1EDB(int16, int16, int16);/*InsertObj(objNum, destNum, objLoc)*/
-extern C_0A5D_3577();/*ShowObjects*/
+extern int16 AddMapObj(int16, int16, int16, int16, int16, int16);/*AddMapObj(type and frame, status, amount, x, y, z)*/
+extern DeleteObj(int16);/*DeleteObj*/
+extern int16 MoveObj(int16, int16, int16, int16);/*MoveObj(objNum, x, y, z)*/
+extern InsertObj(int16, int16, int16);/*InsertObj(objNum, destNum, objLoc)*/
+extern ShowObjects();/*ShowObjects*/
 /*combat*/
-extern C_1810_023B();/*COMBAT_breakOff*/
-extern int16 C_1810_0068(int16, int16, int16);/*COMBAT_TileDistance(objNum, x, y)*/
-extern C_1810_00BB(int16);/*COMBAT_stopCharm*/
-extern C_1810_0664(int16);/*(an NPC going to sleep, U6 nearest: SearchObj)*/
-extern int16 C_1810_0CA4(int16, int16);/*COMBAT_canSee(objNum, target)*/
-extern C_1810_1FD9(int16, int16);/*copies NPC src's data into NPC dst (U6: CloneObject)*/
-extern C_1810_2081(int16);/*COMBAT_showHit*/
-extern int16 C_1810_4391(int16);/*COMBAT_pickOpponent*/
-extern C_1810_476D(int16);/*A.I. of modes 0x08 and 0x9b (U6: COMBAT_AI_Assault)*/
-extern C_1810_4AA9(int16);/*A.I. of mode 0x04 (U6 nearest: COMBAT_AI_Assault)*/
-extern C_1810_4D85(int16);/*A.I. of mode 0x06 and of the creatures with ObjStatus 0x80 (U6: COMBAT_AI_Berserk)*/
-extern C_1810_50CA(int16);/*A.I. of modes 0x07, 0x09, 0x13 and 0x9a (U6: COMBAT_AI_Retreat)*/
-extern C_1810_523E(int16);/*A.I. of mode 0x0a (U6: COMBAT_AI_Like)*/
-extern C_1810_5370(int16);/*A.I. of mode 0x0b (U6 nearest: COMBAT_AI_Like; COMBAT_AI_Unfriendly?)*/
-extern C_1810_54A9(int16);/*A.I. of mode 0x0e (U6 nearest: COMBAT_AI_Immobile)*/
-extern C_1810_57F9(int16);/*A.I. of mode 0x0d (U6: COMBAT_AI_Tangle)*/
+extern COMBAT_breakOff();/*COMBAT_breakOff*/
+extern int16 COMBAT_TileDistance(int16, int16, int16);/*COMBAT_TileDistance(objNum, x, y)*/
+extern COMBAT_stopCharm(int16);/*COMBAT_stopCharm*/
+extern SetTypeUnconscious(int16);/*(an NPC going to sleep, U6 nearest: SearchObj)*/
+extern int16 COMBAT_canSee(int16, int16);/*COMBAT_canSee(objNum, target)*/
+extern CloneObject(int16, int16);/*copies NPC src's data into NPC dst (U6: CloneObject)*/
+extern COMBAT_showHit(int16);/*COMBAT_showHit*/
+extern int16 COMBAT_pickOpponent(int16);/*COMBAT_pickOpponent*/
+extern COMBAT_AI_Assault(int16);/*A.I. of modes 0x08 and 0x9b (U6: COMBAT_AI_Assault)*/
+extern COMBAT_AI_Range(int16);/*A.I. of mode 0x04 (U6 nearest: COMBAT_AI_Assault)*/
+extern COMBAT_AI_Berserk(int16);/*A.I. of mode 0x06 and of the creatures with ObjStatus 0x80 (U6: COMBAT_AI_Berserk)*/
+extern COMBAT_AI_Retreat(int16);/*A.I. of modes 0x07, 0x09, 0x13 and 0x9a (U6: COMBAT_AI_Retreat)*/
+extern COMBAT_AI_Like(int16);/*A.I. of mode 0x0a (U6: COMBAT_AI_Like)*/
+extern COMBAT_AI_Unfriendly(int16);/*A.I. of mode 0x0b (U6 nearest: COMBAT_AI_Like; COMBAT_AI_Unfriendly?)*/
+extern COMBAT_AI_Immobile(int16);/*A.I. of mode 0x0e (U6 nearest: COMBAT_AI_Immobile)*/
+extern COMBAT_AI_Tangle(int16);/*A.I. of mode 0x0d (U6: COMBAT_AI_Tangle)*/
 /*other modules*/
-extern C_0359_0D8D();/*FlushViewIfDirty*/
-extern C_0359_1889(int16);/*SetActive(partyIdx)*/
-extern C_0359_1905();/*SetPartyMode*/
-extern C_0A5D_0873();/*NextArea*/
-extern int16 C_0A5D_0943(int16, int16, int16, int16);/*SearchArea(x1, y1, x2, y2)*/
+extern FlushViewIfDirty();/*FlushViewIfDirty*/
+extern SetActive(int16);/*SetActive(partyIdx)*/
+extern SetPartyMode();/*SetPartyMode*/
+extern NextArea();/*NextArea*/
+extern int16 SearchArea(int16, int16, int16, int16);/*SearchArea(x1, y1, x2, y2)*/
 extern C_2701_0556();/*the Avatar died (U6: PartyDeath)*/
-extern C_0F79_00E0(int16, int16, int16);/*TALK_talkTo(partyId, objNum, showName)*/
-extern C_0359_11B6(int16);/*PassTime(minutes)*/
+extern TALK_talkTo(int16, int16, int16);/*TALK_talkTo(partyId, objNum, showName)*/
+extern PassTime(int16);/*PassTime(minutes)*/
 extern C_08CB_0855(int16);/*goes through the entrance objNum (cave, stairs...)*/
 extern C_08CB_0B8B(int16);/*goes through objNum (object type 0x44)*/
-extern C_0E13_000A(int16);/*STAT_ShowParty*/
-extern C_2701_01F1();/*MUS_PlayAreaSong*/
-extern C_276B_1756();/*DrawSkyBar*/
-extern char far C_2F65_02EB[];/*MustBePartyModeMsg: "You must be in party mode to enter.\n"*/
+extern STAT_ShowParty(int16);/*STAT_ShowParty*/
+extern MUS_PlayAreaSong();/*MUS_PlayAreaSong*/
+extern DrawSkyBar();/*DrawSkyBar*/
+extern char far MustBePartyModeMsg[];/*MustBePartyModeMsg: "You must be in party mode to enter.\n"*/
 extern int16 C_1DBD_0A29(int16);/*tests a tile (U6 nearest: IsBridgeEndTile)*/
-extern int16 C_2667_004F(int16);/*GetMonsterClass*/
+extern int16 GetMonsterClass(int16);/*GetMonsterClass*/
 extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 extern int16 far MonsterFlags[];
 
-extern char D_00AC[], D_00B4[];/*DirIncrX, DirIncrY*/
-extern unsigned char D_0203;/*PromptFlag*/
-extern int16 D_03CD;/*StatusDisplay*/
-extern int16 D_03C7;/*MousePress*/
-extern int16 D_03D3, D_03D5;/*MouseMapX, MouseMapY*/
-extern int16 D_04C2;/*MapCoordMask*/
-extern int16 D_0710;/*LocPartOffset*/
-extern int16 D_079E;/*MoveAppliesTerrain*/
-extern unsigned char D_27EB;/*Time_H*/
-extern unsigned char D_27EC;/*Date_D*/
-extern unsigned char D_27F2;/*Active*/
-extern int16 D_27F4, D_27F6, D_27F8;/*MapX, MapY, MapZ*/
-extern unsigned char D_280E;/*DrunkCounter*/
-extern unsigned char D_2848[8];/*PathObject: NPC following each path slot (0 = free)*/
-extern unsigned char D_2850[8];/*PathCounter: current entry of each path*/
-extern unsigned char D_2858[8];/*PathTries: steps done in the current entry*/
-extern int16 D_2846;/*Avatar "solid" (debug)*/
-extern char D_2860;/*InCombat*/
-extern char D_2861;/*SoloMember*/
+extern char DirIncrX[], DirIncrY[];/*DirIncrX, DirIncrY*/
+extern unsigned char PromptFlag;/*PromptFlag*/
+extern int16 StatusDisplay;/*StatusDisplay*/
+extern int16 MousePress;/*MousePress*/
+extern int16 MouseMapX, MouseMapY;/*MouseMapX, MouseMapY*/
+extern int16 MapCoordMask;/*MapCoordMask*/
+extern int16 LocPartOffset;/*LocPartOffset*/
+extern int16 MoveAppliesTerrain;/*MoveAppliesTerrain*/
+extern unsigned char Time_H;/*Time_H*/
+extern unsigned char Date_D;/*Date_D*/
+extern unsigned char Active;/*Active*/
+extern int16 MapX, MapY, MapZ;/*MapX, MapY, MapZ*/
+extern unsigned char DrunkCounter;/*DrunkCounter*/
+extern unsigned char PathObject[8];/*PathObject: NPC following each path slot (0 = free)*/
+extern unsigned char PathCounter[8];/*PathCounter: current entry of each path*/
+extern unsigned char PathTries[8];/*PathTries: steps done in the current entry*/
+extern int16 SpeakGargish;/*Avatar "solid" (debug)*/
+extern char InCombat;/*InCombat*/
+extern char SoloMember;/*SoloMember*/
 extern unsigned char far *D_3298;/*0x100 bytes (0x80: NPC's "WAIT" flag)*/
 extern unsigned char D_329C[];/*ObjStatus*/
 extern char D_44FA[];/*MovePts*/
@@ -168,61 +168,61 @@ extern int16 D_EBC6;/*PTH_object: object type seeked, -1 if none*/
 extern int16 D_EBC8;/*PTH_direct: area edge to reach (0 N, 1 E, 2 S, 3 W), -1 if none*/
 extern int16 D_EBCA;/*PTH_Found*/
 
-#define CON_printf C_05D0_2DB9
-#define MAP_LoadAround C_08CB_053A
-#define PartyEnter C_08CB_0564
-#define PartyExit C_08CB_0754
-#define GetTileAtXYZ C_08CB_107B
-#define AddMapObj C_0A5D_0EB6
-#define DeleteObj C_0A5D_1506
-#define InsertObj C_0A5D_1EDB
-#define ShowObjects C_0A5D_3577
-#define COMBAT_breakOff C_1810_023B
-#define COMBAT_TileDistance C_1810_0068
-#define COMBAT_stopCharm C_1810_00BB
-#define COMBAT_canSee C_1810_0CA4
-#define COMBAT_showHit C_1810_2081
-#define COMBAT_pickOpponent C_1810_4391
-#define TALK_talkTo C_0F79_00E0
-#define PassTime C_0359_11B6
-#define STAT_ShowParty C_0E13_000A
-#define MUS_PlayAreaSong C_2701_01F1
-#define DrawSkyBar C_276B_1756
-#define MustBePartyModeMsg C_2F65_02EB
-#define OBJ_IsLocLoaded C_0A5D_0001
-#define NextArea C_0A5D_0873
-#define SearchArea C_0A5D_0943
-#define FlushViewIfDirty C_0359_0D8D
-#define SetActive C_0359_1889
-#define SetPartyMode C_0359_1905
-#define NextLoc C_0A5D_039A
-#define FindLoc C_0A5D_05C4
-#define MoveObj C_0A5D_1C76
-#define GetMonsterClass C_2667_004F
+#define CON_printf CON_printf
+#define MAP_LoadAround MAP_LoadAround
+#define PartyEnter PartyEnter
+#define PartyExit PartyExit
+#define GetTileAtXYZ GetTileAtXYZ
+#define AddMapObj AddMapObj
+#define DeleteObj DeleteObj
+#define InsertObj InsertObj
+#define ShowObjects ShowObjects
+#define COMBAT_breakOff COMBAT_breakOff
+#define COMBAT_TileDistance COMBAT_TileDistance
+#define COMBAT_stopCharm COMBAT_stopCharm
+#define COMBAT_canSee COMBAT_canSee
+#define COMBAT_showHit COMBAT_showHit
+#define COMBAT_pickOpponent COMBAT_pickOpponent
+#define TALK_talkTo TALK_talkTo
+#define PassTime PassTime
+#define STAT_ShowParty STAT_ShowParty
+#define MUS_PlayAreaSong MUS_PlayAreaSong
+#define DrawSkyBar DrawSkyBar
+#define MustBePartyModeMsg MustBePartyModeMsg
+#define OBJ_IsLocLoaded OBJ_IsLocLoaded
+#define NextArea NextArea
+#define SearchArea SearchArea
+#define FlushViewIfDirty FlushViewIfDirty
+#define SetActive SetActive
+#define SetPartyMode SetPartyMode
+#define NextLoc NextLoc
+#define FindLoc FindLoc
+#define MoveObj MoveObj
+#define GetMonsterClass GetMonsterClass
 #define OSI_rand C_2B57_001F
 
-#define DirIncrX D_00AC
-#define DirIncrY D_00B4
-#define PromptFlag D_0203
-#define StatusDisplay D_03CD
-#define MousePress D_03C7
-#define MouseMapX D_03D3
-#define MouseMapY D_03D5
-#define MapCoordMask D_04C2
-#define LocPartOffset D_0710
-#define MoveAppliesTerrain D_079E
-#define Time_H D_27EB
-#define Date_D D_27EC
-#define Active D_27F2
-#define MapX D_27F4
-#define MapY D_27F6
-#define MapZ D_27F8
-#define DrunkCounter D_280E
-#define PathObject D_2848
-#define PathCounter D_2850
-#define PathTries D_2858
-#define InCombat D_2860
-#define SoloMember D_2861
+#define DirIncrX DirIncrX
+#define DirIncrY DirIncrY
+#define PromptFlag PromptFlag
+#define StatusDisplay StatusDisplay
+#define MousePress MousePress
+#define MouseMapX MouseMapX
+#define MouseMapY MouseMapY
+#define MapCoordMask MapCoordMask
+#define LocPartOffset LocPartOffset
+#define MoveAppliesTerrain MoveAppliesTerrain
+#define Time_H Time_H
+#define Date_D Date_D
+#define Active Active
+#define MapX MapX
+#define MapY MapY
+#define MapZ MapZ
+#define DrunkCounter DrunkCounter
+#define PathObject PathObject
+#define PathCounter PathCounter
+#define PathTries PathTries
+#define InCombat InCombat
+#define SoloMember SoloMember
 #define ObjStatus D_329C
 #define MovePts D_44FA
 #define SchedIndex D_45FA
@@ -497,7 +497,7 @@ extern int16 D_EBCA;/*PTH_Found*/
 	canEnter = 0;
 	isBig = 0;
 	HazardFound = 0;
-	if(Party[Active] == objNum && D_2846 == 1)
+	if(Party[Active] == objNum && SpeakGargish == 1)
 		return 1;
 	objTyp = GetType(objNum);
 	is2x2 = ((TileFlag[TILE_FRAME(objNum)] & 0xc0) == 0xc0);
@@ -1358,7 +1358,7 @@ c_0faa:
 	MapY = GetY(objNum);
 	PartyEnter(0);
 	new_objNum = 0;
-	C_1810_1FD9(Party[0], new_objNum);
+	CloneObject(Party[0], new_objNum);
 	ClrLocal(new_objNum);
 	ClrInvisible(new_objNum);
 	MovePts[new_objNum] = DEXTE[new_objNum];
@@ -1601,7 +1601,7 @@ c_0faa:
 		isAtDest = 1;
 		SetAsleep(objNum);
 		if(!IsOutOfArea(objNum)) {
-			C_1810_0664(objNum);
+			SetTypeUnconscious(objNum);
 			if(OBJ_IsLocLoaded(GetX(objNum), GetY(objNum), GetZ(objNum))) {
 				for(obj = FindLoc(GetX(objNum), GetY(objNum), GetZ(objNum)); obj >= 0; obj = NextLoc()) {
 					if(GetType(obj) == 0xf6) {
@@ -2281,7 +2281,7 @@ c_0faa:
 
 /*A.I. engine: let actor objNum act once according to NPCMode (combat
  strategies, schedule behaviours, path following...). The creatures with
- ObjStatus 0x80 use C_1810_4D85 whatever their mode. In modes 0x0f, 0x10
+ ObjStatus 0x80 use COMBAT_AI_Berserk whatever their mode. In modes 0x0f, 0x10
  and 0x8b-0x8e the NPC turns into type 0x149 (its shape is saved in
  OrigShapeType and given back in the other modes). An actor that did not
  spend any movement point loses 10.*/
@@ -2302,20 +2302,20 @@ c_0faa:
 		NPCMode[objNum] != 0x8d && NPCMode[objNum] != 0x8e
 	) SetType(objNum, OrigShapeType[objNum]);
 	if(ObjStatus[objNum] & 0x80) {
-		C_1810_4D85(objNum);
+		COMBAT_AI_Berserk(objNum);
 	} else switch(NPCMode[objNum]) {
-		case 0x04: C_1810_4AA9(objNum); break;
-		case 0x06: C_1810_4D85(objNum); break;
+		case 0x04: COMBAT_AI_Range(objNum); break;
+		case 0x06: COMBAT_AI_Berserk(objNum); break;
 		case 0x08:
-		case 0x9b: C_1810_476D(objNum); break;
-		case 0x0e: C_1810_54A9(objNum); break;
-		case 0x0d: C_1810_57F9(objNum); break;
+		case 0x9b: COMBAT_AI_Assault(objNum); break;
+		case 0x0e: COMBAT_AI_Immobile(objNum); break;
+		case 0x0d: COMBAT_AI_Tangle(objNum); break;
 		case 0x07:
 		case 0x09:
 		case 0x13:
-		case 0x9a: C_1810_50CA(objNum); break;
-		case 0x0a: C_1810_523E(objNum); break;
-		case 0x0b: C_1810_5370(objNum); break;
+		case 0x9a: COMBAT_AI_Retreat(objNum); break;
+		case 0x0a: COMBAT_AI_Like(objNum); break;
+		case 0x0b: COMBAT_AI_Unfriendly(objNum); break;
 		case 0x99:
 			/*brawl: from time to time go and (harmlessly) hit an
 			opponent near the brawl spot, then come back*/

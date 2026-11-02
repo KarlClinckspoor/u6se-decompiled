@@ -27,9 +27,9 @@
 #define AREA_H 40
 
 /*other modules*/
-extern char D_27F3;/*AmbientLight: sun light level 0..7*/
-extern int16 D_27F4;/*MapX*/
-extern int16 D_27F6;/*MapY*/
+extern char AmbientLight;/*AmbientLight: sun light level 0..7*/
+extern int16 MapX;/*MapX*/
+extern int16 MapY;/*MapY*/
 extern unsigned char D_3EBA[AREA_H][AREA_W];/*AreaFlags*/
 extern unsigned char D_470A[AREA_H][AREA_W];/*AreaTiles: the ground tiles of the area*/
 extern unsigned char far *D_6DF0;/*TileFlag: 0x03 light, 0x04 opaque, 0x08 window, 0x40 double height, 0x80 double width*/
@@ -45,9 +45,9 @@ extern unsigned char D_BB04[256];/*flood fill ring-buffer queue, x*/
 extern unsigned char D_BC04[256];/*flood fill ring-buffer queue, y*/
 extern int16 D_C08A[11][11];/*Tile_11x11: the tiles of the map window*/
 
-extern C_0A5D_0943(int16, int16, int16, int16);/*SearchArea(x1, y1, x2, y2): first object in the rectangle*/
-extern C_0A5D_0873(void);/*NextArea: next object of SearchArea*/
-extern C_0A5D_3577(void);/*ShowObjects: draw the map window*/
+extern SearchArea(int16, int16, int16, int16);/*SearchArea(x1, y1, x2, y2): first object in the rectangle*/
+extern NextArea(void);/*NextArea: next object of SearchArea*/
+extern ShowObjects(void);/*ShowObjects: draw the map window*/
 
 #define AreaOffset D_BB02
 #define AreaFlags D_3EBA
@@ -137,7 +137,7 @@ static /*C_09DA_000E*/VIS_IsSeeThrough(int16 x, int16 y) {
 /*uncalled?*/
 /*is (x, y) in the 11x11 view square around the party?*/
 /*C_09DA_00A2*/VIS_IsInViewSquare(int16 x, int16 y) {
-	return CLOSE_ENOUGH(5, x, y, D_27F4, D_27F6);
+	return CLOSE_ENOUGH(5, x, y, MapX, MapY);
 }
 
 /*queue area square (x, y) for the flood fill and mark it 0x40
@@ -242,13 +242,13 @@ static /*C_09DA_00D2*/VIS_Enqueue(int16 x, int16 y) {
 		pLight += 16;
 	}
 	/*cellX, cellY = area origin*/
-	cellX = (D_27F4 - 0x10) & 0xfff8;
-	cellY = (D_27F6 - 0x10) & 0xfff8;
+	cellX = (MapX - 0x10) & 0xfff8;
+	cellY = (MapY - 0x10) & 0xfff8;
 	/*flag what the objects of the central squares do to sight and light*/
 	for(
-		objNum = C_0A5D_0943(cellX + 8, cellY + 8, cellX + 31, cellY + 31);
+		objNum = SearchArea(cellX + 8, cellY + 8, cellX + 31, cellY + 31);
 		objNum >= 0;
-		objNum = C_0A5D_0873()
+		objNum = NextArea()
 	) {
 		x = GetX(objNum) - cellX;
 		y = GetY(objNum) - cellY;
@@ -287,10 +287,10 @@ static /*C_09DA_00D2*/VIS_Enqueue(int16 x, int16 y) {
 	}
 
 	/*what the party sees, lit by the ambient light*/
-	VIS_FloodFill(ViewX + 5, ViewY + 5, D_27F3, 1);
+	VIS_FloodFill(ViewX + 5, ViewY + 5, AmbientLight, 1);
 
 	/*every visible light source adds its own light*/
-	if(D_27F3 < 7) {
+	if(AmbientLight < 7) {
 		pFlags = &(AreaFlags[8][8]);
 		pTiles = &(AreaTiles[8][8]);
 		for(cellY = 8; cellY < 32; cellY ++) {
@@ -388,5 +388,5 @@ static /*C_09DA_00D2*/VIS_Enqueue(int16 x, int16 y) {
 		pTiles += 29;
 		pLight += 29;
 	}
-	C_0A5D_3577();
+	ShowObjects();
 }

@@ -37,7 +37,7 @@ extern RefreshStatus(void);
 extern int16 MkDirection(int16, int16);
 extern CON_UpdateMousePointer(void);
 extern int16 mkMouseDir(void);
-extern C_05D0_1B11(void);/*reads a command (U6: CON_ReadCommand)*/
+extern CON_ReadCommand(void);/*reads a command (U6: CON_ReadCommand)*/
 extern DrawSlotCursor(int16);
 extern int16 CON_getch(void);
 extern CON_gets(char *, int16);
@@ -104,7 +104,7 @@ extern int16 IsNpcOnScreen(int16);
 extern TALK_talkTo(int16, int16, int16);
 extern JoinParty(int16);
 /*npctrack*/
-extern C_130F_1EC7(int16, int16);/*MoveFollowers*/
+extern MoveFollowers(int16, int16);/*MoveFollowers*/
 extern UpdateMoveFrame(int16, int16);
 extern SubMov(int16, int16);
 extern int16 C_130F_014E(int16);/*is there land next to the vehicle?*/
@@ -114,7 +114,7 @@ extern int16 CanMoveTo(int16, int16, int16);
 /*spell*/
 extern SPELL_Invoke(int16);
 /*combat*/
-extern C_1810_012A(void);/*COMBAT_begin*/
+extern COMBAT_begin(void);/*COMBAT_begin*/
 extern int16 GetStr(int16);
 extern LoseHP(int16, int16);
 extern COMBAT_displaySeverity(int16);
@@ -124,9 +124,9 @@ extern int16 COMBAT_Missile(int16, int16 *, int16 *, int16, int16);
 extern C_1810_14EA(int16, int16, int16);/*pushes the boulder obj away from (x, y)*/
 extern C_1810_1941(int16, int16);/*explosion of 0x8a at (x, y)*/
 extern C_1810_19C1(int16, int16);/*explosion of 0xf1 at (x, y)*/
-extern int16 C_1810_062A(int16);/*MaxHP*/
-#define MaxHP C_1810_062A
-extern C_1810_25AD(int16);
+extern int16 MaxHP(int16);/*MaxHP*/
+#define MaxHP MaxHP
+extern COMBAT_Kill(int16);
 /*egg*/
 extern EGG_hatchArea(void);
 extern int16 EGG_generate(int16, int16, int16, int16);
@@ -158,45 +158,45 @@ extern int cdecl abs(int);
 extern cdecl ShutdownSound(void);
 extern cdecl MEM_shutdown(int16);
 
-extern char D_00AC[];/*DirIncrX*/
-extern char D_00B4[];/*DirIncrY*/
-extern char *D_00BC[];/*DirNames*/
-extern char D_00D8;/*MouseOn*/
-extern int16 D_03B1;/*EndPagingAtPrompt*/
-extern int16 D_03CD;/*StatusDisplay*/
-extern int16 D_03BF;/*GetsAborted*/
-extern struct tClipInfo *D_03EC;/*CurClip*/
-extern char D_03AE;/*AnimateAtPrompt*/
-extern char D_03A4;/*SelectMode*/
-extern char D_03A7;/*SelectRange*/
-extern int16 D_03AF;/*LastNumberPlural*/
-extern char D_03D7, D_03D8;/*DirOriginX, DirOriginY*/
-extern int16 D_0D43;/*AdvanceBlocked*/
-extern int16 D_0D45;/*VisibilityDirty*/
+extern char DirIncrX[];/*DirIncrX*/
+extern char DirIncrY[];/*DirIncrY*/
+extern char *DirNames[];/*DirNames*/
+extern char MouseOn;/*MouseOn*/
+extern int16 EndPagingAtPrompt;/*EndPagingAtPrompt*/
+extern int16 StatusDisplay;/*StatusDisplay*/
+extern int16 GetsAborted;/*GetsAborted*/
+extern struct tClipInfo *CurClip;/*CurClip*/
+extern char AnimateAtPrompt;/*AnimateAtPrompt*/
+extern char SelectMode;/*SelectMode*/
+extern char SelectRange;/*SelectRange*/
+extern int16 LastNumberPlural;/*LastNumberPlural*/
+extern char DirOriginX, DirOriginY;/*DirOriginX, DirOriginY*/
+extern int16 AdvanceBlocked;/*AdvanceBlocked*/
+extern int16 VisibilityDirty;/*VisibilityDirty*/
 extern int16 D_B5E6;/*AdvanceDir*/
 extern unsigned char far *D_763C;/*TypeWeight*/
 extern unsigned char D_E648;/*InvenSize*/
-extern int16 D_0710;/*LocPartOffset*/
-extern unsigned char D_0202;/*StatusDirty*/
-extern int16 D_03C5;/*StatusMember*/
-extern int16 D_03CB;/*MouseMode*/
-extern unsigned char D_280E;/*DrunkCounter*/
-extern char D_2861;/*SoloMember: -1 in party mode*/
-extern int16 D_2842;/*KegFuse*/
-extern int16 D_2844;/*KegObject*/
+extern int16 LocPartOffset;/*LocPartOffset*/
+extern unsigned char StatusDirty;/*StatusDirty*/
+extern int16 StatusMember;/*StatusMember*/
+extern int16 MouseMode;/*MouseMode*/
+extern unsigned char DrunkCounter;/*DrunkCounter*/
+extern char SoloMember;/*SoloMember: -1 in party mode*/
+extern int16 KegFuse;/*KegFuse*/
+extern int16 KegObject;/*KegObject*/
 extern int16 D_E64A;/*InvenOwner*/
 extern unsigned char D_E64C[8];/*Party_2Handed*/
 extern int16 D_E658[8];/*Equipment*/
 extern int16 D_E668;/*WeightEquip*/
 extern int16 D_E66A;/*WeightInven*/
-extern unsigned char D_0A39;/*IsInConversation*/
-extern int16 D_24D6;/*ScreenFade*/
-extern int16 D_24E4;/*ColorPaper*/
-extern unsigned char D_27EA, D_27EB, D_27EC, D_27ED;/*Time_M, Time_H, Date_D, Date_M*/
-extern int16 D_27EE;/*Date_Y*/
-extern unsigned char D_27F2;/*Active*/
-extern char D_27F3;/*AmbientLight*/
-extern int16 D_27F4, D_27F6, D_27F8;/*MapX, MapY, MapZ*/
+extern unsigned char IsInConversation;/*IsInConversation*/
+extern int16 ScreenFade;/*ScreenFade*/
+extern int16 ColorPaper;/*ColorPaper*/
+extern unsigned char Time_M, Time_H, Date_D, Date_M;/*Time_M, Time_H, Date_D, Date_M*/
+extern int16 Date_Y;/*Date_Y*/
+extern unsigned char Active;/*Active*/
+extern char AmbientLight;/*AmbientLight*/
+extern int16 MapX, MapY, MapZ;/*MapX, MapY, MapZ*/
 extern unsigned char far *D_3298;/*per-NPC flags (0x80: ?)*/
 extern unsigned char D_329C[];/*ObjStatus*/
 extern unsigned char far *D_4602;/*NPCFlag*/
@@ -224,31 +224,31 @@ extern int16 D_B66A, D_B66C;/*Selection.x, Selection.y*/
 extern int16 D_C17C[];/*Link*/
 extern union tHandler D_ED10;/*GrDriver*/
 
-#define DirIncrX D_00AC
-#define DirIncrY D_00B4
-#define MouseOn D_00D8
-#define StatusDisplay D_03CD
+#define DirIncrX DirIncrX
+#define DirIncrY DirIncrY
+#define MouseOn MouseOn
+#define StatusDisplay StatusDisplay
 #define Amount D_54F0
 #define TileFlag2 D_7640
-#define AnimateAtPrompt D_03AE
-#define EndPagingAtPrompt D_03B1
-#define GetsAborted D_03BF
-#define StatusMember D_03C5
-#define CurClip D_03EC
-#define StatusDirty D_0202
-#define IsInConversation D_0A39
-#define ScreenFade D_24D6
-#define ColorPaper D_24E4
-#define Time_M D_27EA
-#define Time_H D_27EB
-#define Date_D D_27EC
-#define Date_M D_27ED
-#define Date_Y D_27EE
-#define Active D_27F2
-#define AmbientLight D_27F3
-#define MapX D_27F4
-#define MapY D_27F6
-#define MapZ D_27F8
+#define AnimateAtPrompt AnimateAtPrompt
+#define EndPagingAtPrompt EndPagingAtPrompt
+#define GetsAborted GetsAborted
+#define StatusMember StatusMember
+#define CurClip CurClip
+#define StatusDirty StatusDirty
+#define IsInConversation IsInConversation
+#define ScreenFade ScreenFade
+#define ColorPaper ColorPaper
+#define Time_M Time_M
+#define Time_H Time_H
+#define Date_D Date_D
+#define Date_M Date_M
+#define Date_Y Date_Y
+#define Active Active
+#define AmbientLight AmbientLight
+#define MapX MapX
+#define MapY MapY
+#define MapZ MapZ
 #define ObjStatus D_329C
 #define NPCFlag D_4602
 #define NPCMode D_4706
@@ -264,29 +264,29 @@ extern union tHandler D_ED10;/*GrDriver*/
 #define OrigShapeType D_B53E
 #define TextWindows D_B644
 #define Link D_C17C
-#define DirNames D_00BC
-#define SelectRange D_03A7
-#define LastNumberPlural D_03AF
-#define DirOriginX D_03D7
-#define DirOriginY D_03D8
-#define AdvanceBlocked D_0D43
-#define VisibilityDirty D_0D45
+#define DirNames DirNames
+#define SelectRange SelectRange
+#define LastNumberPlural LastNumberPlural
+#define DirOriginX DirOriginX
+#define DirOriginY DirOriginY
+#define AdvanceBlocked AdvanceBlocked
+#define VisibilityDirty VisibilityDirty
 #define AdvanceDir D_B5E6
 #define TypeWeight D_763C
 #define InvenSize D_E648
-#define MouseMode D_03CB
-#define DrunkCounter D_280E
-#define SoloMember D_2861
-#define KegFuse D_2842
-#define KegObject D_2844
+#define MouseMode MouseMode
+#define DrunkCounter DrunkCounter
+#define SoloMember SoloMember
+#define KegFuse KegFuse
+#define KegObject KegObject
 #define InvenOwner D_E64A
 #define Party_2Handed D_E64C
 #define Equipment D_E658
 #define WeightEquip D_E668
 #define WeightInven D_E66A
 #define STREN D_53E8
-#define SelectMode D_03A4
-#define LocPartOffset D_0710
+#define SelectMode SelectMode
+#define LocPartOffset LocPartOffset
 #define TerrainType D_B4FA
 #define SelectionIsDark D_B6B8
 #define PointerX D_B5E8
@@ -408,7 +408,7 @@ void C_1DBD_5069(int16, int16, int16);
 	TalkFlags[1] &= ~0x80;
 	TalkFlags[1] |= 1;
 	AnimateAtPrompt = 1;
-	C_1810_012A();
+	COMBAT_begin();
 	VIS_UpdateView();
 	ScreenFade = 1;
 	DrawMapWindow(0);
@@ -458,16 +458,16 @@ void C_1DBD_5069(int16, int16, int16);
 	for(obj = FindInv(11); obj >= 0; obj = FindInv(11))
 		MoveObj(obj, x, y, z);
 	AddMapObj(ObjShapeType[11], 0, 0, x, y, z);
-	C_1810_25AD(0x2f);
-	C_1810_25AD(0x1f);
-	C_1810_25AD(0x37);
-	C_1810_25AD(0x23);
-	C_1810_25AD(0xb);
+	COMBAT_Kill(0x2f);
+	COMBAT_Kill(0x1f);
+	COMBAT_Kill(0x37);
+	COMBAT_Kill(0x23);
+	COMBAT_Kill(0xb);
 	MoveObj(5, x, y, z);
 	NPCStatus[5] &= ~0x10;
-	HitPoints[5] = C_1810_062A(5);
+	HitPoints[5] = MaxHP(5);
 	JoinParty(5);
-	C_130F_1EC7(Party[Active], 1);
+	MoveFollowers(Party[Active], 1);
 	D_3298[0x28] &= ~0x80;
 	D_3298[0x2c] &= ~0x80;
 	ObjShapeType[0x28] = OrigShapeType[0x28] = 0x142;
@@ -480,7 +480,7 @@ void C_1DBD_5069(int16, int16, int16);
 	for(i = 0; i < 0x100; i ++) {
 		type = GetType(i);
 		if(type == 0x12d || type == 0x129)
-			C_1810_25AD(i);
+			COMBAT_Kill(i);
 	}
 	for(; i < 0xc00; i ++) {
 		type = GetType(i);
@@ -871,7 +871,7 @@ void C_1DBD_5069(int16, int16, int16);
 	StatusDisplay = 0x9e;
 	if(!IsInConversation) {
 		CON_setClip(&TextWindows[3]);
-		C_05D0_1B11();
+		CON_ReadCommand();
 	}
 	CON_setClip(savedClip);
 	ShowMouse

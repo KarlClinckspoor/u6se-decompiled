@@ -36,7 +36,7 @@ def files():
 
 
 def read(p):
-    return open(p, encoding='latin-1').read()
+    return open(p, encoding='latin-1', newline='').read()
 
 
 def table():
@@ -147,8 +147,16 @@ def main():
         for p in files():
             if p.lower().endswith(('.c', '.h')):
                 src = read(p)
-                used_by_c.update(re.findall(r'\b(C_[0-9A-F]{4}_[0-9A-F]{4}|D_[0-9A-F]{4})\b', src))
-                pascal_in_c.update(re.findall(r'\bpascal\b[^;{()]*?\b(C_[0-9A-F]{4}_[0-9A-F]{4})\s*\(', src))
+                refs = set(re.findall(r'\b(C_[0-9A-F]{4}_[0-9A-F]{4}|D_[0-9A-F]{4})\b', src))
+                if '-p' in default_flags(p).split():
+                    # compiled -p (GAME.EXE): every name is pascal but those declared cdecl
+                    nocom = re.sub(r'/\*.*?\*/', ' ', src, flags=re.S)
+                    cd = set(re.findall(r'\bcdecl\b[^;{\n]*?\b(C_[0-9A-F]{4}_[0-9A-F]{4}|D_[0-9A-F]{4})\b', nocom))
+                    used_by_c.update(cd)
+                    pascal_in_c.update(refs - cd)
+                else:
+                    used_by_c.update(refs)
+                    pascal_in_c.update(re.findall(r'\bpascal\b[^;{()]*?\b(C_[0-9A-F]{4}_[0-9A-F]{4})\s*\(', src))
         used_by_c -= pascal_in_c
         for k, v in t.items():
             addr = 'C_%04X_%04X' % k[1:] if k[0] == 'C' else 'D_%04X' % k[1]
@@ -189,7 +197,7 @@ def main():
                     out.append(code + sep + com)
                 s = '\n'.join(out)
             if s != o:
-                open(p, 'w', encoding='latin-1').write(s)
+                open(p, 'w', encoding='latin-1', newline='').write(s)
                 print('rewrote', os.path.relpath(p, SRC))
 
 

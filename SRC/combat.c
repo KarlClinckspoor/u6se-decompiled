@@ -42,60 +42,60 @@ extern unsigned char far C_2F43_00F3[];/*MonsterArmor + 1*/
 extern unsigned char far C_2F43_0123[];/*MonsterDamage + 1*/
 extern unsigned char far C_2F43_0153[];/*MonsterHP + 1*/
 extern int16 far C_2F43_01B4[];/*MonsterFlags + 1*/
-extern char far C_2F65_0000[];/*CriticalMsg*/
-extern char far C_2F65_000B[];/*HeavilyMsg*/
-extern char far C_2F65_0013[];/*LightlyMsg*/
-extern char far C_2F65_001B[];/*BarelyMsg*/
-extern char far C_2F65_0022[];/*WoundedMsg*/
-extern char far C_2F65_002D[];/*GrazedMsg*/
-extern char far C_2F65_003A[];/*KilledMsg*/
-extern char far C_2F65_0047[];/*FallsMsg*/
-extern char far C_2F65_0053[];/*BareHandsMsg*/
-extern char far C_2F65_0064[];/*WithMsg*/
-extern char far C_2F65_006D[];/*OutOfArrowsMsg*/
-extern char far C_2F65_007D[];/*OutOfAmmoMsg*/
-extern char far C_2F65_0091[];/*OutOfDartsMsg*/
-extern char far C_2F65_00A0[];/*OutOfSpearsMsg*/
-extern char far C_2F65_00B0[];/*FlintlockNotLoadedMsg*/
-extern char far C_2F65_00DD[];/*AttackSelfPassMsg*/
-extern char far C_2F65_00E4[];/*NothingMsg*/
-extern char far C_2F65_00EE[];/*AttackWithMsg*/
-extern char far C_2F65_00FF[];/*AttackMsg*/
-extern char far C_2F65_0106[];/*WhatMsg*/
-extern char far C_2F65_0192[];/*PoisonedMsg*/
-extern char far C_2F65_01FE[];/*OutOfRangeMsg*/
-extern char far C_2F65_020D[];/*NotOnShipMsg*/
-extern char far C_2F65_02C5[];/*AttacksMsg*/
-extern char far C_2F65_0374[];/*NotPossibleMsg*/
+extern char far CriticalMsg[];/*CriticalMsg*/
+extern char far HeavilyMsg[];/*HeavilyMsg*/
+extern char far LightlyMsg[];/*LightlyMsg*/
+extern char far BarelyMsg[];/*BarelyMsg*/
+extern char far WoundedMsg[];/*WoundedMsg*/
+extern char far GrazedMsg[];/*GrazedMsg*/
+extern char far KilledMsg[];/*KilledMsg*/
+extern char far FallsMsg[];/*FallsMsg*/
+extern char far BareHandsMsg[];/*BareHandsMsg*/
+extern char far WithMsg[];/*WithMsg*/
+extern char far OutOfArrowsMsg[];/*OutOfArrowsMsg*/
+extern char far OutOfAmmoMsg[];/*OutOfAmmoMsg*/
+extern char far OutOfDartsMsg[];/*OutOfDartsMsg*/
+extern char far OutOfSpearsMsg[];/*OutOfSpearsMsg*/
+extern char far FlintlockNotLoadedMsg[];/*FlintlockNotLoadedMsg*/
+extern char far AttackSelfPassMsg[];/*AttackSelfPassMsg*/
+extern char far NothingMsg[];/*NothingMsg*/
+extern char far AttackWithMsg[];/*AttackWithMsg*/
+extern char far AttackMsg[];/*AttackMsg*/
+extern char far WhatMsg[];/*WhatMsg*/
+extern char far PoisonedMsg[];/*PoisonedMsg*/
+extern char far OutOfRangeMsg[];/*OutOfRangeMsg*/
+extern char far NotOnShipMsg[];/*NotOnShipMsg*/
+extern char far AttacksMsg[];/*AttacksMsg*/
+extern char far NotPossibleMsg[];/*NotPossibleMsg*/
 /*variables of other modules*/
-extern char D_00AC[];/*DirIncrX*/
-extern char D_00B4[];/*DirIncrY*/
-extern unsigned char D_0202;/*StatusDirty*/
-extern unsigned char D_0203;/*PromptFlag*/
-extern unsigned char D_03A4;/*SelectMode*/
-extern char D_03A5, D_03A6;/*AimX, AimY*/
-extern char D_03A7;/*SelectRange*/
-extern int16 D_03AF;/*LastNumberPlural*/
-extern int16 D_03B7;/*TextOn*/
-extern int16 D_03B9;/*LastAttackTarget*/
-extern int16 D_03BB;/*SkipNewlines*/
-extern int16 D_03C5;/*StatusMember*/
-extern int16 D_03CB;/*MouseMode*/
-extern int16 D_03CD;/*StatusDisplay: 0x92 when the equipment view is shown*/
-extern int16 D_03CF;/*PendingCommand*/
-extern struct tClipInfo *D_03EC;/*CurClip*/
-extern unsigned char D_08A2;/*PartyListTop*/
-extern unsigned char D_0A39;/*IsInConversation*/
-extern int16 D_0D45;/*VisibilityDirty*/
-extern int16 D_0D4B;/*EnemyWarningGiven*/
-extern int16 D_24D8;/*ColorRed*/
-extern int16 D_24DA;/*ColorGreen*/
+extern char DirIncrX[];/*DirIncrX*/
+extern char DirIncrY[];/*DirIncrY*/
+extern unsigned char StatusDirty;/*StatusDirty*/
+extern unsigned char PromptFlag;/*PromptFlag*/
+extern unsigned char SelectMode;/*SelectMode*/
+extern char AimX, AimY;/*AimX, AimY*/
+extern char SelectRange;/*SelectRange*/
+extern int16 LastNumberPlural;/*LastNumberPlural*/
+extern int16 TextOn;/*TextOn*/
+extern int16 LastAttackTarget;/*LastAttackTarget*/
+extern int16 SkipNewlines;/*SkipNewlines*/
+extern int16 StatusMember;/*StatusMember*/
+extern int16 MouseMode;/*MouseMode*/
+extern int16 StatusDisplay;/*StatusDisplay: 0x92 when the equipment view is shown*/
+extern int16 PendingCommand;/*PendingCommand*/
+extern struct tClipInfo *CurClip;/*CurClip*/
+extern unsigned char PartyListTop;/*PartyListTop*/
+extern unsigned char IsInConversation;/*IsInConversation*/
+extern int16 VisibilityDirty;/*VisibilityDirty*/
+extern int16 EnemyWarningGiven;/*EnemyWarningGiven*/
+extern int16 ColorRed;/*ColorRed*/
+extern int16 ColorGreen;/*ColorGreen*/
 extern int16 D_24E6;/*ColorText*/
-extern unsigned char D_27F2;/*Active*/
-extern int16 D_27F4, D_27F6, D_27F8;/*MapX, MapY, MapZ*/
-extern char D_2860;/*InCombat*/
-extern char D_2861;/*SoloMember: -1 in party mode*/
-extern unsigned char D_2862;/*SavedNPCMode*/
+extern unsigned char Active;/*Active*/
+extern int16 MapX, MapY, MapZ;/*MapX, MapY, MapZ*/
+extern char InCombat;/*InCombat*/
+extern char SoloMember;/*SoloMember: -1 in party mode*/
+extern unsigned char SavedNPCMode;/*SavedNPCMode*/
 extern unsigned char D_329C[];/*ObjStatus*/
 extern char D_44FA[];/*MovePts*/
 extern unsigned char far *D_45FA;/*SchedIndex*/
@@ -131,105 +131,105 @@ extern int16 D_EBCE[2];/*MissileEnd*/
 extern int16 D_EC52[8];/*EquipWeapons*/
 extern union tHandler D_ED10;/*GrDriver*/
 /*functions of other modules*/
-extern C_0359_0030(void);/*AnimateTilesAndActors*/
-extern C_0359_0B23(int16);/*DrawMapWindow*/
-extern C_0359_0CD4(void);/*DisplayTick*/
+extern AnimateTilesAndActors(void);/*AnimateTilesAndActors*/
+extern DrawMapWindow(int16);/*DrawMapWindow*/
+extern DisplayTick(void);/*DisplayTick*/
 extern int16 C_0359_0D58(int16);
-extern C_0359_11B6(int16);/*PassTime*/
-extern C_0359_1806(void);/*RefreshStatus*/
-extern C_0359_1905(void);/*SetPartyMode*/
-extern int16 C_05D0_0004(int16, int16, int16, int16);/*CON_mouseOffAt*/
-extern C_05D0_004D(int16);/*CON_mouseOn*/
-extern C_05D0_01F5(void);/*CON_UpdateMousePointer*/
-extern int16 C_05D0_22C8(void);/*CON_getch*/
-extern C_05D0_25AD(struct tClipInfo *);/*CON_setClip*/
-extern C_05D0_25E4(int16, int16);/*CON_gotoxy*/
-extern cdecl C_05D0_2DB9(char far *, ...);/*CON_printf*/
-extern unsigned char C_08CB_107B(int16, int16, int16);/*GetTileAtXYZ*/
-extern C_09DA_0327(void);/*VIS_UpdateView*/
-extern int16 C_0A5D_039A(void);/*NextLoc*/
-extern int16 C_0A5D_05C4(int16, int16, int16);/*FindLoc*/
-extern int16 C_0A5D_0677(int16, int16, int16);/*OBJ_FindTypeAt(type, x, y)*/
-extern int16 C_0A5D_0739(int16);/*FindInv*/
-extern int16 C_0A5D_0792(void);/*NextInv*/
+extern PassTime(int16);/*PassTime*/
+extern RefreshStatus(void);/*RefreshStatus*/
+extern SetPartyMode(void);/*SetPartyMode*/
+extern int16 CON_mouseOffAt(int16, int16, int16, int16);/*CON_mouseOffAt*/
+extern CON_mouseOn(int16);/*CON_mouseOn*/
+extern CON_UpdateMousePointer(void);/*CON_UpdateMousePointer*/
+extern int16 CON_getch(void);/*CON_getch*/
+extern CON_setClip(struct tClipInfo *);/*CON_setClip*/
+extern CON_gotoxy(int16, int16);/*CON_gotoxy*/
+extern cdecl CON_printf(char far *, ...);/*CON_printf*/
+extern unsigned char GetTileAtXYZ(int16, int16, int16);/*GetTileAtXYZ*/
+extern VIS_UpdateView(void);/*VIS_UpdateView*/
+extern int16 NextLoc(void);/*NextLoc*/
+extern int16 FindLoc(int16, int16, int16);/*FindLoc*/
+extern int16 OBJ_FindTypeAt(int16, int16, int16);/*OBJ_FindTypeAt(type, x, y)*/
+extern int16 FindInv(int16);/*FindInv*/
+extern int16 NextInv(void);/*NextInv*/
 extern int16 C_0A5D_080A(int16, int16);/*an object of a type, not equipped, inside an object*/
 extern int16 C_0A5D_0DEF(int16);/*OBJ_PartHeadType: type of the head of a multi-tile creature part, 0 if none*/
-extern int16 C_0A5D_0EB6(int16, int16, int16, int16, int16, int16);/*AddMapObj(shape, status, amount, x, y, z)*/
-extern int16 C_0A5D_102A(int16, int16, int16, int16);/*AddInvObj(shapeType, status, amount, owner)*/
-extern C_0A5D_1506(int16);/*DeleteObj*/
-extern C_0A5D_19BF(int16);/*OBJ_MakeDeadBody*/
-extern C_0A5D_1C76(int16, int16, int16, int16);/*MoveObj*/
-extern int16 C_0A5D_213E(int16);/*QuanType*/
-extern C_0A5D_339C(int16, int16, int16, int16);/*ShowObject(tile, x, y, mode)*/
-extern C_0A5D_3577(void);/*ShowObjects*/
-extern char *C_0A5D_39F8(int16);/*GetTileString*/
-extern char *C_0A5D_3A76(int16);/*GetObjectString*/
-extern C_0E13_000A(int16);/*STAT_ShowParty*/
-extern C_0E13_016E(void);/*STAT_refreshComMode*/
-extern C_0E13_0BA1(void);/*STAT_DrawInventory*/
-extern C_0E13_0EC8(int16);/*STAT_ShowInventory*/
+extern int16 AddMapObj(int16, int16, int16, int16, int16, int16);/*AddMapObj(shape, status, amount, x, y, z)*/
+extern int16 AddInvObj(int16, int16, int16, int16);/*AddInvObj(shapeType, status, amount, owner)*/
+extern DeleteObj(int16);/*DeleteObj*/
+extern OBJ_MakeDeadBody(int16);/*OBJ_MakeDeadBody*/
+extern MoveObj(int16, int16, int16, int16);/*MoveObj*/
+extern int16 QuanType(int16);/*QuanType*/
+extern ShowObject(int16, int16, int16, int16);/*ShowObject(tile, x, y, mode)*/
+extern ShowObjects(void);/*ShowObjects*/
+extern char *GetTileString(int16);/*GetTileString*/
+extern char *GetObjectString(int16);/*GetObjectString*/
+extern STAT_ShowParty(int16);/*STAT_ShowParty*/
+extern STAT_refreshComMode(void);/*STAT_refreshComMode*/
+extern STAT_DrawInventory(void);/*STAT_DrawInventory*/
+extern STAT_ShowInventory(int16);/*STAT_ShowInventory*/
 extern int16 C_130F_0002(int16);
 extern int16 C_130F_004D(int16);
 extern int16 C_130F_0070(int16);
 extern int16 C_130F_00A7(int16);
 extern int16 C_130F_00CA(int16);
 extern int16 C_130F_0136(int16);
-extern int16 C_130F_0265(int16, int16, int16);/*CanMoveTo*/
+extern int16 CanMoveTo(int16, int16, int16);/*CanMoveTo*/
 extern int16 C_130F_1199(int16);
-extern C_130F_1DCC(int16, int16);/*SubMov*/
-extern int16 C_130F_384C(int16, int16, int16);/*TryStraightMove(npc, dir, ?)*/
-extern int16 C_130F_3AB8(int16, int16, int16);/*TryMoveTo(npc, x, y): 0 if not moved*/
-extern C_130F_3CF6(int16);/*WanderRandomly*/
-extern C_130F_4943(void);
+extern SubMov(int16, int16);/*SubMov*/
+extern int16 TryStraightMove(int16, int16, int16);/*TryStraightMove(npc, dir, ?)*/
+extern int16 TryMoveTo(int16, int16, int16);/*TryMoveTo(npc, x, y): 0 if not moved*/
+extern WanderRandomly(int16);/*WanderRandomly*/
+extern CheckActiveMember(void);
 extern C_1DBD_0304(void);
 extern C_1DBD_077E(void);
-extern int16 C_1DBD_0A75(int16);
+extern int16 IsTreeTile(int16);
 extern int16 C_1DBD_18FD(int16, int16);
-extern C_1DBD_3D25(int16, int16);
-extern int16 C_1DBD_3E75(int16, int16, int16, int16);
-extern C_1DBD_4297(int16, int16);
+extern AfterExplosion(int16, int16);
+extern int16 FindTypeAt(int16, int16, int16, int16);
+extern LoadFlintlock(int16, int16);
 extern C_1DBD_4F8E(int16, int16, int16);
 extern C_1DBD_6DD9(int16);
-extern int16 C_2667_004F(int16);/*GetMonsterClass*/
+extern int16 GetMonsterClass(int16);/*GetMonsterClass*/
 extern C_2701_02D6(void);
 extern C_2701_0355(int16);
 extern C_2701_04D7(void);
-extern C_2701_0648(int16);/*MUS_PlaySfx*/
-extern int16 C_276B_0390(int16, int16, int16, int16 *, int16 *, int16, int16, int16);/*Missiles*/
-extern int16 far *C_276B_0E85(int16, int16, int16);/*Explosion(x, y, tile): list of the objects hit, -1 terminated*/
+extern MUS_PlaySfx(int16);/*MUS_PlaySfx*/
+extern int16 Missiles(int16, int16, int16, int16 *, int16 *, int16, int16, int16);/*Missiles*/
+extern int16 far *Explosion(int16, int16, int16);/*Explosion(x, y, tile): list of the objects hit, -1 terminated*/
 extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 
-#define DirIncrX D_00AC
-#define DirIncrY D_00B4
-#define StatusDirty D_0202
-#define PromptFlag D_0203
-#define SelectMode D_03A4
-#define AimX D_03A5
-#define AimY D_03A6
-#define SelectRange D_03A7
-#define LastNumberPlural D_03AF
-#define TextOn D_03B7
-#define LastAttackTarget D_03B9
-#define SkipNewlines D_03BB
-#define StatusMember D_03C5
-#define MouseMode D_03CB
-#define StatusDisplay D_03CD
-#define PendingCommand D_03CF
-#define CurClip D_03EC
-#define PartyListTop D_08A2
-#define IsInConversation D_0A39
-#define VisibilityDirty D_0D45
-#define EnemyWarningGiven D_0D4B
-#define ColorRed D_24D8
-#define ColorGreen D_24DA
+#define DirIncrX DirIncrX
+#define DirIncrY DirIncrY
+#define StatusDirty StatusDirty
+#define PromptFlag PromptFlag
+#define SelectMode SelectMode
+#define AimX AimX
+#define AimY AimY
+#define SelectRange SelectRange
+#define LastNumberPlural LastNumberPlural
+#define TextOn TextOn
+#define LastAttackTarget LastAttackTarget
+#define SkipNewlines SkipNewlines
+#define StatusMember StatusMember
+#define MouseMode MouseMode
+#define StatusDisplay StatusDisplay
+#define PendingCommand PendingCommand
+#define CurClip CurClip
+#define PartyListTop PartyListTop
+#define IsInConversation IsInConversation
+#define VisibilityDirty VisibilityDirty
+#define EnemyWarningGiven EnemyWarningGiven
+#define ColorRed ColorRed
+#define ColorGreen ColorGreen
 #define ColorText D_24E6
-#define Active D_27F2
-#define MapX D_27F4
-#define MapY D_27F6
-#define MapZ D_27F8
-#define InCombat D_2860
-#define SoloMember D_2861
-#define SavedNPCMode D_2862
+#define Active Active
+#define MapX MapX
+#define MapY MapY
+#define MapZ MapZ
+#define InCombat InCombat
+#define SoloMember SoloMember
+#define SavedNPCMode SavedNPCMode
 #define ObjStatus D_329C
 #define MovePts D_44FA
 #define SchedIndex D_45FA
@@ -266,50 +266,50 @@ extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 #define EquipWeapons D_EC52
 #define GrDriver D_ED10
 
-#define AnimateTilesAndActors C_0359_0030
-#define DrawMapWindow C_0359_0B23
-#define DisplayTick C_0359_0CD4
-#define PassTime C_0359_11B6
-#define RefreshStatus C_0359_1806
-#define SetPartyMode C_0359_1905
-#define CON_mouseOffAt C_05D0_0004
-#define CON_mouseOn C_05D0_004D
-#define CON_UpdateMousePointer C_05D0_01F5
-#define CON_getch C_05D0_22C8
-#define CON_setClip C_05D0_25AD
-#define CON_gotoxy C_05D0_25E4
-#define CON_printf C_05D0_2DB9
-#define GetTileAtXYZ C_08CB_107B
-#define VIS_UpdateView C_09DA_0327
-#define NextLoc C_0A5D_039A
-#define FindLoc C_0A5D_05C4
-#define OBJ_FindTypeAt C_0A5D_0677
-#define FindInv C_0A5D_0739
-#define NextInv C_0A5D_0792
+#define AnimateTilesAndActors AnimateTilesAndActors
+#define DrawMapWindow DrawMapWindow
+#define DisplayTick DisplayTick
+#define PassTime PassTime
+#define RefreshStatus RefreshStatus
+#define SetPartyMode SetPartyMode
+#define CON_mouseOffAt CON_mouseOffAt
+#define CON_mouseOn CON_mouseOn
+#define CON_UpdateMousePointer CON_UpdateMousePointer
+#define CON_getch CON_getch
+#define CON_setClip CON_setClip
+#define CON_gotoxy CON_gotoxy
+#define CON_printf CON_printf
+#define GetTileAtXYZ GetTileAtXYZ
+#define VIS_UpdateView VIS_UpdateView
+#define NextLoc NextLoc
+#define FindLoc FindLoc
+#define OBJ_FindTypeAt OBJ_FindTypeAt
+#define FindInv FindInv
+#define NextInv NextInv
 #define OBJ_PartHeadType C_0A5D_0DEF
-#define AddMapObj C_0A5D_0EB6
-#define AddInvObj C_0A5D_102A
-#define DeleteObj C_0A5D_1506
-#define OBJ_MakeDeadBody C_0A5D_19BF
-#define MoveObj C_0A5D_1C76
-#define QuanType C_0A5D_213E
-#define ShowObject C_0A5D_339C
-#define ShowObjects C_0A5D_3577
-#define GetTileString C_0A5D_39F8
-#define GetObjectString C_0A5D_3A76
-#define STAT_ShowParty C_0E13_000A
-#define STAT_refreshComMode C_0E13_016E
-#define STAT_DrawInventory C_0E13_0BA1
-#define STAT_ShowInventory C_0E13_0EC8
-#define CanMoveTo C_130F_0265
-#define SubMov C_130F_1DCC
-#define TryStraightMove C_130F_384C
-#define TryMoveTo C_130F_3AB8
-#define WanderRandomly C_130F_3CF6
-#define GetMonsterClass C_2667_004F
-#define MUS_PlaySfx C_2701_0648
-#define Missiles C_276B_0390
-#define Explosion C_276B_0E85
+#define AddMapObj AddMapObj
+#define AddInvObj AddInvObj
+#define DeleteObj DeleteObj
+#define OBJ_MakeDeadBody OBJ_MakeDeadBody
+#define MoveObj MoveObj
+#define QuanType QuanType
+#define ShowObject ShowObject
+#define ShowObjects ShowObjects
+#define GetTileString GetTileString
+#define GetObjectString GetObjectString
+#define STAT_ShowParty STAT_ShowParty
+#define STAT_refreshComMode STAT_refreshComMode
+#define STAT_DrawInventory STAT_DrawInventory
+#define STAT_ShowInventory STAT_ShowInventory
+#define CanMoveTo CanMoveTo
+#define SubMov SubMov
+#define TryStraightMove TryStraightMove
+#define TryMoveTo TryMoveTo
+#define WanderRandomly WanderRandomly
+#define GetMonsterClass GetMonsterClass
+#define MUS_PlaySfx MUS_PlaySfx
+#define Missiles Missiles
+#define Explosion Explosion
 #define OSI_rand C_2B57_001F
 #define MonsterStr C_2F43_0063
 #define MonsterDex C_2F43_0093
@@ -317,31 +317,31 @@ extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 #define MonsterDamage C_2F43_0123
 #define MonsterHP C_2F43_0153
 #define MonsterFlags C_2F43_01B4
-#define CriticalMsg C_2F65_0000
-#define HeavilyMsg C_2F65_000B
-#define LightlyMsg C_2F65_0013
-#define BarelyMsg C_2F65_001B
-#define WoundedMsg C_2F65_0022
-#define GrazedMsg C_2F65_002D
-#define KilledMsg C_2F65_003A
-#define FallsMsg C_2F65_0047
-#define BareHandsMsg C_2F65_0053
-#define WithMsg C_2F65_0064
-#define OutOfArrowsMsg C_2F65_006D
-#define OutOfAmmoMsg C_2F65_007D
-#define OutOfDartsMsg C_2F65_0091
-#define OutOfSpearsMsg C_2F65_00A0
-#define FlintlockNotLoadedMsg C_2F65_00B0
-#define AttackSelfPassMsg C_2F65_00DD
-#define NothingMsg C_2F65_00E4
-#define AttackWithMsg C_2F65_00EE
-#define AttackMsg C_2F65_00FF
-#define WhatMsg C_2F65_0106
-#define PoisonedMsg C_2F65_0192
-#define OutOfRangeMsg C_2F65_01FE
-#define NotOnShipMsg C_2F65_020D
-#define AttacksMsg C_2F65_02C5
-#define NotPossibleMsg C_2F65_0374
+#define CriticalMsg CriticalMsg
+#define HeavilyMsg HeavilyMsg
+#define LightlyMsg LightlyMsg
+#define BarelyMsg BarelyMsg
+#define WoundedMsg WoundedMsg
+#define GrazedMsg GrazedMsg
+#define KilledMsg KilledMsg
+#define FallsMsg FallsMsg
+#define BareHandsMsg BareHandsMsg
+#define WithMsg WithMsg
+#define OutOfArrowsMsg OutOfArrowsMsg
+#define OutOfAmmoMsg OutOfAmmoMsg
+#define OutOfDartsMsg OutOfDartsMsg
+#define OutOfSpearsMsg OutOfSpearsMsg
+#define FlintlockNotLoadedMsg FlintlockNotLoadedMsg
+#define AttackSelfPassMsg AttackSelfPassMsg
+#define NothingMsg NothingMsg
+#define AttackWithMsg AttackWithMsg
+#define AttackMsg AttackMsg
+#define WhatMsg WhatMsg
+#define PoisonedMsg PoisonedMsg
+#define OutOfRangeMsg OutOfRangeMsg
+#define NotOnShipMsg NotOnShipMsg
+#define AttacksMsg AttacksMsg
+#define NotPossibleMsg NotPossibleMsg
 
 #define GR_PUT_TILE_SCREEN(tile,x,y) (GrDriver.iii.ofs = 0x2d, (*GrDriver.f)(tile,x,y))
 
@@ -998,7 +998,7 @@ COMBAT_beginAttacked(void);
 		(tile >= 0x98 && tile <= 0xa9) ||
 		(tile >= 0xac && tile <= 0xb6) ||
 		(tile >= 0xba && tile <= 0xc5) ||
-		C_1DBD_0A75(tile)
+		IsTreeTile(tile)
 	) return 1;
 	return 0;
 }
@@ -1156,7 +1156,7 @@ COMBAT_beginAttacked(void);
 	pushN = 0;
 	pushW = 0;
 	inPit = 0;
-	otherObj = C_1DBD_3E75(GetX(obj), GetY(obj), MapZ, 0xe6);
+	otherObj = FindTypeAt(GetX(obj), GetY(obj), MapZ, 0xe6);
 	if(GetQual(obj) == 1) {
 		MUS_PlaySfx(0x1c);
 		return 0;
@@ -1258,7 +1258,7 @@ COMBAT_beginAttacked(void);
 	for(list = Explosion(x, y, 0x105); *list >= 0; list ++)
 		if(!QuanType(GetType(*list)))
 			LoseHP(*list, OSI_rand(1, 20));
-	C_1DBD_3D25(x, y);
+	AfterExplosion(x, y);
 	VIS_UpdateView();
 	DisplayTick();
 }
@@ -1276,7 +1276,7 @@ COMBAT_beginAttacked(void);
 		if(!QuanType(objType) && (objType == 0x143 || objType == 0x148))
 			LoseHP(*list, OSI_rand(1, 35));
 	}
-	C_1DBD_3D25(x, y);
+	AfterExplosion(x, y);
 	VIS_UpdateView();
 	DisplayTick();
 }
@@ -1709,7 +1709,7 @@ COMBAT_beginAttacked(void);
 		VisibilityDirty = 1;
 	}
 	if(Party[Active] == objNum)
-		C_130F_4943();
+		CheckActiveMember();
 	return xp;
 }
 
@@ -2061,7 +2061,7 @@ COMBAT_beginAttacked(void);
 	if(objTyp == 0x25 && C_0A5D_080A(att_objNum, 0x1a) < 0)
 		return 0;
 	if(objTyp == 0x32 && GetFrame(weap_objNum) == 0) {
-		C_1DBD_4297(weap_objNum, att_objNum);
+		LoadFlintlock(weap_objNum, att_objNum);
 		return 0;
 	}
 

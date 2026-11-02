@@ -5,7 +5,7 @@
  *
  * The "Rest" command (REST_Command) and its helpers. Resting is refused in
  * combat, with foes near (a hostile NPC within 39 tiles), when it is too
- * noisy (an NPC within 5 tiles for which C_1810_0CA4, U6 COMBAT_canSee?, holds),
+ * noisy (an NPC within 5 tiles for which COMBAT_canSee, U6 COMBAT_canSee?, holds),
  * in solo mode, aboard a ship, or on a turtle. The party rests until
  * sunrise or sunset, or for 1-9 hours. The party gathers around the
  * leader (CampOfsX/CampOfsY/CampFacing); after more than 4 hours everybody
@@ -30,63 +30,63 @@ struct tClipInfo/*size:9*/ {
 };
 
 /*OSI routines (asm)*/
-extern cdecl C_2ABF_00A7();/*MOUSE_SERVE*/
+extern cdecl MOUSE_SERVE();/*MOUSE_SERVE*/
 
 /*other game modules*/
-extern C_0268_0574();/*PaletteAnimation*/
-extern C_0359_0B23(int16);/*DrawMapWindow*/
-extern C_0359_0CD4();/*DisplayTick*/
-extern C_0359_11B6(int16);/*PassTime(minutes)*/
-extern int16 C_05D0_0004(int16, int16, int16, int16);/*CON_mouseOffAt(x0, y0, x1, y1)*/
-extern C_05D0_004D(int16);/*CON_mouseOn*/
-extern int16 C_05D0_22C8();/*CON_getch*/
-extern C_05D0_2494(char *, int16);/*CON_gets(buffer, max length)*/
-extern C_05D0_25AD(struct tClipInfo *);/*CON_setClip*/
-extern C_05D0_25E4(int16, int16);/*CON_gotoxy*/
-extern cdecl C_05D0_2DB9(char far *, ...);/*CON_printf*/
-extern C_08CB_053A();/*MAP_LoadAround*/
-extern C_09DA_0327();/*VIS_UpdateView*/
-extern int16 C_0A5D_0677(int16, int16, int16);/*OBJ_FindTypeAt(type, x, y)*/
-extern int16 C_0A5D_0EB6(int16, int16, int16, int16, int16, int16);/*AddMapObj(type, status, quantity, x, y, z)*/
-extern C_0A5D_1506(int16);/*DeleteObj*/
-extern int16 C_0A5D_1BF3(int16, int16);/*OBJ_IsInside(objNum, container)*/
-extern C_0A5D_22F7(int16, int16, int16);/*TakeObj(objNum, type, quantity)*/
-extern C_0A5D_3577();/*ShowObjects*/
-extern C_0E13_0BA1();/*STAT_DrawInventory*/
-extern char *C_0F8D_0094(int16);/*TALK_GetNpcName*/
-extern C_130F_11F4(int16, int16);/*turns an NPC to a direction (U6: UpdateMoveFrame)*/
-extern int16 C_130F_3AB8(int16, int16, int16);/*TryMoveTo(npc, x, y): 0 if moved*/
-extern int16 C_1810_062A(int16);/*MaxHP*/
-extern C_1810_0664(int16);/*puts an NPC to sleep (U6: SetTypeUnconscious?)*/
-extern int16 C_1810_0CA4(int16, int16);/*(U6: COMBAT_canSee)*/
-extern C_1DBD_0D8F(int16);
+extern PaletteAnimation();/*PaletteAnimation*/
+extern DrawMapWindow(int16);/*DrawMapWindow*/
+extern DisplayTick();/*DisplayTick*/
+extern PassTime(int16);/*PassTime(minutes)*/
+extern int16 CON_mouseOffAt(int16, int16, int16, int16);/*CON_mouseOffAt(x0, y0, x1, y1)*/
+extern CON_mouseOn(int16);/*CON_mouseOn*/
+extern int16 CON_getch();/*CON_getch*/
+extern CON_gets(char *, int16);/*CON_gets(buffer, max length)*/
+extern CON_setClip(struct tClipInfo *);/*CON_setClip*/
+extern CON_gotoxy(int16, int16);/*CON_gotoxy*/
+extern cdecl CON_printf(char far *, ...);/*CON_printf*/
+extern MAP_LoadAround();/*MAP_LoadAround*/
+extern VIS_UpdateView();/*VIS_UpdateView*/
+extern int16 OBJ_FindTypeAt(int16, int16, int16);/*OBJ_FindTypeAt(type, x, y)*/
+extern int16 AddMapObj(int16, int16, int16, int16, int16, int16);/*AddMapObj(type, status, quantity, x, y, z)*/
+extern DeleteObj(int16);/*DeleteObj*/
+extern int16 OBJ_IsInside(int16, int16);/*OBJ_IsInside(objNum, container)*/
+extern TakeObj(int16, int16, int16);/*TakeObj(objNum, type, quantity)*/
+extern ShowObjects();/*ShowObjects*/
+extern STAT_DrawInventory();/*STAT_DrawInventory*/
+extern char *TALK_GetNpcName(int16);/*TALK_GetNpcName*/
+extern UpdateMoveFrame(int16, int16);/*turns an NPC to a direction (U6: UpdateMoveFrame)*/
+extern int16 TryMoveTo(int16, int16, int16);/*TryMoveTo(npc, x, y): 0 if moved*/
+extern int16 MaxHP(int16);/*MaxHP*/
+extern SetTypeUnconscious(int16);/*puts an NPC to sleep (U6: SetTypeUnconscious?)*/
+extern int16 COMBAT_canSee(int16, int16);/*(U6: COMBAT_canSee)*/
+extern ShowPortrait(int16);
 extern C_2701_023F();/*plays the morning song*/
-extern C_276B_23CA(int16);
-extern char far C_2F65_020D[];/*NotOnShipMsg*/
-extern char far C_2F65_029D[];/*NotInSoloMsg*/
-extern char far C_2F65_02B0[];/*NotInCombatMsg*/
+extern ClearMapWindow(int16);
+extern char far NotOnShipMsg[];/*NotOnShipMsg*/
+extern char far NotInSoloMsg[];/*NotInSoloMsg*/
+extern char far NotInCombatMsg[];/*NotInCombatMsg*/
 
-extern unsigned char D_00D8;/*MouseOn*/
-extern char D_0202;/*StatusDirty*/
-extern int16 D_0206;/*IdleAnimTick*/
-extern char D_03A4;/*SelectMode*/
-extern char D_03AE;/*AnimateAtPrompt*/
-extern int16 D_03B1;
-extern int16 D_03C5;/*StatusMember*/
-extern int16 D_03CD;/*StatusDisplay: 0x90 a member, 0x91 the party, 0x92 the equipment*/
-extern struct tClipInfo *D_03EC;/*CurClip*/
-extern char D_08A2;
-extern char D_0A39;
-extern int16 D_24D6;/*ScreenFade*/
+extern unsigned char MouseOn;/*MouseOn*/
+extern char StatusDirty;/*StatusDirty*/
+extern int16 IdleAnimTick;/*IdleAnimTick*/
+extern char SelectMode;/*SelectMode*/
+extern char AnimateAtPrompt;/*AnimateAtPrompt*/
+extern int16 EndPagingAtPrompt;
+extern int16 StatusMember;/*StatusMember*/
+extern int16 StatusDisplay;/*StatusDisplay: 0x90 a member, 0x91 the party, 0x92 the equipment*/
+extern struct tClipInfo *CurClip;/*CurClip*/
+extern char PartyListTop;
+extern char IsInConversation;
+extern int16 ScreenFade;/*ScreenFade*/
 extern int16 D_24E6;/*ColorText*/
 extern int16 D_24F0;/*text color of the dream's question*/
-extern unsigned char D_27E9;/*NextSleep: hours before the party can eat and heal again*/
-extern unsigned char D_27EB;/*Time_H*/
-extern unsigned char D_27F2;/*Active*/
-extern int16 D_27F4, D_27F6, D_27F8;/*MapX, MapY, MapZ*/
-extern int16 D_2810;/*sound on*/
-extern char D_2860;/*InCombat*/
-extern char D_2861;/*SoloMember*/
+extern unsigned char NextSleep;/*NextSleep: hours before the party can eat and heal again*/
+extern unsigned char Time_H;/*Time_H*/
+extern unsigned char Active;/*Active*/
+extern int16 MapX, MapY, MapZ;/*MapX, MapY, MapZ*/
+extern int16 SoundFlag;/*sound on*/
+extern char InCombat;/*InCombat*/
+extern char SoloMember;/*SoloMember*/
 extern unsigned char D_329C[];/*ObjStatus*/
 extern unsigned char D_44FA[];/*MovePts*/
 extern unsigned char D_4606[];/*DEXTE*/
@@ -110,24 +110,24 @@ extern union tHandler D_ED10;/*GrDriver*/
 /*Savage Empire's library*/
 extern int16 cdecl soundCard;
 
-#define MouseOn D_00D8
-#define StatusDirty D_0202
-#define IdleAnimTick D_0206
-#define SelectMode D_03A4
-#define AnimateAtPrompt D_03AE
-#define StatusMember D_03C5
-#define StatusDisplay D_03CD
-#define CurClip D_03EC
-#define ScreenFade D_24D6
+#define MouseOn MouseOn
+#define StatusDirty StatusDirty
+#define IdleAnimTick IdleAnimTick
+#define SelectMode SelectMode
+#define AnimateAtPrompt AnimateAtPrompt
+#define StatusMember StatusMember
+#define StatusDisplay StatusDisplay
+#define CurClip CurClip
+#define ScreenFade ScreenFade
 #define ColorText D_24E6
-#define NextSleep D_27E9
-#define Time_H D_27EB
-#define Active D_27F2
-#define MapX D_27F4
-#define MapY D_27F6
-#define MapZ D_27F8
-#define InCombat D_2860
-#define SoloMember D_2861
+#define NextSleep NextSleep
+#define Time_H Time_H
+#define Active Active
+#define MapX MapX
+#define MapY MapY
+#define MapZ MapZ
+#define InCombat InCombat
+#define SoloMember SoloMember
 #define ObjStatus D_329C
 #define MovePts D_44FA
 #define DEXTE D_4606
@@ -147,31 +147,31 @@ extern int16 cdecl soundCard;
 #define Link D_C17C
 #define GrDriver D_ED10
 
-#define PaletteAnimation C_0268_0574
-#define DrawMapWindow C_0359_0B23
-#define DisplayTick C_0359_0CD4
-#define PassTime C_0359_11B6
-#define CON_mouseOffAt C_05D0_0004
-#define CON_mouseOn C_05D0_004D
-#define CON_getch C_05D0_22C8
-#define CON_gets C_05D0_2494
-#define CON_setClip C_05D0_25AD
-#define CON_gotoxy C_05D0_25E4
-#define CON_printf C_05D0_2DB9
-#define MAP_LoadAround C_08CB_053A
-#define VIS_UpdateView C_09DA_0327
-#define OBJ_FindTypeAt C_0A5D_0677
-#define AddMapObj C_0A5D_0EB6
-#define DeleteObj C_0A5D_1506
-#define OBJ_IsInside C_0A5D_1BF3
-#define TakeObj C_0A5D_22F7
-#define ShowObjects C_0A5D_3577
-#define STAT_DrawInventory C_0E13_0BA1
-#define TALK_GetNpcName C_0F8D_0094
-#define UpdateMoveFrame C_130F_11F4
-#define TryMoveTo C_130F_3AB8
-#define MaxHP C_1810_062A
-#define MOUSE_SERVE C_2ABF_00A7
+#define PaletteAnimation PaletteAnimation
+#define DrawMapWindow DrawMapWindow
+#define DisplayTick DisplayTick
+#define PassTime PassTime
+#define CON_mouseOffAt CON_mouseOffAt
+#define CON_mouseOn CON_mouseOn
+#define CON_getch CON_getch
+#define CON_gets CON_gets
+#define CON_setClip CON_setClip
+#define CON_gotoxy CON_gotoxy
+#define CON_printf CON_printf
+#define MAP_LoadAround MAP_LoadAround
+#define VIS_UpdateView VIS_UpdateView
+#define OBJ_FindTypeAt OBJ_FindTypeAt
+#define AddMapObj AddMapObj
+#define DeleteObj DeleteObj
+#define OBJ_IsInside OBJ_IsInside
+#define TakeObj TakeObj
+#define ShowObjects ShowObjects
+#define STAT_DrawInventory STAT_DrawInventory
+#define TALK_GetNpcName TALK_GetNpcName
+#define UpdateMoveFrame UpdateMoveFrame
+#define TryMoveTo TryMoveTo
+#define MaxHP MaxHP
+#define MOUSE_SERVE MOUSE_SERVE
 
 #define GR_PUT_TILE_SCREEN(tile,x,y) (GrDriver.iii.ofs = 0x2d, (*GrDriver.f)(tile,x,y))
 
@@ -256,7 +256,7 @@ static /*C_29D8_0081*/TryEat(int16 partyNum) {
 
 /*check others near ("It's too noisy"):
   returns 1 if an NPC (NPCStatus without 0x10, 0x04, 0x80) is within
-  5 tiles on this level and C_1810_0CA4 says yes*/
+  5 tiles on this level and COMBAT_canSee says yes*/
 /*C_29D8_014B*/static REST_OthersNear() {
 	int16 objNum;
 
@@ -267,7 +267,7 @@ static /*C_29D8_0081*/TryEat(int16 partyNum) {
 			!(NPCStatus[objNum] & 0x80) &&
 			CLOSE_ENOUGH(5, GetX(objNum), GetY(objNum), MapX, MapY) &&
 			GetZ(objNum) == MapZ &&
-			C_1810_0CA4(1, objNum)
+			COMBAT_canSee(1, objNum)
 		) return 1;
 	}
 	return 0;
@@ -294,10 +294,10 @@ static /*C_29D8_0081*/TryEat(int16 partyNum) {
 		pronoun[1] = 'h';
 		pronoun[0] = 'S';
 	}
-	D_0A39 = 1;
+	IsInConversation = 1;
 	AnimateAtPrompt = 0;
-	C_276B_23CA(1);
-	C_1DBD_0D8F(npc);
+	ClearMapWindow(1);
+	ShowPortrait(npc);
 	savedDisplay = StatusDisplay;
 	savedMember = StatusMember;
 	savedB6B6 = D_B6B6;
@@ -342,9 +342,9 @@ static /*C_29D8_0081*/TryEat(int16 partyNum) {
 			break;
 	}
 	CurClip->fgColor = ColorText;
-	D_0A39 = 0;
+	IsInConversation = 0;
 	CON_setClip(savedClip);
-	D_03B1 = 1;
+	EndPagingAtPrompt = 1;
 	D_B6B6 = savedB6B6;
 	AnimateAtPrompt = 1;
 	GR_PUT_TILE_SCREEN(0x164, 0x40, 0);
@@ -354,7 +354,7 @@ static /*C_29D8_0081*/TryEat(int16 partyNum) {
 	DrawMapWindow(0);
 	if(StatusMember == PartySize) {
 		StatusMember = 0;
-		D_08A2 = 0;
+		PartyListTop = 0;
 		StatusDisplay = 0x91;
 	} else {
 		StatusDisplay = savedDisplay;
@@ -386,7 +386,7 @@ static /*C_29D8_0081*/TryEat(int16 partyNum) {
 	wasSelectMode = SelectMode;
 	if(InCombat) {
 		CON_printf("\n");
-		CON_printf(C_2F65_02B0);
+		CON_printf(NotInCombatMsg);
 		return;
 	}
 	if(REST_FoesNear()) {
@@ -400,12 +400,12 @@ static /*C_29D8_0081*/TryEat(int16 partyNum) {
 	}
 	if(SoloMember != -1) {
 		CON_printf("\n");
-		CON_printf(C_2F65_029D);
+		CON_printf(NotInSoloMsg);
 		return;
 	}
 	if(Active == PartySize) {
 		CON_printf("\n");
-		CON_printf(C_2F65_020D);
+		CON_printf(NotOnShipMsg);
 		return;
 	}
 	for(i = 0; i < PartySize; i ++) {
@@ -491,7 +491,7 @@ static /*C_29D8_0081*/TryEat(int16 partyNum) {
 	/*everybody (but NPC 11) sleeps on a bedroll*/
 	for(i = 0; i < PartySize; i ++) {
 		if(Party[i] != 11) {
-			C_1810_0664(Party[i]);
+			SetTypeUnconscious(Party[i]);
 			obj = AddMapObj(0xf6, 0x20, 0, GetX(Party[i]), GetY(Party[i]), GetZ(Party[i]));
 			ObjShapeType[obj] = GetType(obj) + 0x400;
 		}
@@ -529,6 +529,6 @@ static /*C_29D8_0081*/TryEat(int16 partyNum) {
 	MAP_LoadAround();
 	DisplayTick();
 	CON_mouseOn(mouseState);
-	if(D_2810 && soundCard != 3)
+	if(SoundFlag && soundCard != 3)
 		C_2701_023F();
 }

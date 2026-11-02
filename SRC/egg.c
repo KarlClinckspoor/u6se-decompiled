@@ -19,22 +19,22 @@
 #undef abs
 
 /*monster tables (monsdata.c, far segment 2F43)*/
-extern int16 far C_2F43_0000[];/*MonsterTypes*/
-extern unsigned char far C_2F43_0062[];/*MonsterStr*/
-extern unsigned char far C_2F43_0092[];/*MonsterDex*/
-extern unsigned char far C_2F43_00C2[];/*MonsterInt*/
-extern unsigned char far C_2F43_0152[];/*MonsterHP*/
-extern unsigned char far C_2F43_0182[];/*MonsterAlignment*/
-extern char far C_2F65_0162[];/*HearSomethingMsg: "You hear something to the %s!\n"*/
+extern int16 far MonsterTypes[];/*MonsterTypes*/
+extern unsigned char far MonsterStr[];/*MonsterStr*/
+extern unsigned char far MonsterDex[];/*MonsterDex*/
+extern unsigned char far MonsterInt[];/*MonsterInt*/
+extern unsigned char far MonsterHP[];/*MonsterHP*/
+extern unsigned char far MonsterAlignment[];/*MonsterAlignment*/
+extern char far HearSomethingMsg[];/*HearSomethingMsg: "You hear something to the %s!\n"*/
 
 extern char DirIncrX[];
 extern char DirIncrY[];
 extern char *DirNames[];
-extern char D_0203;/*PromptFlag*/
-extern unsigned char D_03D7, D_03D8;/*DirOriginX, DirOriginY: screen position of the party*/
-extern int16 D_0D4B;/*EnemyWarningGiven*/
-extern unsigned char D_0DE6[8][8];/*RangeTable*/
-extern int16 D_27F4, D_27F6, D_27F8;/*MapX, MapY, MapZ*/
+extern char PromptFlag;/*PromptFlag*/
+extern unsigned char DirOriginX, DirOriginY;/*DirOriginX, DirOriginY: screen position of the party*/
+extern int16 EnemyWarningGiven;/*EnemyWarningGiven*/
+extern unsigned char RangeTable[8][8];/*RangeTable*/
+extern int16 MapX, MapY, MapZ;/*MapX, MapY, MapZ*/
 extern unsigned char far *D_3298;/*MAGIC?*/
 extern unsigned char D_329C[];/*ObjStatus*/
 extern char D_44FA[];/*MovePts*/
@@ -61,23 +61,23 @@ extern int16 D_EC72[3];/*parts of a multi-tile creature: log2 of the number of f
 extern int16 D_EC78[3];/*parts of a multi-tile creature: object types (-1 ends)*/
 extern struct coord D_EC7E;/*position of a new part*/
 
-extern int16 C_05D0_0066(int16, int16);/*MkDirection*/
-extern cdecl C_05D0_2DB9(char far *, ...);/*CON_printf*/
+extern int16 MkDirection(int16, int16);/*MkDirection*/
+extern cdecl CON_printf(char far *, ...);/*CON_printf*/
 extern unsigned char GetTileAtXYZ(int16, int16, int16);
-extern int16 C_0A5D_0739(int16);/*FindInv*/
-extern int16 C_0A5D_0792(void);/*NextInv*/
-extern int16 C_0A5D_0873(void);/*NextArea*/
-extern int16 C_0A5D_0943(int16, int16, int16, int16);/*SearchArea*/
+extern int16 FindInv(int16);/*FindInv*/
+extern int16 NextInv(void);/*NextInv*/
+extern int16 NextArea(void);/*NextArea*/
+extern int16 SearchArea(int16, int16, int16, int16);/*SearchArea*/
 extern C_0A5D_0D5B(int16, int16 *, int16 *);/*the parts of a multi-tile type*/
 extern int16 C_0A5D_0DEF(int16);/*multi-tile type?*/
-extern int16 C_0A5D_0E57(int16, struct coord, int16, int16, int16);/*AddObj*/
-extern int16 C_0A5D_0EB6(int16, int16, int16, int16, int16, int16);/*AddMapObj*/
-extern int16 C_0A5D_102A(int16, int16, int16, int16);/*AddInvObj*/
-extern int16 C_0A5D_12B4(int16, int16, int16, int16);/*AddMonster*/
-extern C_0A5D_1506(int16);/*DeleteObj*/
-extern int16 C_0A5D_213E(int16);/*QuanType*/
+extern int16 AddObj(int16, struct coord, int16, int16, int16);/*AddObj*/
+extern int16 AddMapObj(int16, int16, int16, int16, int16, int16);/*AddMapObj*/
+extern int16 AddInvObj(int16, int16, int16, int16);/*AddInvObj*/
+extern int16 AddMonster(int16, int16, int16, int16);/*AddMonster*/
+extern DeleteObj(int16);/*DeleteObj*/
+extern int16 QuanType(int16);/*QuanType*/
 extern int16 C_130F_0002(int16);
-extern int16 C_1810_0394(int16, int16);/*COMBAT_TryTeleport*/
+extern int16 COMBAT_TryTeleport(int16, int16);/*COMBAT_TryTeleport*/
 extern int16 C_1DBD_18FD(int16, int16);
 extern C_2701_04A7();
 extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
@@ -101,7 +101,7 @@ extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 	delta_y = abs(y1 - y0);
 	if(delta_x > 7 || delta_y > 7)
 		return 8;
-	return D_0DE6[delta_x][delta_y];
+	return RangeTable[delta_x][delta_y];
 }
 
 /*monster class of an object type (index in the monsdata.c tables,
@@ -113,7 +113,7 @@ extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 		return D_EC70;
 	D_EC6E = objType;
 	D_EC70 = 0;
-	for(p = C_2F43_0000 + 1; *p; p ++) {
+	for(p = MonsterTypes + 1; *p; p ++) {
 		if(*p == objType)
 			return D_EC70;
 		D_EC70 ++;
@@ -132,13 +132,13 @@ extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 /*the possessions of a new creature*/
 /*C_2667_00DA*/EGG_GivePossessions(int16 objNum) {
 	if(GetType(objNum) == 0x140) {
-		C_0A5D_102A(0x21, 0x38, 0, objNum);
-		C_0A5D_102A(0x09, 0x38, 0, objNum);
+		AddInvObj(0x21, 0x38, 0, objNum);
+		AddInvObj(0x09, 0x38, 0, objNum);
 	} else if(GetType(objNum) == 0x13c) {
-		if(C_0A5D_102A(0x20, 0x38, 0, objNum) >= 0)
-			C_0A5D_102A(0x24, 0x30, 0x1e, objNum);
+		if(AddInvObj(0x20, 0x38, 0, objNum) >= 0)
+			AddInvObj(0x24, 0x30, 0x1e, objNum);
 		else
-			C_0A5D_102A(0x19, 0x38, 0, objNum);
+			AddInvObj(0x19, 0x38, 0, objNum);
 	}
 	return;
 }
@@ -151,19 +151,19 @@ extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 	int16 objNum, i, j;
 	int16 objClass, partObj;
 
-	objNum = C_0A5D_12B4(objType, x, y, z);
+	objNum = AddMonster(objType, x, y, z);
 	if(objNum < 0)
 		return objNum;
 	if((objClass = GetMonsterClass(objType)) >= 0) {
-		D_53E8[objNum] = mkRandom(C_2F43_0062[objClass + 1]);
-		D_4606[objNum] = mkRandom(C_2F43_0092[objClass + 1]);
-		D_7644[objNum] = mkRandom(C_2F43_00C2[objClass + 1]);
-		D_6DF4[objNum] = mkRandom(C_2F43_0152[objClass + 1]);
+		D_53E8[objNum] = mkRandom(MonsterStr[objClass + 1]);
+		D_4606[objNum] = mkRandom(MonsterDex[objClass + 1]);
+		D_7644[objNum] = mkRandom(MonsterInt[objClass + 1]);
+		D_6DF4[objNum] = mkRandom(MonsterHP[objClass + 1]);
 		D_4EEC[objNum] = 0;
 		if(objType == 0x13c && !(D_6EFC[0x35] & 0x80))
 			D_6CF0[objNum] = 0x60;
 		else
-			D_6CF0[objNum] = C_2F43_0182[objClass + 1];
+			D_6CF0[objNum] = MonsterAlignment[objClass + 1];
 	} else {
 		D_53E8[objNum] =
 		D_4606[objNum] =
@@ -192,10 +192,10 @@ extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 					(D_B4FA[D_6EF4[GetType(objNum)] + GetFrame(objNum)] & (0x80 >> j)) &&
 					(D_B4FA[D_6EF4[D_EC78[i]] + (1 << D_EC72[i]) - 1] & (0x80 >> ((j + 2) % 4)))
 				) {
-					D_EC7E.raw[2] = D_27F8 << 4;
+					D_EC7E.raw[2] = MapZ << 4;
 					*(int16 *)&(D_EC7E.raw[0]) = x + DirIncrX[j * 2];
 					*(int16 *)&(D_EC7E.raw[1]) |= (y + DirIncrY[j * 2]) << 2;
-					partObj = C_0A5D_0E57(0, D_EC7E, D_EC78[i], (1 << D_EC72[i]) - 1, 0);
+					partObj = AddObj(0, D_EC7E, D_EC78[i], (1 << D_EC72[i]) - 1, 0);
 					GetQual(partObj) = objNum;
 					break;
 				}
@@ -205,7 +205,7 @@ extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 		D_9CFA[objNum] = GetType(objNum);
 		GetQual(objNum) = 4;
 		for(i = 0; i < 8; i += 2) {
-			partObj = EGG_generate(0x11a, x + DirIncrX[i], y + DirIncrY[i], D_27F8);
+			partObj = EGG_generate(0x11a, x + DirIncrX[i], y + DirIncrY[i], MapZ);
 			if(partObj >= 0) {
 				D_4602[partObj] = (D_4602[partObj] & 0xf8) | i;
 				GetQual(partObj) = objNum;
@@ -247,7 +247,7 @@ extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 		if(C_2B57_001F(1, 100) <= GetQuan(egg_objNum)) {
 			hostileOffscreen = 0;
 			isFirstBorn = 1;
-			for(embryo_objNum = C_0A5D_0739(egg_objNum); embryo_objNum >= 0; embryo_objNum = C_0A5D_0792()) {
+			for(embryo_objNum = FindInv(egg_objNum); embryo_objNum >= 0; embryo_objNum = NextInv()) {
 				/*two copies of the embryo's type (U6: type and type + mutant flag)*/
 				objTyp =
 				typParam = GetType(embryo_objNum);
@@ -257,7 +257,7 @@ extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 				if(typParam == 0x143) {
 					if(onlyOne)
 						numMonsters = 1;
-					else if(D_27F8 == 1)
+					else if(MapZ == 1)
 						numMonsters = C_2B57_001F(5, 15);
 				} else if(!(typParam == 0x12d || typParam == 0x11a || (typParam >= 0x136 && typParam <= 0x146))) {
 					numMonsters = 1;
@@ -269,26 +269,26 @@ extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 				for(i = 0; i < numMonsters; i ++) {
 					if(objTyp < 0x11a) {
 						/*not a creature: plain object*/
-						if(C_0A5D_213E(objTyp))
+						if(QuanType(objTyp))
 							quan = 1;
 						else
 							quan = 0;
 						if(objTyp == 0xa7) {
-							monster = C_0A5D_0EB6(objTyp, 0x20, quan, GetX(egg_objNum), GetY(egg_objNum), D_27F8);
+							monster = AddMapObj(objTyp, 0x20, quan, GetX(egg_objNum), GetY(egg_objNum), MapZ);
 							D_9CFA[monster] = GetType(monster) + (3 << 10);
 						} else {
 							rx = GetX(egg_objNum) + C_2B57_001F(0, 6) - 3;
 							ry = GetY(egg_objNum) + C_2B57_001F(0, 6) - 3;
 							if(
 								!C_1DBD_18FD(rx, ry) &&
-								!(D_B4FA[GetTileAtXYZ(rx, ry, D_27F8)] & 2) &&
-								!(D_B4FA[GetTileAtXYZ(rx, ry, D_27F8)] & 4)
-							) monster = C_0A5D_0EB6(objTyp, 0x20, quan, rx, ry, D_27F8);
+								!(D_B4FA[GetTileAtXYZ(rx, ry, MapZ)] & 2) &&
+								!(D_B4FA[GetTileAtXYZ(rx, ry, MapZ)] & 4)
+							) monster = AddMapObj(objTyp, 0x20, quan, rx, ry, MapZ);
 						}
 						if(monster >= 0 && (objTyp == 0x7f || objTyp == 0xcb))
 							GetQuan(monster) = 5;
 					} else {
-						monster = EGG_generate(typParam, GetX(egg_objNum), GetY(egg_objNum), D_27F8);
+						monster = EGG_generate(typParam, GetX(egg_objNum), GetY(egg_objNum), MapZ);
 						if(monster >= 0) {
 							if(D_6CF0[monster] & 0x20)
 								hostileOffscreen = 1;
@@ -300,8 +300,8 @@ extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 					}
 					if(monster >= 0) {
 						if(!isFirstBorn) {
-							if(!C_1810_0394(monster, onScreenNotOk))
-								C_0A5D_1506(monster);
+							if(!COMBAT_TryTeleport(monster, onScreenNotOk))
+								DeleteObj(monster);
 						} else {
 							isFirstBorn = 0;
 						}
@@ -309,14 +309,14 @@ extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 				}
 			}
 			/*"You hear something to the <dir>"*/
-			if(!D_0D4B && hostileOffscreen) {
-				x = GetX(egg_objNum) - D_27F4;
-				y = GetY(egg_objNum) - D_27F6;
-				dir = C_05D0_0066((x << 4) + D_03D7, (y << 4) + D_03D8);
+			if(!EnemyWarningGiven && hostileOffscreen) {
+				x = GetX(egg_objNum) - MapX;
+				y = GetY(egg_objNum) - MapY;
+				dir = MkDirection((x << 4) + DirOriginX, (y << 4) + DirOriginY);
 				C_2701_04A7();
-				C_05D0_2DB9(C_2F65_0162, DirNames[dir]);
-				D_0203 = 1;
-				D_0D4B = 1;
+				CON_printf(HearSomethingMsg, DirNames[dir]);
+				PromptFlag = 1;
+				EnemyWarningGiven = 1;
 			}
 		}
 	}
@@ -334,12 +334,12 @@ extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 		return;
 	x = D_BAFE;
 	y = D_BB00;
-	for(objNum = C_0A5D_0943(x, y, x + 39, y + 39); objNum >= 0; objNum = C_0A5D_0873()) {
+	for(objNum = SearchArea(x, y, x + 39, y + 39); objNum >= 0; objNum = NextArea()) {
 		x = GetX(objNum);
 		y = GetY(objNum);
 		objTyp = GetType(objNum);
-		if(objTyp == 0xe6 && GetZ(objNum) == D_27F8) {
-			if(ForceHatching || !CLOSE_ENOUGH(8, x, y, D_27F4, D_27F6))
+		if(objTyp == 0xe6 && GetZ(objNum) == MapZ) {
+			if(ForceHatching || !CLOSE_ENOUGH(8, x, y, MapX, MapY))
 				EGG_hatches(objNum);
 		}
 	}

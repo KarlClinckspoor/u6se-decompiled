@@ -42,30 +42,30 @@
 #define BLK_OBJNUM(i) (*(int16 far *)&ScratchBuf[((i) << 1) + 0x4000])
 
 /*OSI file routines (asm)*/
-extern int16 C_0000_0245(char *);/*OSI_open*/
-extern C_0000_0284(int16);/*OSI_close*/
-extern int16 C_0000_02B8(char *);/*OSI_create*/
-extern C_0000_02F8(char *);/*OSI_delete*/
-extern int32 C_0000_0336(int16, int32, int32, void far *);/*OSI_read*/
-extern int32 C_0000_041C(int16, int32, int32, void far *);/*OSI_write*/
-extern C_0000_04E1(char *, char *);/*OSI_rename*/
+extern int16 OSI_open(char *);/*OSI_open*/
+extern OSI_close(int16);/*OSI_close*/
+extern int16 OSI_create(char *);/*OSI_create*/
+extern OSI_delete(char *);/*OSI_delete*/
+extern int32 OSI_read(int16, int32, int32, void far *);/*OSI_read*/
+extern int32 OSI_write(int16, int32, int32, void far *);/*OSI_write*/
+extern OSI_rename(char *, char *);/*OSI_rename*/
 extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 extern void far *LZC_load(char far *name, int16 index, void far *out, int16 memflags, char far *work);
 
 /*other game modules*/
-extern char D_00AC[];/*DirIncrX*/
-extern char D_00B4[];/*DirIncrY*/
-extern unsigned char D_0202;/*StatusDirty*/
-extern int16 D_0208;/*MapAnimEnabled*/
-extern int16 D_020A;/*Erupting?*/
-extern int16 D_03C5;/*StatusMember*/
-extern int16 D_03CD;/*StatusDisplay: 0x92 when the equipment view is shown*/
-extern int16 D_04C2;/*MapCoordMask*/
-extern int16 D_069C, D_069E;/*ViewX, ViewY*/
-extern int16 D_0D45;/*VisibilityDirty*/
-extern int16 D_27F4, D_27F6, D_27F8;/*MapX, MapY, MapZ*/
+extern char DirIncrX[];/*DirIncrX*/
+extern char DirIncrY[];/*DirIncrY*/
+extern unsigned char StatusDirty;/*StatusDirty*/
+extern int16 MapAnimEnabled;/*MapAnimEnabled*/
+extern int16 Erupting;/*Erupting?*/
+extern int16 StatusMember;/*StatusMember*/
+extern int16 StatusDisplay;/*StatusDisplay: 0x92 when the equipment view is shown*/
+extern int16 MapCoordMask;/*MapCoordMask*/
+extern int16 ViewX, ViewY;/*ViewX, ViewY*/
+extern int16 VisibilityDirty;/*VisibilityDirty*/
+extern int16 MapX, MapY, MapZ;/*MapX, MapY, MapZ*/
 extern unsigned char D_27FB;
-extern int16 D_2A7A;/*DiskFullChoice*/
+extern int16 DiskFullChoice;/*DiskFullChoice*/
 extern unsigned char D_329C[];/*ObjStatus*/
 extern char far *D_3EB6;/*the .lzc loader's work area*/
 extern unsigned char D_3EBA[AREA_H][AREA_W];/*AreaFlags*/
@@ -110,34 +110,34 @@ extern int16 D_E668;/*WeightEquip*/
 extern int16 D_E66A;/*WeightInven*/
 extern int16 D_EADE;
 
-extern C_0359_1014(int16);/*ApplyTerrainEffects*/
-extern cdecl C_05D0_2DB9(char far *, ...);/*CON_printf*/
-extern int16 C_0E13_05A6(int16);/*GetWeight*/
-extern int16 C_0E13_05FC(int16, int16);/*GetTypeWeight*/
-extern C_0E13_0672(int16);/*STAT_ComputeWeights*/
-extern C_0E13_0E54(int16);/*STAT_RefreshInventory*/
+extern ApplyTerrainEffects(int16);/*ApplyTerrainEffects*/
+extern cdecl CON_printf(char far *, ...);/*CON_printf*/
+extern int16 GetWeight(int16);/*GetWeight*/
+extern int16 GetTypeWeight(int16, int16);/*GetTypeWeight*/
+extern STAT_ComputeWeights(int16);/*STAT_ComputeWeights*/
+extern STAT_RefreshInventory(int16);/*STAT_RefreshInventory*/
 extern int16 C_130F_0070(int16);
 extern int16 C_130F_00CA(int16);
-extern int16 C_130F_1003(int16);
-extern C_130F_1DCC(int16, int16);
-extern int16 C_1810_062A(int16);/*MaxHP*/
-extern int16 C_1DBD_0A02(int16);/*IsContainerType*/
-extern C_2A81_0098(int16);/*DISK_confirm*/
+extern int16 IsOutOfArea(int16);
+extern SubMov(int16, int16);
+extern int16 MaxHP(int16);/*MaxHP*/
+extern int16 IsContainerType(int16);/*IsContainerType*/
+extern DISK_confirm(int16);/*DISK_confirm*/
 
-#define DirIncrX D_00AC
-#define DirIncrY D_00B4
-#define StatusDirty D_0202
-#define MapAnimEnabled D_0208
-#define StatusMember D_03C5
-#define StatusDisplay D_03CD
-#define MapCoordMask D_04C2
-#define ViewX D_069C
-#define ViewY D_069E
-#define VisibilityDirty D_0D45
-#define MapX D_27F4
-#define MapY D_27F6
-#define MapZ D_27F8
-#define DiskFullChoice D_2A7A
+#define DirIncrX DirIncrX
+#define DirIncrY DirIncrY
+#define StatusDirty StatusDirty
+#define MapAnimEnabled MapAnimEnabled
+#define StatusMember StatusMember
+#define StatusDisplay StatusDisplay
+#define MapCoordMask MapCoordMask
+#define ViewX ViewX
+#define ViewY ViewY
+#define VisibilityDirty VisibilityDirty
+#define MapX MapX
+#define MapY MapY
+#define MapZ MapZ
+#define DiskFullChoice DiskFullChoice
 #define ObjStatus D_329C
 #define AreaFlags D_3EBA
 #define NPCFlag D_4602
@@ -175,23 +175,23 @@ extern C_2A81_0098(int16);/*DISK_confirm*/
 #define WeightEquip D_E668
 #define WeightInven D_E66A
 
-#define OSI_open C_0000_0245
-#define OSI_close C_0000_0284
-#define OSI_create C_0000_02B8
-#define OSI_delete C_0000_02F8
-#define OSI_read C_0000_0336
-#define OSI_write C_0000_041C
-#define OSI_rename C_0000_04E1
+#define OSI_open OSI_open
+#define OSI_close OSI_close
+#define OSI_create OSI_create
+#define OSI_delete OSI_delete
+#define OSI_read OSI_read
+#define OSI_write OSI_write
+#define OSI_rename OSI_rename
 #define OSI_rand C_2B57_001F
-#define ApplyTerrainEffects C_0359_1014
-#define CON_printf C_05D0_2DB9
-#define GetWeight C_0E13_05A6
-#define GetTypeWeight C_0E13_05FC
-#define STAT_ComputeWeights C_0E13_0672
-#define STAT_RefreshInventory C_0E13_0E54
-#define MaxHP C_1810_062A
-#define IsContainerType C_1DBD_0A02
-#define DISK_confirm C_2A81_0098
+#define ApplyTerrainEffects ApplyTerrainEffects
+#define CON_printf CON_printf
+#define GetWeight GetWeight
+#define GetTypeWeight GetTypeWeight
+#define STAT_ComputeWeights STAT_ComputeWeights
+#define STAT_RefreshInventory STAT_RefreshInventory
+#define MaxHP MaxHP
+#define IsContainerType IsContainerType
+#define DISK_confirm DISK_confirm
 
 /*this module*/
 int16 C_0A5D_0D5B(int16, int16 *, int16 *);
@@ -973,7 +973,7 @@ int16 QuanType(int16);
 		STAT_RefreshInventory(Party[StatusMember]);
 		return -1;
 	}
-	C_130F_1DCC(owner, 3);
+	SubMov(owner, 3);
 	if(QuanType(shapeType) && coordUse != EQUIP) {
 		for(obj = FindInvType(owner, shapeType, -1); obj != -1; obj = NextInvType()) {
 			if(GetQuan(obj) + amount < 0x90 && GetCoordUse(obj) != EQUIP && IsHatched(obj) == 0)
@@ -1312,7 +1312,7 @@ int16 QuanType(int16);
 	if(StatusDisplay == 0x92 && OBJ_IsInside(objNum, Party[StatusMember]))
 		StatusDirty = 1;
 	objTyp = GetType(objNum);
-	if(IsNPC(objNum) && C_0A5D_0DEF(objTyp) && C_130F_1003(objNum))
+	if(IsNPC(objNum) && C_0A5D_0DEF(objTyp) && IsOutOfArea(objNum))
 		return -1;
 	posMask = toZ?0xff:0x3ff;
 	toX &= posMask;
@@ -1384,7 +1384,7 @@ int16 QuanType(int16);
 			STAT_RefreshInventory(Party[StatusMember]);
 			return -1;
 		}
-		C_130F_1DCC(destNum, 3);
+		SubMov(destNum, 3);
 	}
 	objTyp = GetType(objNum);
 	if(QuanType(objTyp) && coordUse != EQUIP) {
@@ -2201,8 +2201,8 @@ int16 QuanType(int16);
 			}
 		}
 	}
-	if(D_020A == 1)
-		D_020A = 0;
+	if(Erupting == 1)
+		Erupting = 0;
 	MusicianWasNear = 0;
 }
 

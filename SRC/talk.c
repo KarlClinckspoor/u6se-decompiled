@@ -18,17 +18,17 @@ struct tClipInfo/*size:9*/ {
 	unsigned char attrFlags;
 };
 
-extern int16 C_05D0_0004(int16, int16, int16, int16);/*console: saves something for the screen area (0,0)-(319,199), returns a handle for C_05D0_004D*/
-extern C_05D0_004D(int16);/*console: restores what C_05D0_0004 saved*/
-extern cdecl C_05D0_2DB9(char far *, ...);/*CON_printf*/
-extern C_0F8D_20C8(int16 talker, int16 objNum);/*TalkDriver: runs the conversation script of objNum*/
-extern char *C_0F8D_011C(int16 objNum);/*TALK_GetCharName*/
-extern char *C_0A5D_3A76(int16 objNum);/*GetObjectString*/
+extern int16 CON_mouseOffAt(int16, int16, int16, int16);/*console: saves something for the screen area (0,0)-(319,199), returns a handle for CON_mouseOn*/
+extern CON_mouseOn(int16);/*console: restores what CON_mouseOffAt saved*/
+extern cdecl CON_printf(char far *, ...);/*CON_printf*/
+extern TalkDriver(int16 talker, int16 objNum);/*TalkDriver: runs the conversation script of objNum*/
+extern char *TALK_GetCharName(int16 objNum);/*TALK_GetCharName*/
+extern char *GetObjectString(int16 objNum);/*GetObjectString*/
 
-extern unsigned char D_27EB;/*Time_H*/
-extern unsigned char D_27EC;/*Date_D*/
-extern unsigned char D_27ED;/*Date_M*/
-extern int16 D_27F4, D_27F6, D_27F8;/*MapX, MapY, MapZ*/
+extern unsigned char Time_H;/*Time_H*/
+extern unsigned char Date_D;/*Date_D*/
+extern unsigned char Date_M;/*Date_M*/
+extern int16 MapX, MapY, MapZ;/*MapX, MapY, MapZ*/
 extern unsigned char far *D_4706;/*NPCMode*/
 extern char D_5104[];/*Names[0]?: the player's name*/
 extern unsigned char D_6EFC[];/*TalkFlags: bit 0, already met*/
@@ -49,9 +49,9 @@ extern char D_E6F2[10][100];/*TalkStrBuf: storage of the string variables $0-$9*
 	D_B66E['N' - 0x37] = "Winona Ryder is a really hot babe";/*[n]ame of NPC (a buffer)*/
 	D_B66E['P' - 0x37] = D_5104;/*name of [p]layer*/
 	/*set variables #*/
-	D_B5FA['D' - 0x37] = D_27EC;/*[d]ay*/
-	D_B5FA['H' - 0x37] = D_27EB;/*[h]our*/
-	D_B5FA['M' - 0x37] = D_27ED;/*[m]onth*/
+	D_B5FA['D' - 0x37] = Date_D;/*[d]ay*/
+	D_B5FA['H' - 0x37] = Time_H;/*[h]our*/
+	D_B5FA['M' - 0x37] = Date_M;/*[m]onth*/
 	if(objNum >= 0x40)
 		D_B5FA['N' - 0x37] = ((objNum - 0x40) & 7) + 1;
 	else
@@ -59,9 +59,9 @@ extern char D_E6F2[10][100];/*TalkStrBuf: storage of the string variables $0-$9*
 	D_B5FA['O' - 0x37] = D_9CF6 - 1;/*number of [o]ther party members*/
 	D_B5FA['W' - 0x37] = D_4706[objNum];/*NPC's [w]ork type*/
 	D_B5FA['T' - 0x37] = 0;
-	D_B5FA['X' - 0x37] = D_27F4;
-	D_B5FA['Y' - 0x37] = D_27F6;
-	D_B5FA['Z' - 0x37] = D_27F8;
+	D_B5FA['X' - 0x37] = MapX;
+	D_B5FA['Y' - 0x37] = MapY;
+	D_B5FA['Z' - 0x37] = MapZ;
 	/*-- reset $0~$9 --*/
 	for(i = 0; i < 10; i ++)
 		D_B66E[i] = D_E6F2[i];
@@ -69,9 +69,9 @@ extern char D_E6F2[10][100];/*TalkStrBuf: storage of the string variables $0-$9*
 	for(i = 0; i < 10; i ++)
 		D_B5FA[i] = 0;
 	/*--*/
-	handle = C_05D0_0004(0, 0, 319, 199);
-	C_0F8D_20C8(1, objNum);
-	C_05D0_004D(handle);
+	handle = CON_mouseOffAt(0, 0, 319, 199);
+	TalkDriver(1, objNum);
+	CON_mouseOn(handle);
 }
 
 /*"talk" command: party member #partyId (unused) talks to objNum;
@@ -82,12 +82,12 @@ extern char D_E6F2[10][100];/*TalkStrBuf: storage of the string variables $0-$9*
 	objTyp = GetType(objNum);
 	if(objNum >= 0 && objNum < 0x100) {
 		if(showName)
-			C_05D0_2DB9("%s\n", (D_6EFC[objNum] & 1)?
-				/*met already*/C_0F8D_011C(objNum):
-				/*first time*/C_0A5D_3A76(objNum)
+			CON_printf("%s\n", (D_6EFC[objNum] & 1)?
+				/*met already*/TALK_GetCharName(objNum):
+				/*first time*/GetObjectString(objNum)
 			);
 		TALK_initTalk(objNum);
 	} else {
-		C_05D0_2DB9("nothing!\n");
+		CON_printf("nothing!\n");
 	}
 }

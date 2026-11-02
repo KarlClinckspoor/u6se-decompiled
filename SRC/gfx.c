@@ -90,39 +90,39 @@ struct tBgArea {
 #define GR_FADE_TO_SCREEN(x0,y0,x1,y1,x,y) (D_ED10.iii.ofs = 0x48, (*D_ED10.f)(x0,y0,x1,y1,x,y))
 
 /*OSI*/
-extern int16 C_0000_0245(char *);/*OSI_open*/
-extern C_0000_0284(int16);/*OSI_close*/
-extern int32 C_0000_0336(int16, int32, int32, void far *);/*OSI_read*/
+extern int16 OSI_open(char *);/*OSI_open*/
+extern OSI_close(int16);/*OSI_close*/
+extern int32 OSI_read(int16, int32, int32, void far *);/*OSI_read*/
 extern cdecl C_2ABF_013D();/*MOUSE_SHOW*/
 extern cdecl C_2ABF_014E();/*MOUSE_HIDE*/
 extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 
 /*other game modules*/
-extern C_0268_00AA();/*LoadFileGr*/
-extern C_0268_0574();/*PaletteAnimation*/
-extern C_0359_0B23(int16);/*DrawMapWindow*/
-extern C_0359_0CD4();/*DisplayTick*/
-extern int16 C_05D0_0004(int16, int16, int16, int16);/*CON_mouseOffAt*/
-extern C_05D0_004D(int16);/*CON_mouseOn*/
-extern int16 C_05D0_22C8();/*CON_getch*/
-extern C_05D0_25E4(int16, int16);/*(text window: cursor to x,y?)*/
-extern cdecl C_05D0_2DB9(char far *, ...);/*CON_printf*/
-extern C_08CB_02FA();/*MAP_BuildArea*/
-extern unsigned char C_08CB_107B(int16, int16, int16);/*GetTileAtXYZ*/
-extern C_09DA_0144(int16, int16, int16, int16);/*VIS_FloodFill*/
-extern C_09DA_0327();/*VIS_UpdateView*/
-extern int16 C_0A5D_039A();/*NextLoc*/
-extern int16 C_0A5D_05C4(int16, int16, int16);/*FindLoc(x, y, z)*/
-extern int16 C_0A5D_0873();/*NextArea*/
-extern int16 C_0A5D_0943(int16, int16, int16, int16);/*SearchArea(x1, y1, x2, y2)*/
-extern C_0A5D_339C(int16, int16, int16, int16);/*ShowObject(tile, x, y, ?)*/
-extern C_0A5D_3577();/*ShowObjects*/
-extern int16 C_1810_0D5B(int16, int16, int16);/*COMBAT_GetTargetAt(shooter, x, y)*/
+extern LoadFileGr();/*LoadFileGr*/
+extern PaletteAnimation();/*PaletteAnimation*/
+extern DrawMapWindow(int16);/*DrawMapWindow*/
+extern DisplayTick();/*DisplayTick*/
+extern int16 CON_mouseOffAt(int16, int16, int16, int16);/*CON_mouseOffAt*/
+extern CON_mouseOn(int16);/*CON_mouseOn*/
+extern int16 CON_getch();/*CON_getch*/
+extern CON_gotoxy(int16, int16);/*(text window: cursor to x,y?)*/
+extern cdecl CON_printf(char far *, ...);/*CON_printf*/
+extern MAP_BuildArea();/*MAP_BuildArea*/
+extern unsigned char GetTileAtXYZ(int16, int16, int16);/*GetTileAtXYZ*/
+extern VIS_FloodFill(int16, int16, int16, int16);/*VIS_FloodFill*/
+extern VIS_UpdateView();/*VIS_UpdateView*/
+extern int16 NextLoc();/*NextLoc*/
+extern int16 FindLoc(int16, int16, int16);/*FindLoc(x, y, z)*/
+extern int16 NextArea();/*NextArea*/
+extern int16 SearchArea(int16, int16, int16, int16);/*SearchArea(x1, y1, x2, y2)*/
+extern ShowObject(int16, int16, int16, int16);/*ShowObject(tile, x, y, ?)*/
+extern ShowObjects();/*ShowObjects*/
+extern int16 COMBAT_GetTargetAt(int16, int16, int16);/*COMBAT_GetTargetAt(shooter, x, y)*/
 extern int16 C_1810_0F71(int16);/*(tile class test, peer map)*/
-extern int16 C_1810_289B(int16, int16);/*LoseHP(objNum, hp): experience earned*/
-extern C_1DBD_0D8F(int16);/*(ShowMidgame: per-picture event)*/
-extern C_2701_0648(int16);/*(ShakeScreen: sound?)*/
-extern C_2A81_0098(int16);/*DISK_confirm*/
+extern int16 LoseHP(int16, int16);/*LoseHP(objNum, hp): experience earned*/
+extern ShowPortrait(int16);/*(ShowMidgame: per-picture event)*/
+extern MUS_PlaySfx(int16);/*(ShakeScreen: sound?)*/
+extern DISK_confirm(int16);/*DISK_confirm*/
 
 /*Savage Empire's library*/
 extern int16 osiError;
@@ -132,29 +132,29 @@ extern int32 LIB_entrySize(char far *name, int16 index);
 extern void far *LZC_load(char far *name, int16 index, void far *out, int16 memflags, char far *work);
 extern void cdecl StopAllSounds(void);
 
-extern int16 D_00A8;/*IsZFile*/
-extern char D_00AC[8];/*DirIncrX*/
-extern char D_00B4[8];/*DirIncrY*/
-extern int16 D_00D6;/*GrDriverOption*/
-extern unsigned char D_00D8;/*MouseOn*/
-extern char D_03AE;/*AnimateAtPrompt*/
-extern int16 D_03CD;
-extern struct tClipInfo *D_03EC;/*CurClip*/
-extern int16 D_069C;/*ViewX*/
-extern int16 D_069E;/*ViewY*/
-extern int16 D_0710;/*LocPartOffset*/
-extern char D_0A39;/*set by ShowMidgame*/
-extern int16 D_0D45;/*VisibilityDirty*/
-extern int16 D_0DE0;/*ShowHitFlash*/
-extern int16 D_0DE2;/*MissileShooter*/
-extern unsigned char D_0DE6[8][8];/*RangeTable*/
-extern unsigned char D_0E26[11][11];/*SpreadDirTable*/
-extern unsigned char D_27EA;/*Time_M*/
-extern unsigned char D_27EB;/*Time_H*/
-extern int16 D_27F4;/*MapX*/
-extern int16 D_27F6;/*MapY*/
-extern int16 D_27F8;/*MapZ*/
-extern char D_2860;
+extern int16 IsZFile;/*IsZFile*/
+extern char DirIncrX[8];/*DirIncrX*/
+extern char DirIncrY[8];/*DirIncrY*/
+extern int16 GrDriverOption;/*GrDriverOption*/
+extern unsigned char MouseOn;/*MouseOn*/
+extern char AnimateAtPrompt;/*AnimateAtPrompt*/
+extern int16 StatusDisplay;
+extern struct tClipInfo *CurClip;/*CurClip*/
+extern int16 ViewX;/*ViewX*/
+extern int16 ViewY;/*ViewY*/
+extern int16 LocPartOffset;/*LocPartOffset*/
+extern char IsInConversation;/*set by ShowMidgame*/
+extern int16 VisibilityDirty;/*VisibilityDirty*/
+extern int16 ShowHitFlash;/*ShowHitFlash*/
+extern int16 MissileShooter;/*MissileShooter*/
+extern unsigned char RangeTable[8][8];/*RangeTable*/
+extern unsigned char SpreadDirTable[11][11];/*SpreadDirTable*/
+extern unsigned char Time_M;/*Time_M*/
+extern unsigned char Time_H;/*Time_H*/
+extern int16 MapX;/*MapX*/
+extern int16 MapY;/*MapY*/
+extern int16 MapZ;/*MapZ*/
+extern char InCombat;
 
 /*uninitialised data*/
 extern struct tSurface D_3268;/*Screen*/
@@ -187,9 +187,9 @@ extern union tHandler D_ED10;/*GrDriver*/
 extern int16 D_ED14, D_ED16, D_ED1A, D_ED1C;/*DirtyRect: left, top, right, bottom*/
 extern int16 D_ED18;/*width - 1 of the shaken rectangle*/
 
-#define MapX D_27F4
-#define MapY D_27F6
-#define MapZ D_27F8
+#define MapX MapX
+#define MapY MapY
+#define MapZ MapZ
 #define TileFlag D_6DF0
 #define BaseTile D_6EF4
 #define TerrainType D_B4FA
@@ -201,8 +201,8 @@ extern int16 D_ED18;/*width - 1 of the shaken rectangle*/
 #define TILE_FRAME(i) (BaseTile[GetType(i)] + GetFrame(i))
 #define IsTileWin(tile) (TileFlag[tile] & 0x08)
 #define IsTileNos(tile) (TileFlag[tile] & 0x20)
-#define HideMouse if(D_00D8) C_2ABF_014E();
-#define ShowMouse if(D_00D8) C_2ABF_013D();
+#define HideMouse if(MouseOn) C_2ABF_014E();
+#define ShowMouse if(MouseOn) C_2ABF_013D();
 
 /*====---- ----====*/
 /*driver init parameter, indexed by adapter type:
@@ -236,7 +236,7 @@ extern int16 D_ED18;/*width - 1 of the shaken rectangle*/
   0:MCGA 1:EGA 2:Tandy 3:CGA, 4 uses 3's), initialise it and give it the
   callbacks it needs (disk request, file loading/open/read/close)*/
 /*C_276B_0005*/InitGraphicsDriver(int16 adapter) {
-	D_00A8 = 1;
+	IsZFile = 1;
 	D_ED10.p = MEM_alloc(LIB_entrySize("system.lzc", adapter == 4?3:adapter) + 0x10, 2);
 	if(D_ED10.p == 0) {
 		GR_SHUTDOWN();
@@ -244,13 +244,13 @@ extern int16 D_ED18;/*width - 1 of the shaken rectangle*/
 		exit(1);
 	}
 	D_ED10.p = LZC_load("system.lzc", adapter == 4?3:adapter, D_ED10.p, 2, D_3EB6);
-	D_00A8 = 0;
-	D_ED0C = GR_INIT(GrDriverParam[adapter] + D_00D6);
-	D_ED0C->pfnDiskConfirm = C_2A81_0098;
-	D_ED0C->pfnLoadFile = C_0268_00AA;
-	D_ED0C->pfnOpen = C_0000_0245;
-	D_ED0C->pfnRead = C_0000_0336;
-	D_ED0C->pfnClose = C_0000_0284;
+	IsZFile = 0;
+	D_ED0C = GR_INIT(GrDriverParam[adapter] + GrDriverOption);
+	D_ED0C->pfnDiskConfirm = DISK_confirm;
+	D_ED0C->pfnLoadFile = LoadFileGr;
+	D_ED0C->pfnOpen = OSI_open;
+	D_ED0C->pfnRead = OSI_read;
+	D_ED0C->pfnClose = OSI_close;
 	if(adapter) {
 		if(adapter == 1)
 			D_ED18 = 0x8f;
@@ -281,12 +281,12 @@ extern int16 D_ED18;/*width - 1 of the shaken rectangle*/
 	}
 	tileFrame = TILE_FRAME(objNum) + attr;
 	if(delta_x < 11 && delta_y < 11) {
-		C_0A5D_339C(tileFrame, delta_x, delta_y, 2);
+		ShowObject(tileFrame, delta_x, delta_y, 2);
 		ScreenFade = 1;
-		C_0359_0B23(1);
-		C_0A5D_3577();
+		DrawMapWindow(1);
+		ShowObjects();
 		ScreenFade = 1;
-		C_0359_0B23(1);
+		DrawMapWindow(1);
 	}
 }
 
@@ -391,7 +391,7 @@ extern int16 D_ED18;/*width - 1 of the shaken rectangle*/
   Out:
    - pX_dst/pY_dst = tile where each projectile stopped,
    - D_EBCE = last tile reached by projectile #0,
-   - D_EBCC = object hit at the stop tile of #0 (if D_0DE2, the shooter, is set),
+   - D_EBCC = object hit at the stop tile of #0 (if MissileShooter, the shooter, is set),
    - MissileHitList = list of the NPCs (< 0x100) crossed/hit, -1 terminated.
   returns 1 if every projectile reached its destination*/
 /*C_276B_0390*/Missiles(
@@ -423,7 +423,7 @@ extern int16 D_ED18;/*width - 1 of the shaken rectangle*/
 	int16 spr_x[MAX_MISSILES],spr_y[MAX_MISSILES];
 
 	unused = 0;
-	C_0359_0B23(0);
+	DrawMapWindow(0);
 
 	for(i = 0; i < 0x100/8; i ++)
 		collision_mask[i] = 0;
@@ -570,7 +570,7 @@ extern int16 D_ED18;/*width - 1 of the shaken rectangle*/
 			/*entering a new tile: check range and obstacles*/
 			tile_delta_x = abs(SCR2TIL(cur_x[dst]) - src_x);
 			tile_delta_y = abs(SCR2TIL(cur_y[dst]) - src_y);
-			if(tile_delta_x > 7 || tile_delta_y > 7 || D_0DE6[tile_delta_x][tile_delta_y] > max_range) {
+			if(tile_delta_x > 7 || tile_delta_y > 7 || RangeTable[tile_delta_x][tile_delta_y] > max_range) {
 stop:
 				/*blocked or out of range: this projectile stops here.
 				  note: the break also leaves the loop for the remaining
@@ -580,14 +580,14 @@ stop:
 			}
 			tile_x[dst] = SCR2TIL(cur_x[dst]);
 			tile_y[dst] = SCR2TIL(cur_y[dst]);
-			numTile = C_08CB_107B(tile_x[dst], tile_y[dst], MapZ);
+			numTile = GetTileAtXYZ(tile_x[dst], tile_y[dst], MapZ);
 			if((tile_delta_x > 1 || tile_delta_y > 1 || !IsTileWin(numTile)) && IsTileNos(numTile))
 				goto stop;
 			/*mark the NPCs of the tile; stop at the first object blocking missiles*/
-			for(objNum = C_0A5D_05C4(tile_x[dst], tile_y[dst], MapZ); objNum >= 0; objNum = C_0A5D_039A()) {
+			for(objNum = FindLoc(tile_x[dst], tile_y[dst], MapZ); objNum >= 0; objNum = NextLoc()) {
 				if(objNum < 0x100 && objNum >= 0)
 					collision_mask[objNum >> 3] |= (1 << (objNum & 7));
-				if(IsTileNos(TILE_FRAME(objNum) - D_0710))
+				if(IsTileNos(TILE_FRAME(objNum) - LocPartOffset))
 					break;
 			}
 			if(objNum >= 0)
@@ -602,7 +602,7 @@ stop:
 			continue;
 
 		if(!(i & 3))
-			C_0268_0574();
+			PaletteAnimation();
 
 		/*save the background under the sprites (slots 0-7)*/
 		if(!(attr & 2)) {
@@ -635,7 +635,7 @@ stop:
 	}
 
 	if(projTile && !(attr & 2) && !(attr & 8))
-		C_0359_0CD4();
+		DisplayTick();
 	/*report where the projectiles stopped*/
 	for(dst = 0; dst < num_dst; dst ++) {
 		if(
@@ -645,8 +645,8 @@ stop:
 		ret = 0;
 		pX_dst[dst] = tile_x[dst];
 		pY_dst[dst] = tile_y[dst];
-		if(dst == 0 && D_0DE2 >= 0)
-			D_EBCC = C_1810_0D5B(D_0DE2, tile_x[0], tile_y[0]);
+		if(dst == 0 && MissileShooter >= 0)
+			D_EBCC = COMBAT_GetTargetAt(MissileShooter, tile_x[0], tile_y[0]);
 	}
 	ShowMouse
 
@@ -688,10 +688,10 @@ int16 far /*C_276B_0E85*/*Explosion(int16 x, int16 y, int16 missileTile) {
 	for(count = 0; count < 0x3e; count ++)
 		if(MissileHitList[count] < 0)
 			break;
-	for(objNum = C_0A5D_05C4(x, y, MapZ); count < 0x3f && objNum >= 0; objNum = C_0A5D_039A()) {
+	for(objNum = FindLoc(x, y, MapZ); count < 0x3f && objNum >= 0; objNum = NextLoc()) {
 		if(objNum < 0x100 && objNum >= 0)
 			MissileHitList[count ++] = objNum;
-		if(IsTileNos(TILE_FRAME(objNum) - D_0710))
+		if(IsTileNos(TILE_FRAME(objNum) - LocPartOffset))
 			break;
 	}
 	MissileHitList[count] = -1;
@@ -706,17 +706,17 @@ int16 far /*C_276B_0F76*/*MagicWind(int16 objNum, int16 x, int16 y, int16 missil
 	int16 sideDirs;
 	int16 x_dst[5], y_dst[5];
 
-	sideDirs = D_0E26[y - GetY(objNum) + 5][x - GetX(objNum) + 5];
+	sideDirs = SpreadDirTable[y - GetY(objNum) + 5][x - GetX(objNum) + 5];
 	x_dst[0] = x;
-	x_dst[1] = x + D_00AC[sideDirs >> 4];
-	x_dst[2] = x + D_00AC[sideDirs & 0xf];
-	x_dst[3] = x_dst[1] + D_00AC[sideDirs >> 4];
-	x_dst[4] = x_dst[2] + D_00AC[sideDirs & 0xf];
+	x_dst[1] = x + DirIncrX[sideDirs >> 4];
+	x_dst[2] = x + DirIncrX[sideDirs & 0xf];
+	x_dst[3] = x_dst[1] + DirIncrX[sideDirs >> 4];
+	x_dst[4] = x_dst[2] + DirIncrX[sideDirs & 0xf];
 	y_dst[0] = y;
-	y_dst[1] = y + D_00B4[sideDirs >> 4];
-	y_dst[2] = y + D_00B4[sideDirs & 0xf];
-	y_dst[3] = y_dst[1] + D_00B4[sideDirs >> 4];
-	y_dst[4] = y_dst[2] + D_00B4[sideDirs & 0xf];
+	y_dst[1] = y + DirIncrY[sideDirs >> 4];
+	y_dst[2] = y + DirIncrY[sideDirs & 0xf];
+	y_dst[3] = y_dst[1] + DirIncrY[sideDirs >> 4];
+	y_dst[4] = y_dst[2] + DirIncrY[sideDirs & 0xf];
 	Missiles(GetX(objNum), GetY(objNum), 5, x_dst, y_dst, 7, missileTile, 4|2);
 	return MissileHitList;
 }
@@ -728,8 +728,8 @@ int16 far /*C_276B_0F76*/*MagicWind(int16 objNum, int16 x, int16 y, int16 missil
 	int16 dst_x[9], dst_y[9];
 
 	for(i = 0; i < 8; i ++) {
-		dst_x[i] = x + D_00AC[i];
-		dst_y[i] = y + D_00B4[i];
+		dst_x[i] = x + DirIncrX[i];
+		dst_y[i] = y + DirIncrY[i];
 	}
 	dst_x[8] = x;
 	dst_y[8] = y;
@@ -824,11 +824,11 @@ int16 far /*C_276B_0F76*/*MagicWind(int16 objNum, int16 x, int16 y, int16 missil
 					soundArg = C_2B57_001F(400, 500);
 					scr_x = SCR2TIL(impact_x[i]);
 					scr_y = SCR2TIL(impact_y[i]);
-					for(objNum = C_0A5D_05C4(scr_x, scr_y, MapZ); objNum >= 0; objNum = C_0A5D_039A()) {
+					for(objNum = FindLoc(scr_x, scr_y, MapZ); objNum >= 0; objNum = NextLoc()) {
 						if(objNum >= 0x100 || objNum < 0)
 							continue;
-						D_0DE0 = 0;/*no standard hit display*/
-						totalExp += C_1810_289B(objNum, 1);
+						ShowHitFlash = 0;/*no standard hit display*/
+						totalExp += LoseHP(objNum, 1);
 						soundArg = -1;
 						/*hit flash (scr_x/scr_y: tile -> map buffer center).
 						  note: converted in place, so a 2nd NPC on the same
@@ -850,7 +850,7 @@ int16 far /*C_276B_0F76*/*MagicWind(int16 objNum, int16 x, int16 y, int16 missil
 		}
 		/*(U6 played the sound soundArg here)*/
 	}
-	C_0359_0CD4();
+	DisplayTick();
 	return totalExp;
 }
 
@@ -860,15 +860,15 @@ int16 far /*C_276B_0F76*/*MagicWind(int16 objNum, int16 x, int16 y, int16 missil
 	int16 i;
 	int16 ofs_x, ofs_y;
 
-	C_0359_0B23(0);
+	DrawMapWindow(0);
 	for(i = 0; i < duration; i ++) {
-		C_2701_0648(1);
+		MUS_PlaySfx(1);
 		ofs_x = C_2B57_001F(8 - ampl, ampl + 8);
 		ofs_y = C_2B57_001F(16 - ampl, ampl + 16);
 		GR_COPY_TO_SCREEN(ofs_x, ofs_y, ofs_x + D_ED18, ofs_y + 0x8f, 16, 16);
 		StopAllSounds();
 	}
-	C_0359_0CD4();
+	DisplayTick();
 }
 
 /*clear the 11x11 view: all tiles hidden, no object, and rebuild the
@@ -892,23 +892,23 @@ int16 far /*C_276B_0F76*/*MagicWind(int16 objNum, int16 x, int16 y, int16 missil
   (tile map and visible tiles/objects) without displaying it*/
 /*C_276B_172E*/ResetMapView() {
 	ClearMapView();
-	D_0D45 = 0;
+	VisibilityDirty = 0;
 	ScreenFade = 1;
-	C_0359_0B23(1);
-	C_08CB_02FA();
-	C_09DA_0327();
+	DrawMapWindow(1);
+	MAP_BuildArea();
+	VIS_UpdateView();
 }
 
 /*the strip above the map window: the sky (tile 0x189 row), then on the
   surface the day sky with the sun moving right to left from 6:00 to 18:00,
   or the night sky with the moon, underground a cave ceiling; then the frame
-  tiles 0x160.. and the middle ornament (0x177/0x178 when D_2860 is set,
+  tiles 0x160.. and the middle ornament (0x177/0x178 when InCombat is set,
   0x164/0x165 when NPC 1 is of type 0xf9, else 0x173/0x174)*/
 /*C_276B_1756*/DrawSkyBar() {
 	int16 i, t;
 	int16 moon, mouseState;
 
-	t = D_27EB * 60 + D_27EA;
+	t = Time_H * 60 + Time_M;
 	for(i = 0; i < 11; i ++)
 		GR_PUT_TILE(0x189, TIL2SCR(i), 0);
 	if(MapZ) {
@@ -928,7 +928,7 @@ int16 far /*C_276B_0F76*/*MagicWind(int16 objNum, int16 x, int16 y, int16 missil
 		GR_PUT_TILE(i + 0x160, TIL2SCR(i), 0);
 	for(i = 6; i < 11; i ++)
 		GR_PUT_TILE(i + 0x160, TIL2SCR(i), 0);
-	if(D_2860) {
+	if(InCombat) {
 		GR_PUT_TILE(0x177, 0x40, 0);
 		GR_PUT_TILE(0x178, 0x50, 0);
 	} else if(GetType(1) == 0xf9) {
@@ -938,9 +938,9 @@ int16 far /*C_276B_0F76*/*MagicWind(int16 objNum, int16 x, int16 y, int16 missil
 		GR_PUT_TILE(0x173, 0x40, 0);
 		GR_PUT_TILE(0x174, 0x50, 0);
 	}
-	mouseState = C_05D0_0004(0, 0, 0xaf, 0xf);
+	mouseState = CON_mouseOffAt(0, 0, 0xaf, 0xf);
 	GR_COPY_TO_SCREEN(0, 0, 0xaf, 0xf, 0, 0);
-	C_05D0_004D(mouseState);
+	CON_mouseOn(mouseState);
 }
 
 /*2684*/char FacesFile[] = "faces.lzc";
@@ -950,28 +950,28 @@ PortraitBg(int16 x, int16 y);
 
 /*draw the portrait of NPC objNum at screen x,y: a face of faces.lzc over
   the background of bkgrnd.lzc for the NPC's place and the time (PortraitBg).
-  1000 and, after a midgame (D_0A39), NPCs 0xfe and up are faces drawn alone;
+  1000 and, after a midgame (IsInConversation), NPCs 0xfe and up are faces drawn alone;
   0xfd then is drawn over the background only. Temporary NPCs (0xc0 and up)
   of the types 0x140, 0x13c, 0x13d, 0x123 have generic faces, the others none;
   NPCs 0x40-0x97 share faces 4 by 4. returns 0 if there is no portrait*/
 /*C_276B_1953*/DrawPortrait(int16 objNum, int16 x, int16 y) {
 	int16 bg;
 
-	C_2A81_0098(2);
+	DISK_confirm(2);
 	if(objNum == 1000) {
 		objNum = 0x59;
 		LZC_load(FacesFile, objNum, D_54E8, 0, D_3EB6);
 		GR_DRAW_BITMAP(&D_3268, x, y, D_54E8, 0);
 		return;
 	}
-	if(D_0A39 && objNum >= 0xfe) {
+	if(IsInConversation && objNum >= 0xfe) {
 		objNum = objNum - 0xa4;
 		LZC_load(FacesFile, objNum, D_54E8, 0, D_3EB6);
 		GR_DRAW_BITMAP(&D_3268, x, y, D_54E8, 0);
 		return;
 	}
 	bg = PortraitBg(GetX(objNum), GetY(objNum));
-	if(D_0A39 && objNum == 0xfd) {
+	if(IsInConversation && objNum == 0xfd) {
 		LZC_load(BkgrndFile, bg, D_54E8, 0, D_3EB6);
 		GR_DRAW_BITMAP(&D_3268, x + 1, y + 1, D_54E8, 0);
 		return;
@@ -1046,7 +1046,7 @@ PortraitBg(int16 x, int16 y);
 				break;
 			}
 		}
-		t = D_27EB * 60 + D_27EA;
+		t = Time_H * 60 + Time_M;
 		if((t >= 1081 || (t >= 0 && t <= 359)) && bg < 5)
 			bg += 4;
 	}
@@ -1055,7 +1055,7 @@ PortraitBg(int16 x, int16 y);
 
 /*draw the status area background (bkgrnd.lzc entry 0) at 183,6*/
 /*C_276B_1BAF*/C_276B_1BAF() {
-	C_2A81_0098(2);
+	DISK_confirm(2);
 	LZC_load("bkgrnd.lzc", 0, D_54E8, 0, D_3EB6);
 	GR_DRAW_BITMAP(&D_3268, 0xb7, 6, D_54E8, 0);
 }
@@ -1085,7 +1085,7 @@ PortraitBg(int16 x, int16 y);
 	} else {
 		convIndex = objNum - 2;
 	}
-	C_2A81_0098(4);
+	DISK_confirm(4);
 	LZC_load(loadName, convIndex, dest, 0, D_3EB6);
 	if(osiError)
 		return 0;
@@ -1115,7 +1115,7 @@ PortraitBg(int16 x, int16 y);
 	} else {
 		convIndex = objNum - 2;
 	}
-	C_2A81_0098(4);
+	DISK_confirm(4);
 	if(LIB_entrySize(checkName, convIndex) <= 0 || osiError)
 		return 0;
 	return objNum;
@@ -1214,7 +1214,7 @@ PortraitBg(int16 x, int16 y);
 	rowStart = colStart = 0;
 	rowEnd = colEnd = 40;
 	if(isUnderground) {
-		C_09DA_0144(D_069C + 5, D_069E + 5, 40, 2);
+		VIS_FloodFill(ViewX + 5, ViewY + 5, 40, 2);
 	} else if(MapZ == 0) {
 		/*surface: special cases near the world edges (0x400 wrap)*/
 		if(D_BAFE == 0x3f0) {
@@ -1240,7 +1240,7 @@ PortraitBg(int16 x, int16 y);
 		}
 	}
 	/*objects (NPC #0 only if under player control)*/
-	for(objNum = C_0A5D_0943(D_BAFE, D_BB00, D_BAFE + (AREA_W-1), D_BB00 + (AREA_H-1)); objNum >= 0; objNum = C_0A5D_0873()) {
+	for(objNum = SearchArea(D_BAFE, D_BB00, D_BAFE + (AREA_W-1), D_BB00 + (AREA_H-1)); objNum >= 0; objNum = NextArea()) {
 		if(objNum == 0 && (D_6CF0[objNum] & 0x80) == 0)
 			continue;
 		col = GetX(objNum) - D_BAFE;
@@ -1266,26 +1266,26 @@ PortraitBg(int16 x, int16 y);
 	}
 	/*the party (center of the view)*/
 	GR_SET_COLOR(15);
-	GR_FILL_RECT((D_069C << 2) + 28, (D_069E << 2) + 28, (D_069C << 2) + 31, (D_069E << 2) + 31);
+	GR_FILL_RECT((ViewX << 2) + 28, (ViewY << 2) + 28, (ViewX << 2) + 31, (ViewY << 2) + 31);
 	GR_SET_COLOR(0);
 	if(D_BAFE == 0x3f0)
 		;/*(empty: the comparison is in the original)*/
 	D_ED0C->toBackBuffer = 0;
-	mouseState = C_05D0_0004(8, 16, 167, 159);
+	mouseState = CON_mouseOffAt(8, 16, 167, 159);
 	GR_FADE_TO_SCREEN(8, 16, 167, 159, 8, 16);
-	C_05D0_004D(mouseState);
-	D_03AE = 0;
-	C_05D0_22C8();
-	D_03AE = 1;
+	CON_mouseOn(mouseState);
+	AnimateAtPrompt = 0;
+	CON_getch();
+	AnimateAtPrompt = 1;
 	ScreenFade = 1;
-	C_09DA_0327();
+	VIS_UpdateView();
 }
 
 /*fill the map window with ColorPaper and show it (fading in if fade)*/
 /*C_276B_23CA*/ClearMapWindow(int16 fade) {
 	int16 mouseState;
 
-	mouseState = C_05D0_0004(8, 16, 167, 159);
+	mouseState = CON_mouseOffAt(8, 16, 167, 159);
 	D_ED0C->toBackBuffer = 1;
 	GR_SET_COLOR(ColorPaper);
 	GR_FILL_RECT(8, 16, 167, 159);
@@ -1294,13 +1294,13 @@ PortraitBg(int16 x, int16 y);
 	else
 		GR_COPY_TO_SCREEN(8, 16, 167, 159, 8, 16);
 	D_ED0C->toBackBuffer = 0;
-	C_05D0_004D(mouseState);
+	CON_mouseOn(mouseState);
 }
 
 /*show the pictures of MIDGAMEn.LZC (entries 4*i + 3, i < count) in the map
   window, each with up to 3 pages of text (entries 4*i + 0..2, "*E" ends
   them) printed under it, waiting for a key after each page; text[i], when
-  not 0, is given to C_1DBD_0D8F before each picture*/
+  not 0, is given to ShowPortrait before each picture*/
 /*C_276B_245A*/ShowMidgame(int16 n, int16 count, unsigned char *text) {
 	int16 saveBack;
 	int16 j;
@@ -1310,41 +1310,41 @@ PortraitBg(int16 x, int16 y);
 	int16 i, k;
 
 	fileName[7] = n + '0';
-	D_0A39 = 1;
+	IsInConversation = 1;
 	k = 0;
 	saveBack = D_ED0C->toBackBuffer;
 	D_ED0C->toBackBuffer = 0;
-	saveD03CD = D_03CD;
-	D_03CD = 0x9e;
+	saveD03CD = StatusDisplay;
+	StatusDisplay = 0x9e;
 	HideMouse
 	for(i = 0; i < count; i ++, k ++) {
 		if(text[k])
-			C_1DBD_0D8F(text[k]);
-		C_2A81_0098(disks[n]);
+			ShowPortrait(text[k]);
+		DISK_confirm(disks[n]);
 		if(LZC_load(fileName, i * 4 + 3, D_50F6, 0, D_3EB6) == 0)
 			break;
 		GR_DRAW_BITMAP(&D_3268, 8, 16, D_50F6, 0);
 		GR_SET_COLOR(ColorPaper);
 		GR_FILL_RECT(0xb8, 0x80, 0x137, 0xbf);
-		C_05D0_25E4(0, 0);
-		D_B6B6 = D_03EC->rows;
+		CON_gotoxy(0, 0);
+		D_B6B6 = CurClip->rows;
 		for(j = 0; j < 3; j ++) {
-			C_2A81_0098(disks[n]);
+			DISK_confirm(disks[n]);
 			LZC_load(fileName, i * 4 + j, D_6EF8, 0, D_3EB6);
 			if(D_6EF8[0] == '*' && D_6EF8[1] == 'E')
 				break;
-			D_03EC->fgColor = D_24E6;
-			C_05D0_2DB9(D_6EF8);
-			D_03EC->fgColor = D_24F0;
-			C_05D0_22C8();
+			CurClip->fgColor = D_24E6;
+			CON_printf(D_6EF8);
+			CurClip->fgColor = D_24F0;
+			CON_getch();
 			GR_SET_COLOR(ColorPaper);
 			GR_FILL_RECT(0xb8, 0x80, 0x137, 0xbf);
-			C_05D0_25E4(0, 0);
-			D_B6B6 = D_03EC->rows;
+			CON_gotoxy(0, 0);
+			D_B6B6 = CurClip->rows;
 		}
-		D_03EC->fgColor = D_24E6;
+		CurClip->fgColor = D_24E6;
 	}
 	ShowMouse
-	D_03CD = saveD03CD;
+	StatusDisplay = saveD03CD;
 	D_ED0C->toBackBuffer = saveBack;
 }

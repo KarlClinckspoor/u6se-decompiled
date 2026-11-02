@@ -39,31 +39,31 @@ struct tMouse {
 };
 
 /*OSI file routines (asm)*/
-extern union tHandler D_01F6;/*OSI_ErrorHandler: far callback invoked by the OSI file functions on error*/
-extern C_0000_0244();/*OSI_callback: an error handler that does nothing*/
-extern int16 C_0000_0245(char *path);/*OSI_open*/
-extern int16 C_0000_0284(int16 handle);/*OSI_close*/
-extern C_0268_0128();/*FileErrorHandler (main)*/
+extern union tHandler OSI_ErrorHandler;/*OSI_ErrorHandler: far callback invoked by the OSI file functions on error*/
+extern OSI_callback();/*OSI_callback: an error handler that does nothing*/
+extern int16 OSI_open(char *path);/*OSI_open*/
+extern int16 OSI_close(int16 handle);/*OSI_close*/
+extern FileErrorHandler();/*FileErrorHandler (main)*/
 extern C_2AF5_001B(int16 driveLetter);/*OSI_selectDrive*/
 extern int16 C_2AFB_0006();/*OSI_getDrive: the current drive's letter*/
-extern void (*D_2B84)();/*DriveErrorCallback: called by OSI_selectDrive when selection fails*/
-extern cdecl C_2ABF_00A7();/*MOUSE_SERVE*/
+extern void (*DriveErrorCallback)();/*DriveErrorCallback: called by OSI_selectDrive when selection fails*/
+extern cdecl MOUSE_SERVE();/*MOUSE_SERVE*/
 
 /*console*/
-extern int16 C_05D0_0E2D();/*CON_prompt: a key if one is waiting (animating meanwhile), else 0*/
-extern int16 C_05D0_22C8();/*CON_getch*/
-extern C_05D0_25AD(struct tClipInfo *);/*CON_setClip*/
-extern C_05D0_264F(int16);/*CON_putch0*/
-extern cdecl C_05D0_2DB9(char far *, ...);/*CON_printf*/
-extern char far C_2F65_033C[];/*"\nPlease insert %s." (far messages, like C_ names: outside DGROUP)*/
+extern int16 CON_prompt();/*CON_prompt: a key if one is waiting (animating meanwhile), else 0*/
+extern int16 CON_getch();/*CON_getch*/
+extern CON_setClip(struct tClipInfo *);/*CON_setClip*/
+extern CON_putch0(int16);/*CON_putch0*/
+extern cdecl CON_printf(char far *, ...);/*CON_printf*/
+extern char far InsertDiskMsg[];/*"\nPlease insert %s." (far messages, like C_ names: outside DGROUP)*/
 
-extern unsigned char D_00D8;/*MouseOn*/
-extern int16 D_0208;/*MapAnimEnabled*/
-extern char D_03AE;/*AnimateAtPrompt: run animations while waiting for a key*/
-extern int16 D_03C7;/*MousePress*/
-extern int16 D_03C9;/*MouseTrigger*/
-extern struct tClipInfo *D_03EC;/*CurClip: current text window*/
-extern unsigned char D_24D8;/*text color of the disk prompt*/
+extern unsigned char MouseOn;/*MouseOn*/
+extern int16 MapAnimEnabled;/*MapAnimEnabled*/
+extern char AnimateAtPrompt;/*AnimateAtPrompt: run animations while waiting for a key*/
+extern int16 MousePress;/*MousePress*/
+extern int16 MouseTrigger;/*MouseTrigger*/
+extern struct tClipInfo *CurClip;/*CurClip: current text window*/
+extern unsigned char ColorRed;/*text color of the disk prompt*/
 extern unsigned char D_24E6;/*normal text color of the message window*/
 extern struct tMouse D_3E9C;/*Mouse*/
 extern struct tClipInfo D_B644[4];/*TextWindows: [3] message scroll*/
@@ -98,12 +98,12 @@ extern unsigned char D_ED1E, D_ED1F;/*DosVerMajor, DosVerMinor*/
 /*C_2A81_000A*/static DISK_IsInDrive(int16 diskNum) {
 	int16 fileHandle;
 
-	D_01F6.f = C_0000_0244;
+	OSI_ErrorHandler.f = OSI_callback;
 	DiskIdFile[3] = diskNum + '0';
-	fileHandle = C_0000_0245(DiskIdFile);
+	fileHandle = OSI_open(DiskIdFile);
 	if(fileHandle != -1)
-		C_0000_0284(fileHandle);
-	D_01F6.f = C_0268_0128;
+		OSI_close(fileHandle);
+	OSI_ErrorHandler.f = FileErrorHandler;
 	return (fileHandle != -1);
 }
 
@@ -136,41 +136,41 @@ extern unsigned char D_ED1E, D_ED1F;/*DosVerMajor, DosVerMinor*/
 		diskNum = 3;
 	else if(diskNum == 102)
 		diskNum = 4;
-	savedAnimate = D_03AE;
+	savedAnimate = AnimateAtPrompt;
 	if(CurrentDisk != diskNum) {
 		while(CurrentDisk != diskNum && !DiskDrive[diskNum]) {
-			savedClip = D_03EC;
-			C_05D0_25AD(&(D_B644[3]));
-			C_05D0_264F(-1);
-			D_03EC->fgColor = D_24D8;
-			C_05D0_2DB9(C_2F65_033C, DiskNames[diskNum]);
-			C_05D0_264F(-1);
-			D_03AE = 0;/*no animations while waiting*/
+			savedClip = CurClip;
+			CON_setClip(&(D_B644[3]));
+			CON_putch0(-1);
+			CurClip->fgColor = ColorRed;
+			CON_printf(InsertDiskMsg, DiskNames[diskNum]);
+			CON_putch0(-1);
+			AnimateAtPrompt = 0;/*no animations while waiting*/
 			/*wait for a key or a mouse click (= ' ')*/
 			keyOrIndex = 0;
 			while(!keyOrIndex) {
-				if(D_00D8) {
-					C_2ABF_00A7();
+				if(MouseOn) {
+					MOUSE_SERVE();
 					if(D_3E9C.buttonL || D_3E9C.buttonR) {
-						if(!D_03C7) {
-							D_03C7 =
-							D_03C9 = 1;
+						if(!MousePress) {
+							MousePress =
+							MouseTrigger = 1;
 							keyOrIndex = ' ';
 						} else {
-							D_03C9 = 0;
+							MouseTrigger = 0;
 						}
 					} else {
-						D_03C7 =
-						D_03C9 = 0;
+						MousePress =
+						MouseTrigger = 0;
 					}
 				}
 				if(!keyOrIndex)
-					keyOrIndex = C_05D0_0E2D();
+					keyOrIndex = CON_prompt();
 			}
-			C_05D0_264F('\n');
-			C_05D0_25AD(savedClip);
-			D_03EC->fgColor = D_24E6;
-			D_03AE = savedAnimate;
+			CON_putch0('\n');
+			CON_setClip(savedClip);
+			CurClip->fgColor = D_24E6;
+			AnimateAtPrompt = savedAnimate;
 			/*<CTRL+C>: accept the current drive as is.
 			  bug?: CurrentDrive is a drive number here, not a letter*/
 			if(keyOrIndex == 3) {
@@ -217,17 +217,17 @@ extern unsigned char D_ED1E, D_ED1F;/*DosVerMajor, DosVerMinor*/
 /*C_2A81_0255*/DISK_full() {
 	int16 answer;
 
-	D_0208 = 0;
-	C_05D0_2DB9("Disk full.  Do you want to Save the game and continue, ");
-	C_05D0_2DB9("or Restore your last saved game? ");
+	MapAnimEnabled = 0;
+	CON_printf("Disk full.  Do you want to Save the game and continue, ");
+	CON_printf("or Restore your last saved game? ");
 	do {
-		answer = C_05D0_22C8();
+		answer = CON_getch();
 	} while(answer != 'S' && answer != 'R');
 	DiskFullChoice = answer;
 	if(answer == 'S')
-		C_05D0_2DB9("S\n\nSaving...\n");
+		CON_printf("S\n\nSaving...\n");
 	else
-		C_05D0_2DB9("R\n\nRestoring...\n");
+		CON_printf("R\n\nRestoring...\n");
 }
 
 /*find the drives and their types, assume the current drive holds disk 1*/
@@ -235,7 +235,7 @@ extern unsigned char D_ED1E, D_ED1F;/*DosVerMajor, DosVerMinor*/
 	int16 drive;
 	union REGS regs;
 
-	D_2B84 = DISK_NullCallback;
+	DriveErrorCallback = DISK_NullCallback;
 	/*get dos version*/
 	regs.h.ah = 0x30;
 	intdos(&regs, &regs);

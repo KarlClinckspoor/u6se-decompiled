@@ -78,45 +78,45 @@ struct tRGB {
 #define GR_DRAW_BITMAP(s,a,b,p,c) (D_ED10.iii.ofs = 0x30, (*D_ED10.f)(s,a,b,p,c))
 
 /*OSI file routines (asm)*/
-extern union tHandler D_01F6;/*OSI_ErrorHandler*/
-extern int16 D_01FA;/*OSI_ErrorCode*/
-extern int16 D_01FC;/*OSI_ErrorFunc*/
-extern char *D_01FE;/*OSI_ErrorFile*/
-extern int16 C_0000_0245(char *);/*OSI_open*/
-extern C_0000_0284(int16);/*OSI_close*/
-extern int32 C_0000_0336(int16, int32, int32, void far *);/*OSI_read*/
-extern int32 C_0000_0617(int16);/*OSI_fileSize*/
-extern int16 D_2B7C;/*OSI_Started*/
+extern union tHandler OSI_ErrorHandler;/*OSI_ErrorHandler*/
+extern int16 OSI_ErrorCode;/*OSI_ErrorCode*/
+extern int16 OSI_ErrorFunc;/*OSI_ErrorFunc*/
+extern char *OSI_ErrorFile;/*OSI_ErrorFile*/
+extern int16 OSI_open(char *);/*OSI_open*/
+extern OSI_close(int16);/*OSI_close*/
+extern int32 OSI_read(int16, int32, int32, void far *);/*OSI_read*/
+extern int32 OSI_fileSize(int16);/*OSI_fileSize*/
+extern int16 OSI_Started;/*OSI_Started*/
 extern C_2AFC_000A();/*OSI_lowInit?*/
 extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 extern C_2B57_0044(int16);/*OSI_randomize*/
 
 /*other game modules*/
-extern char D_03AE;/*AnimateAtPrompt*/
-extern struct tClipInfo *D_03EC;/*CurClip*/
-extern int16 D_2362;
-extern int16 D_2810;/*music on*/
-extern char D_2869;/*AvatarPortrait: 0 = no character*/
-extern C_0359_1A65();/*GameLoop*/
-extern far C_05D0_01F5();/*CON_UpdateMousePointer*/
-extern C_05D0_047A();/*GAME_Load*/
-extern int16 C_05D0_22C8();/*CON_getch*/
-extern C_05D0_2562(struct tClipInfo *, int16, int16, int16, int16);/*CON_createClip*/
-extern C_05D0_25AD(struct tClipInfo *);/*CON_setClip*/
-extern cdecl C_05D0_2DB9(char far *, ...);/*CON_printf*/
-extern C_08CB_0517();/*MAP_InitChunkCache*/
-extern C_0A5D_25CC();/*OBJ_DeleteTmpBlocks*/
-extern C_0A5D_38A9();/*OBJ_InitLists*/
-extern C_2701_000A();
-extern C_2701_0190(int16);
-extern C_2701_01F1();
-extern C_276B_0005(int16);/*InitGraphicsDriver*/
+extern char AnimateAtPrompt;/*AnimateAtPrompt*/
+extern struct tClipInfo *CurClip;/*CurClip*/
+extern int16 HatchingDisabled;
+extern int16 SoundFlag;/*music on*/
+extern char AvatarPortrait;/*AvatarPortrait: 0 = no character*/
+extern GameLoop();/*GameLoop*/
+extern far CON_UpdateMousePointer();/*CON_UpdateMousePointer*/
+extern GAME_Load();/*GAME_Load*/
+extern int16 CON_getch();/*CON_getch*/
+extern CON_createClip(struct tClipInfo *, int16, int16, int16, int16);/*CON_createClip*/
+extern CON_setClip(struct tClipInfo *);/*CON_setClip*/
+extern cdecl CON_printf(char far *, ...);/*CON_printf*/
+extern MAP_InitChunkCache();/*MAP_InitChunkCache*/
+extern OBJ_DeleteTmpBlocks();/*OBJ_DeleteTmpBlocks*/
+extern OBJ_InitLists();/*OBJ_InitLists*/
+extern MUS_InitDriver();
+extern MUS_PlaySong(int16);
+extern MUS_PlayAreaSong();
+extern InitGraphicsDriver(int16);/*InitGraphicsDriver*/
 extern int16 C_29D1_000E(int16);/*KBD_GetKey*/
-extern C_2A81_0098(int16);/*DISK_confirm*/
-extern C_2A81_0255();/*DISK_full*/
-extern C_2A81_02A6();/*DISK_init*/
-extern cdecl C_2ABF_0008(struct tMouse *);/*MOUSE_INIT*/
-extern cdecl C_2ABF_005E(void far *, int16);/*MOUSE_POINTER*/
+extern DISK_confirm(int16);/*DISK_confirm*/
+extern DISK_full();/*DISK_full*/
+extern DISK_init();/*DISK_init*/
+extern cdecl MOUSE_INIT(struct tMouse *);/*MOUSE_INIT*/
+extern cdecl MOUSE_POINTER(void far *, int16);/*MOUSE_POINTER*/
 extern cdecl C_2ABF_013D();/*MOUSE_SHOW*/
 
 /*Savage Empire's library*/
@@ -238,9 +238,9 @@ extern union tHandler D_ED10;/*GrDriver*/
 
 	pRetBuff = pBuffer;
 	if(isZ == 0) {
-		fileHandle = C_0000_0245(fname);
-		C_0000_0336(fileHandle, 0, C_0000_0617(fileHandle), pBuffer);
-		C_0000_0284(fileHandle);
+		fileHandle = OSI_open(fname);
+		OSI_read(fileHandle, 0, OSI_fileSize(fileHandle), pBuffer);
+		OSI_close(fileHandle);
 	} else {
 		LZC_load(fname, 0, pBuffer, 0, D_3EB6);
 	}
@@ -258,29 +258,29 @@ extern union tHandler D_ED10;/*GrDriver*/
 	struct tClipInfo *savedClip;
 
 	/*end of file reached: not an error*/
-	if(D_01FA == -1 && D_01FC == 5/*OSI_read*/)
+	if(OSI_ErrorCode == -1 && OSI_ErrorFunc == 5/*OSI_read*/)
 		if(IgnoreShortRead)
 			return;
 	/*deleting a file that does not exist: not an error*/
-	if(D_01FA == 2 && D_01FC == 4/*OSI_delete*/)
+	if(OSI_ErrorCode == 2 && OSI_ErrorFunc == 4/*OSI_delete*/)
 		return;
 	if(ConsoleReady) {
-		savedClip = D_03EC;
-		C_05D0_25AD(&(D_B644[3]));
-		if(D_01FA == -1 && D_01FC == 6/*OSI_write*/) {
-			C_2A81_0255();
+		savedClip = CurClip;
+		CON_setClip(&(D_B644[3]));
+		if(OSI_ErrorCode == -1 && OSI_ErrorFunc == 6/*OSI_write*/) {
+			DISK_full();
 		} else {
-			C_05D0_2DB9("DISK ERROR!!!! Function: %d, error: %d, file: ", D_01FC, D_01FA);
-			C_05D0_2DB9(D_01FE);
-			C_05D0_2DB9("\n");
+			CON_printf("DISK ERROR!!!! Function: %d, error: %d, file: ", OSI_ErrorFunc, OSI_ErrorCode);
+			CON_printf(OSI_ErrorFile);
+			CON_printf("\n");
 			/*wait for a key (flushing the keyboard buffer)*/
 			while(!(key = C_29D1_000E(1)));
 		}
-		C_05D0_25AD(savedClip);
+		CON_setClip(savedClip);
 	}
 	/*not <CTRL+C>/<ESC>: retry*/
 	if(key != 3 && key != 27)
-		D_01FA = 0;
+		OSI_ErrorCode = 0;
 }
 
 /*give all the remaining memory (but 16 bytes) to the graphic driver (which
@@ -303,13 +303,13 @@ extern union tHandler D_ED10;/*GrDriver*/
 		memBP.iii.ofs = linearAddr & 0xf;
 	}
 	aSegment = linearAddr >> 4;
-	C_2A81_0098(4);
+	DISK_confirm(4);
 	GR_INIT_MEMORY(aSegment, (uint16)(D_54EC >> 4));
 	D_3296 = D_54EC >> 10;
 	D_9CF2 = D_ED0C->pDriverMem;
 	if(D_9CF2 == 0) {
-		C_05D0_2DB9("Insufficient memory. See your Ref Card.\n");
-		C_05D0_22C8();
+		CON_printf("Insufficient memory. See your Ref Card.\n");
+		CON_getch();
 		GR_SHUTDOWN();
 		ShutdownSound();
 		MEM_shutdown(8);
@@ -318,31 +318,31 @@ extern union tHandler D_ED10;/*GrDriver*/
 	D_50FA = ((int32)D_9CF2 >> 16) + (((int32)D_9CF2 & 0xffff) >> 4);
 
 	/*animated tiles: count, tile number, first frame, frame mask, shift*/
-	C_2A81_0098(1);
-	animFile = C_0000_0245("animdata");
-	C_0000_0336(animFile, 0, 2, &D_9CF8);
-	C_0000_0336(animFile, -1, 0x20 * sizeof(int16), D_B4FE);
-	C_0000_0336(animFile, -1, 0x20 * sizeof(int16), D_7744);
-	C_0000_0336(animFile, -1, 0x20, D_3276);
-	C_0000_0336(animFile, -1, 0x20, D_B542);
-	C_0000_0284(animFile);
+	DISK_confirm(1);
+	animFile = OSI_open("animdata");
+	OSI_read(animFile, 0, 2, &D_9CF8);
+	OSI_read(animFile, -1, 0x20 * sizeof(int16), D_B4FE);
+	OSI_read(animFile, -1, 0x20 * sizeof(int16), D_7744);
+	OSI_read(animFile, -1, 0x20, D_3276);
+	OSI_read(animFile, -1, 0x20, D_B542);
+	OSI_close(animFile);
 
 	/*0x800 tiles terrain flags, 0x800 tiles flags, 0x400 types weight,
 	  0x800 tiles flags #2*/
-	C_2A81_0098(1);
-	flagFile = C_0000_0245("tileflag");
-	C_0000_0336(flagFile, 0, 0x800, D_B4FA);
-	C_0000_0336(flagFile, -1, 0x800, D_6DF0);
-	C_0000_0336(flagFile, -1, 0x400, D_763C);
-	C_0000_0336(flagFile, -1, 0x800, D_7640);
-	C_0000_0284(flagFile);
+	DISK_confirm(1);
+	flagFile = OSI_open("tileflag");
+	OSI_read(flagFile, 0, 0x800, D_B4FA);
+	OSI_read(flagFile, -1, 0x800, D_6DF0);
+	OSI_read(flagFile, -1, 0x400, D_763C);
+	OSI_read(flagFile, -1, 0x800, D_7640);
+	OSI_close(flagFile);
 }
 
 /*display the main screen background (screen.lzc, in a temporary block)*/
 /*C_0268_0456*/ShowMainScreen() {
 	void far *pixmap;
 
-	C_2A81_0098(1);
+	DISK_confirm(1);
 	pixmap = MEM_alloc(LIB_entrySize("screen.lzc", 0), 0);
 	LZC_load("screen.lzc", 0, pixmap, 0, D_3EB6);
 	GR_DRAW_BITMAP(&D_3268, 0, 0, pixmap, 0);
@@ -372,10 +372,10 @@ extern union tHandler D_ED10;/*GrDriver*/
 
 	if(GrAdapter == 0) {
 		__MemAlloc(&D_B562, 0x100 * 3);
-		C_2A81_0098(1);
-		fileHandle = C_0000_0245("sepal");
-		C_0000_0336(fileHandle, 0, 0x100 * 3, D_B562);
-		C_0000_0284(fileHandle);
+		DISK_confirm(1);
+		fileHandle = OSI_open("sepal");
+		OSI_read(fileHandle, 0, 0x100 * 3, D_B562);
+		OSI_close(fileHandle);
 		SetVGAPalette();
 	} else {
 		GR_INIT_PALETTE();
@@ -454,10 +454,10 @@ extern union tHandler D_ED10;/*GrDriver*/
 			case 'T': GrAdapter = 2; break;
 			case 'M': MouseOn = 1; break;
 			case 'K': MouseOn = 0; break;
-			case 'N': MusicAdapter = 0; soundCard = 0; D_2810 = 0; break;
-			case 'A': MusicAdapter = 1; soundCard = 2; D_2810 = 1; break;
-			case 'R': MusicAdapter = 1; soundCard = 1; D_2810 = 1; break;
-			case 'P': MusicAdapter = 0; soundCard = 3; D_2810 = 1; break;
+			case 'N': MusicAdapter = 0; soundCard = 0; SoundFlag = 0; break;
+			case 'A': MusicAdapter = 1; soundCard = 2; SoundFlag = 1; break;
+			case 'R': MusicAdapter = 1; soundCard = 1; SoundFlag = 1; break;
+			case 'P': MusicAdapter = 0; soundCard = 3; SoundFlag = 1; break;
 		}
 	}
 }
@@ -478,12 +478,12 @@ extern union tHandler D_ED10;/*GrDriver*/
 	for(i = 0; i < now[1]; i++)
 		C_2B57_001F(0, 2);
 	/*config: CONFIG.SE (6 characters) then the command line arguments*/
-	fileHandle = C_0000_0245("config.se");
+	fileHandle = OSI_open("config.se");
 	if(fileHandle >= 0) {
-		C_0000_0336(fileHandle, 0, 6, cfgString);
+		OSI_read(fileHandle, 0, 6, cfgString);
 		cfgString[6] = 0;
 		cfg_parse(cfgString);
-		C_0000_0284(fileHandle);
+		OSI_close(fileHandle);
 	}
 	for(i = 1; i < argc; i ++)
 		cfg_parse(argv[i]);
@@ -497,10 +497,10 @@ extern union tHandler D_ED10;/*GrDriver*/
 	}
 	lzcWorkArea = D_3EB6;
 
-	C_2A81_02A6();
+	DISK_init();
 	C_2AFC_000A();
 	/*install the file error handler*/
-	D_01F6.f = FileErrorHandler;
+	OSI_ErrorHandler.f = FileErrorHandler;
 	/*the surfaces (scanline offset tables) are only used by the mouse code:
 	  Screen = the 320x200 screen, MapSurface = the map view*/
 	D_3268.pScanlines = D_4D4A;
@@ -571,32 +571,32 @@ extern union tHandler D_ED10;/*GrDriver*/
 		}
 		D_3E9C.shapes = D_50FC;
 		D_3E9C.surface = &D_3268;
-		C_2ABF_0008(&D_3E9C);
-		D_3E9C.onMove = C_05D0_01F5;
-		C_2ABF_005E(D_50FC, 0);
+		MOUSE_INIT(&D_3E9C);
+		D_3E9C.onMove = CON_UpdateMousePointer;
+		MOUSE_POINTER(D_50FC, 0);
 	}
-	C_276B_0005(GrAdapter);/*init gr*/
+	InitGraphicsDriver(GrAdapter);/*init gr*/
 	LoadPalette();
 	/*font*/
 	__MemAlloc(&pFont, LIB_entrySize("system.lzc", 3));
 	D_ED0C->font = LZC_load("system.lzc", 3, pFont, 0, D_3EB6);
 	ConsoleReady = 1;
 	/*text windows: [0] whole screen, [1] status area, [3] message area*/
-	C_05D0_2562(&(D_B644[0]), 0, 0, 39, 24);
-	C_05D0_25AD(&(D_B644[0]));
-	D_03EC->attrFlags |= 1;
-	D_03EC->attrFlags |= 0x20;
-	D_03EC->attrFlags |= 4;
+	CON_createClip(&(D_B644[0]), 0, 0, 39, 24);
+	CON_setClip(&(D_B644[0]));
+	CurClip->attrFlags |= 1;
+	CurClip->attrFlags |= 0x20;
+	CurClip->attrFlags |= 4;
 	ShowMainScreen();
-	C_05D0_2562(&(D_B644[1]), 23, 1, 38, 13);
-	C_05D0_2562(&(D_B644[3]), 23, 16, 38, 23);
-	C_05D0_2562(&(D_B644[2]), 2, 3, 19, 18);
-	C_05D0_25AD(&(D_B644[3]));
+	CON_createClip(&(D_B644[1]), 23, 1, 38, 13);
+	CON_createClip(&(D_B644[3]), 23, 16, 38, 23);
+	CON_createClip(&(D_B644[2]), 2, 3, 19, 18);
+	CON_setClip(&(D_B644[3]));
 	/*message area: word wrap, scroll, capitalize*/
-	D_03EC->attrFlags |= 1;
-	D_03EC->attrFlags |= 0x20;
-	D_03EC->attrFlags |= 4;
-	C_2701_000A();
+	CurClip->attrFlags |= 1;
+	CurClip->attrFlags |= 0x20;
+	CurClip->attrFlags |= 4;
+	MUS_InitDriver();
 
 	__MemAlloc(&D_B4FA, 0x800);
 	__MemAlloc(&D_6DF0, 0x800);
@@ -640,21 +640,21 @@ extern union tHandler D_ED10;/*GrDriver*/
 			D_7784[i] = D_7784[i - 1] + 0x50;
 	}
 
-	C_0A5D_38A9();
+	OBJ_InitLists();
 
 	InitGraphicsData();
 
-	D_2B7C = 1;
-	C_08CB_0517();/*empty the map chunk cache*/
-	D_2362 = 1;
-	C_05D0_047A();/*load the game*/
+	OSI_Started = 1;
+	MAP_InitChunkCache();/*empty the map chunk cache*/
+	HatchingDisabled = 1;
+	GAME_Load();/*load the game*/
 
 	/*no character in the saved game: go back to SAVAGE.EXE*/
-	if(D_2869 == 0) {
-		C_05D0_2DB9("You must first create a character. ");
-		D_03AE = 0;
-		C_05D0_22C8();
-		C_2A81_0098(1);
+	if(AvatarPortrait == 0) {
+		CON_printf("You must first create a character. ");
+		AnimateAtPrompt = 0;
+		CON_getch();
+		DISK_confirm(1);
 		GR_SHUTDOWN();
 		ShutdownSound();
 		BuildConfigString(cfgString);
@@ -664,15 +664,15 @@ extern union tHandler D_ED10;/*GrDriver*/
 
 	if(MouseOn)
 		C_2ABF_013D();
-	C_2701_01F1();
+	MUS_PlayAreaSong();
 
 	/*-- game loop --*/
-	C_0359_1A65();
+	GameLoop();
 	/*-- --*/
 
 	/*exit: stop the music, delete the temporary files*/
-	C_2701_0190(0);
-	C_0A5D_25CC();
+	MUS_PlaySong(0);
+	OBJ_DeleteTmpBlocks();
 	GR_SHUTDOWN();
 	ShutdownSound();
 	MEM_shutdown(8);

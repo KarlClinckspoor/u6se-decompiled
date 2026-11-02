@@ -28,42 +28,42 @@ struct tClipInfo/*size:9*/ {
 };
 
 /*console*/
-extern int16 C_05D0_0004(int16, int16, int16, int16);/*CON_mouseOffAt(x0, y0, x1, y1): hide the mouse if over the rectangle*/
-extern C_05D0_004D(int16);/*CON_mouseOn: show the mouse again (CON_mouseOffAt's result)*/
-extern C_05D0_0D53(int16, int16, int16);/*DrawInvObject(objNum, x, y)*/
-extern C_05D0_0E16(int16, int16, int16, int16);/*DrawSlotTile(tile, background tile, x, y)*/
-extern C_05D0_25AD(struct tClipInfo *);/*CON_setClip*/
-extern C_05D0_25E4(int16, int16);/*CON_gotoxy*/
-extern cdecl C_05D0_2DB9(char far *, ...);/*CON_printf*/
+extern int16 CON_mouseOffAt(int16, int16, int16, int16);/*CON_mouseOffAt(x0, y0, x1, y1): hide the mouse if over the rectangle*/
+extern CON_mouseOn(int16);/*CON_mouseOn: show the mouse again (CON_mouseOffAt's result)*/
+extern DrawInvObject(int16, int16, int16);/*DrawInvObject(objNum, x, y)*/
+extern DrawSlotTile(int16, int16, int16, int16);/*DrawSlotTile(tile, background tile, x, y)*/
+extern CON_setClip(struct tClipInfo *);/*CON_setClip*/
+extern CON_gotoxy(int16, int16);/*CON_gotoxy*/
+extern cdecl CON_printf(char far *, ...);/*CON_printf*/
 /*object*/
-extern int16 C_0A5D_0068(int16, int16);/*the frame of an NPC type facing a direction (U6: OBJ_MakeDirFrame)*/
-extern int16 C_0A5D_0739(int16);/*FindInv: first object of an inventory*/
-extern int16 C_0A5D_0792(void);/*NextInv*/
-extern int16 C_0A5D_102A(int16, int16, int16, int16);/*add an object (type and frame, position, quantity, owner) to an inventory; -1 if no room (U6: AddInvObj)*/
-extern C_0A5D_1506(int16);/*DeleteObj*/
-extern int16 C_0A5D_1BF3(int16, int16);/*OBJ_IsInside(objNum, container)*/
-extern int16 C_0A5D_213E(int16);/*QuanType: 4 quantity on 16 bits, 2 on 8 bits, else 0*/
-extern char *C_0A5D_3A76(int16);/*GetObjectString*/
+extern int16 OBJ_MakeDirFrame(int16, int16);/*the frame of an NPC type facing a direction (U6: OBJ_MakeDirFrame)*/
+extern int16 FindInv(int16);/*FindInv: first object of an inventory*/
+extern int16 NextInv(void);/*NextInv*/
+extern int16 AddInvObj(int16, int16, int16, int16);/*add an object (type and frame, position, quantity, owner) to an inventory; -1 if no room (U6: AddInvObj)*/
+extern DeleteObj(int16);/*DeleteObj*/
+extern int16 OBJ_IsInside(int16, int16);/*OBJ_IsInside(objNum, container)*/
+extern int16 QuanType(int16);/*QuanType: 4 quantity on 16 bits, 2 on 8 bits, else 0*/
+extern char *GetObjectString(int16);/*GetObjectString*/
 /*other modules*/
-extern int16 C_1810_062A(int16);/*MaxHP*/
-extern int16 C_1DBD_0A02(int16);/*IsContainerType*/
-extern C_276B_1756(void);/*draws the sky bar above the party list (U6: DrawSkyBar)*/
-extern C_276B_1953(int16, int16, int16);/*draws an NPC's portrait (npcNum, x, y) (U6: DrawPortrait)*/
-extern C_276B_1D87(int16, int16, int16);/*draws the figure of the equipment view (x, y, npcNum) (U6: DrawPaperDoll)*/
-extern char far C_2F65_01A1[];/*"A torch burned out.\n" (far messages)*/
+extern int16 MaxHP(int16);/*MaxHP*/
+extern int16 IsContainerType(int16);/*IsContainerType*/
+extern DrawSkyBar(void);/*draws the sky bar above the party list (U6: DrawSkyBar)*/
+extern DrawPortrait(int16, int16, int16);/*draws an NPC's portrait (npcNum, x, y) (U6: DrawPortrait)*/
+extern DrawPaperDoll(int16, int16, int16);/*draws the figure of the equipment view (x, y, npcNum) (U6: DrawPaperDoll)*/
+extern char far BurnOutMsg[];/*"A torch burned out.\n" (far messages)*/
 
-extern int16 D_03AF;/*console state set by CON_printf (cleared here before "Ready-"; meaning unknown)*/
-extern int16 D_03C5;/*StatusMember: party index shown in the portrait/equipment view*/
-extern int16 D_03CD;/*StatusDisplay: 0x92 when the equipment view is shown*/
-extern struct tClipInfo *D_03EC;/*CurClip: current text window*/
-extern int16 D_24D8;/*ColorRed*/
-extern int16 D_24DA;/*ColorGreen*/
-extern int16 D_24DC;/*ColorBlue*/
-extern int16 D_24E2;/*color set before drawing a portrait*/
-extern int16 D_24E4;/*ColorPaper*/
+extern int16 LastNumberPlural;/*console state set by CON_printf (cleared here before "Ready-"; meaning unknown)*/
+extern int16 StatusMember;/*StatusMember: party index shown in the portrait/equipment view*/
+extern int16 StatusDisplay;/*StatusDisplay: 0x92 when the equipment view is shown*/
+extern struct tClipInfo *CurClip;/*CurClip: current text window*/
+extern int16 ColorRed;/*ColorRed*/
+extern int16 ColorGreen;/*ColorGreen*/
+extern int16 ColorBlue;/*ColorBlue*/
+extern int16 ColorBlack;/*color set before drawing a portrait*/
+extern int16 ColorPaper;/*ColorPaper*/
 extern int16 D_24E6;/*ColorText*/
-extern unsigned char D_27F2;/*Active: party index of the active member*/
-extern int16 D_27F4, D_27F6;/*MapX, MapY*/
+extern unsigned char Active;/*Active: party index of the active member*/
+extern int16 MapX, MapY;/*MapX, MapY*/
 extern unsigned char D_329C[];/*ObjStatus: 0x18 position bits; 0x80 on an NPC: out of the party's control? (blue hit points, "WILD" combat mode)*/
 extern unsigned char D_4606[];/*DEXTE*/
 extern unsigned char D_4EDA[];/*Party*/
@@ -98,17 +98,17 @@ extern int16 D_E668;/*WeightEquip*/
 extern int16 D_E66A;/*WeightInven*/
 extern union tHandler D_ED10;/*GrDriver: entry point of the graphic driver (ofs = function number)*/
 
-#define StatusMember D_03C5
-#define StatusDisplay D_03CD
-#define CurClip D_03EC
-#define ColorRed D_24D8
-#define ColorGreen D_24DA
-#define ColorBlue D_24DC
-#define ColorPaper D_24E4
+#define StatusMember StatusMember
+#define StatusDisplay StatusDisplay
+#define CurClip CurClip
+#define ColorRed ColorRed
+#define ColorGreen ColorGreen
+#define ColorBlue ColorBlue
+#define ColorPaper ColorPaper
 #define ColorText D_24E6
-#define Active D_27F2
-#define MapX D_27F4
-#define MapY D_27F6
+#define Active Active
+#define MapX MapX
+#define MapY MapY
 #define ObjStatus D_329C
 #define DEXTE D_4606
 #define Party D_4EDA
@@ -145,21 +145,21 @@ extern union tHandler D_ED10;/*GrDriver: entry point of the graphic driver (ofs 
 #define WeightInven D_E66A
 #define GrDriver D_ED10
 
-#define CON_mouseOffAt C_05D0_0004
-#define CON_mouseOn C_05D0_004D
-#define DrawInvObject C_05D0_0D53
-#define DrawSlotTile C_05D0_0E16
-#define CON_setClip C_05D0_25AD
-#define CON_gotoxy C_05D0_25E4
-#define CON_printf C_05D0_2DB9
-#define FindInv C_0A5D_0739
-#define NextInv C_0A5D_0792
-#define DeleteObj C_0A5D_1506
-#define OBJ_IsInside C_0A5D_1BF3
-#define QuanType C_0A5D_213E
-#define GetObjectString C_0A5D_3A76
-#define MaxHP C_1810_062A
-#define IsContainerType C_1DBD_0A02
+#define CON_mouseOffAt CON_mouseOffAt
+#define CON_mouseOn CON_mouseOn
+#define DrawInvObject DrawInvObject
+#define DrawSlotTile DrawSlotTile
+#define CON_setClip CON_setClip
+#define CON_gotoxy CON_gotoxy
+#define CON_printf CON_printf
+#define FindInv FindInv
+#define NextInv NextInv
+#define DeleteObj DeleteObj
+#define OBJ_IsInside OBJ_IsInside
+#define QuanType QuanType
+#define GetObjectString GetObjectString
+#define MaxHP MaxHP
+#define IsContainerType IsContainerType
 
 #define GR_SET_COLOR(c)              (GrDriver.iii.ofs = 0x06, (*GrDriver.f)(c))
 #define GR_FILL_RECT(x0,y0,x1,y1)    (GrDriver.iii.ofs = 0x12, (*GrDriver.f)(x0,y0,x1,y1))
@@ -199,13 +199,13 @@ extern union tHandler D_ED10;/*GrDriver: entry point of the graphic driver (ofs 
 	mouseState = CON_mouseOffAt(183, 6, 314, 118);
 	GR_SET_COLOR(ColorPaper);
 	GR_FILL_RECT(183, 6, 314, 118);
-	C_276B_1756();
+	DrawSkyBar();
 	CON_setClip(&TextWindows[1]);
 	for(i = 0; i < PartySize && i < 7; i ++) {
 		objNum = Party[i];
 		/*original (not current) shape, facing south*/
 		objTyp = OrigShapeType[objNum] & 0x3ff;
-		tile = C_0A5D_0068(objTyp, 4) + BaseTile[objTyp];
+		tile = OBJ_MakeDirFrame(objTyp, 4) + BaseTile[objTyp];
 		DrawSlotTile(tile, TIL_SLOT_EMPTY, 184, TIL2SCR(i - first) + 8);
 		CON_gotoxy(13, (i - first) << 1);
 		/*hit points: green if poisoned, red if low, blue if ObjStatus 0x80 (not the avatar)*/
@@ -264,8 +264,8 @@ extern union tHandler D_ED10;/*GrDriver: entry point of the graphic driver (ofs 
 	CON_gotoxy((17 - strlen(Names[partyIdx])) / 2, 0);
 	CON_printf(/*0921*/"%s\n", Names[partyIdx]);
 	objNum = Party[partyIdx];
-	GR_SET_COLOR(D_24E2);
-	C_276B_1953(objNum, 185, 16);
+	GR_SET_COLOR(ColorBlack);
+	DrawPortrait(objNum, 185, 16);
 	CON_gotoxy(10, 1); CON_printf(/*0928*/"STR:%d\n", STREN[objNum]);
 	CON_gotoxy(10, 2); CON_printf(/*0930*/"DEX:%d\n", DEXTE[objNum]);
 	CON_gotoxy(10, 3); CON_printf(/*0938*/"INT:%d\n", INTEL[objNum]);
@@ -533,7 +533,7 @@ extern union tHandler D_ED10;/*GrDriver: entry point of the graphic driver (ofs 
 	objTyp = GetType(InvenOwner);
 	if(IsNPC(InvenOwner)) {
 		objTyp = OrigShapeType[InvenOwner] & 0x3ff;
-		tile = C_0A5D_0068(objTyp, 4) + BaseTile[objTyp];
+		tile = OBJ_MakeDirFrame(objTyp, 4) + BaseTile[objTyp];
 		DrawSlotTile(tile, TIL_SLOT_EMPTY, 272, 16);
 	} else {
 		DrawSlotTile(TILE_FRAME(InvenOwner), TIL_SLOT_EMPTY, 272, 16);
@@ -601,7 +601,7 @@ extern union tHandler D_ED10;/*GrDriver: entry point of the graphic driver (ofs 
 		CON_gotoxy((17 - strlen(Names[StatusMember])) / 2, 0);
 		CON_printf(/*0921*/"%s\n", Names[StatusMember]);
 	}
-	C_276B_1D87(200, 32, Party[StatusMember]);
+	DrawPaperDoll(200, 32, Party[StatusMember]);
 	CON_gotoxy(0, 9); CON_printf(/*0973*/"E:");
 	CON_gotoxy(0, 10); CON_printf(/*0976*/"I:");
 	if(!ShowNPCInven) {
@@ -729,7 +729,7 @@ extern union tHandler D_ED10;/*GrDriver: entry point of the graphic driver (ofs 
 	npcNum = Party[StatusMember];
 	objTyp = GetShape(SelectionObj);
 	strength = STREN[npcNum];
-	D_03AF = 0;
+	LastNumberPlural = 0;
 	CON_printf(/*0979*/"Ready-");
 	if(objTyp == 0xd0 || objTyp == 0xd1)
 		CON_printf(/*0980*/"torch\n");
@@ -776,10 +776,10 @@ extern union tHandler D_ED10;/*GrDriver: entry point of the graphic driver (ofs 
 					GetQuan(SelectionObj) -= 1;
 				else
 					DeleteObj(SelectionObj);
-				Equipment[slot] = C_0A5D_102A(objTyp, 0x18, 1, owner);
+				Equipment[slot] = AddInvObj(objTyp, 0x18, 1, owner);
 			} else {
 				DeleteObj(SelectionObj);
-				Equipment[slot] = C_0A5D_102A(objTyp, 0x18, 0, owner);
+				Equipment[slot] = AddInvObj(objTyp, 0x18, 0, owner);
 			}
 			InvenSize --;
 			STAT_RefreshInventory(Party[StatusMember]);
@@ -799,7 +799,7 @@ extern union tHandler D_ED10;/*GrDriver: entry point of the graphic driver (ofs 
 	if(objTyp == 0xd1) {
 		DeleteObj(objNum);
 		CON_printf(/*091F*/"\n");
-		CON_printf(C_2F65_01A1);
+		CON_printf(BurnOutMsg);
 		return 1;
 	}
 	return 0;
@@ -831,8 +831,8 @@ extern union tHandler D_ED10;/*GrDriver: entry point of the graphic driver (ofs 
 			Equipment[5] = 0;
 		}
 		DeleteObj(SelectionObj);
-		if(C_0A5D_102A(objTyp, 0x10, 1, npcNum) == -1) {
-			C_0A5D_102A(objTyp, 0x18, 1, npcNum);
+		if(AddInvObj(objTyp, 0x10, 1, npcNum) == -1) {
+			AddInvObj(objTyp, 0x18, 1, npcNum);
 			CON_printf(/*09E1*/"There is no room left in your pack.\n");
 		}
 	}

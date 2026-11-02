@@ -74,85 +74,85 @@ struct tGr {
 };
 
 /*mouse (OSI assembly)*/
-extern cdecl C_2ABF_005E(void far *, int16);/*MOUSE_POINTER*/
-extern cdecl C_2ABF_00A7();/*MOUSE_SERVE*/
+extern cdecl MOUSE_POINTER(void far *, int16);/*MOUSE_POINTER*/
+extern cdecl MOUSE_SERVE();/*MOUSE_SERVE*/
 extern cdecl C_2ABF_013D();/*MOUSE_SHOW*/
 extern cdecl C_2ABF_014E();/*MOUSE_HIDE*/
-extern int16 cdecl C_2ABF_01F8(struct tSurface *);/*MOUSE_IN_AREA*/
+extern int16 cdecl MOUSE_IN_AREA(struct tSurface *);/*MOUSE_IN_AREA*/
 /*OSI file routines (asm)*/
-extern int16 C_0000_0245(char *);/*OSI_open*/
-extern C_0000_0284(int16);/*OSI_close*/
-extern int16 C_0000_02B8(char *);/*OSI_create*/
-extern int32 C_0000_0336(int16, int32, int32, void far *);/*OSI_read*/
-extern int32 C_0000_041C(int16, int32, int32, void far *);/*OSI_write*/
+extern int16 OSI_open(char *);/*OSI_open*/
+extern OSI_close(int16);/*OSI_close*/
+extern int16 OSI_create(char *);/*OSI_create*/
+extern int32 OSI_read(int16, int32, int32, void far *);/*OSI_read*/
+extern int32 OSI_write(int16, int32, int32, void far *);/*OSI_write*/
 extern int16 C_29D1_000E(int16);/*KBD_GetKey*/
 extern cdecl TimerDelay(long);/*wait (2383 per millisecond)*/
 /*other game modules*/
-extern C_0268_0574();/*PaletteAnimation (main)*/
-extern C_0359_0B23(int16);/*DrawMapWindow?*/
-extern C_0359_0CD4();/*DisplayTick*/
-extern C_0359_11B6(int16);/*PassTime*/
-extern C_0359_1806();/*RefreshStatus?*/
-extern C_08CB_00D0(int16, int16, int16);/*MAP_LoadChunkIndexes*/
-extern C_08CB_0517();/*MAP_InitChunkCache*/
-extern C_08CB_053A();/*MAP_LoadAround*/
-extern C_09DA_0327();/*VIS_UpdateView*/
-extern int16 C_0A5D_0068(int16, int16);/*OBJ_MakeDirFrame(type, direction)*/
-extern C_0A5D_1C76(int16, int16, int16, int16);/*MoveObj*/
-extern int16 C_0A5D_213E(int16);/*QuanType: 4 quantity on 16 bits, 2 on 8 bits, else 0*/
-extern C_0A5D_25CC();/*OBJ_DeleteTmpBlocks*/
-extern C_0A5D_3083(int16, int16, int16);/*LoadNewRegions*/
-extern C_0A5D_32CC();/*OBJ_CommitBlocks*/
-extern C_0A5D_38A9();/*OBJ_InitLists*/
-extern C_0A5D_390D();/*OBJ_RelinkNPCs*/
-extern C_0E13_016E();/*STAT_refreshComMode*/
-extern C_0E13_0E54(int16);/*STAT_RefreshInventory*/
-extern int16 C_0E13_10EA();/*STAT_PickInvenSlot*/
-extern int16 C_0E13_119B();/*STAT_PickEquipSlot*/
-extern C_0E13_12D4();/*STAT_Ready*/
-extern C_0E13_1564();/*STAT_Unready*/
-extern C_0F79_00E0(int16, int16, int16);/*TALK_talkTo(partyId, objNum, showName)*/
-extern C_130F_4EEF();/*InitNPCTracker*/
-extern int16 C_1810_0068(int16, int16, int16);/*COMBAT_TileDistance(objNum, x, y)*/
-extern C_1810_023B();/*COMBAT_breakOff*/
-extern int16 C_1810_0D5B(int16, int16, int16);/*COMBAT_GetTargetAt(objNum, x, y)*/
-extern int16 C_1DBD_0A02(int16);/*IsContainerType*/
-extern C_2701_01F1();/*MUS_PlayAreaSong?*/
-extern C_2A81_0098(int16);/*DISK_confirm*/
+extern PaletteAnimation();/*PaletteAnimation (main)*/
+extern DrawMapWindow(int16);/*DrawMapWindow?*/
+extern DisplayTick();/*DisplayTick*/
+extern PassTime(int16);/*PassTime*/
+extern RefreshStatus();/*RefreshStatus?*/
+extern MAP_LoadChunkIndexes(int16, int16, int16);/*MAP_LoadChunkIndexes*/
+extern MAP_InitChunkCache();/*MAP_InitChunkCache*/
+extern MAP_LoadAround();/*MAP_LoadAround*/
+extern VIS_UpdateView();/*VIS_UpdateView*/
+extern int16 OBJ_MakeDirFrame(int16, int16);/*OBJ_MakeDirFrame(type, direction)*/
+extern MoveObj(int16, int16, int16, int16);/*MoveObj*/
+extern int16 QuanType(int16);/*QuanType: 4 quantity on 16 bits, 2 on 8 bits, else 0*/
+extern OBJ_DeleteTmpBlocks();/*OBJ_DeleteTmpBlocks*/
+extern LoadNewRegions(int16, int16, int16);/*LoadNewRegions*/
+extern OBJ_CommitBlocks();/*OBJ_CommitBlocks*/
+extern OBJ_InitLists();/*OBJ_InitLists*/
+extern OBJ_RelinkNPCs();/*OBJ_RelinkNPCs*/
+extern STAT_refreshComMode();/*STAT_refreshComMode*/
+extern STAT_RefreshInventory(int16);/*STAT_RefreshInventory*/
+extern int16 STAT_PickInvenSlot();/*STAT_PickInvenSlot*/
+extern int16 STAT_PickEquipSlot();/*STAT_PickEquipSlot*/
+extern STAT_Ready();/*STAT_Ready*/
+extern STAT_Unready();/*STAT_Unready*/
+extern TALK_talkTo(int16, int16, int16);/*TALK_talkTo(partyId, objNum, showName)*/
+extern InitNPCTracker();/*InitNPCTracker*/
+extern int16 COMBAT_TileDistance(int16, int16, int16);/*COMBAT_TileDistance(objNum, x, y)*/
+extern COMBAT_breakOff();/*COMBAT_breakOff*/
+extern int16 COMBAT_GetTargetAt(int16, int16, int16);/*COMBAT_GetTargetAt(objNum, x, y)*/
+extern int16 IsContainerType(int16);/*IsContainerType*/
+extern MUS_PlayAreaSong();/*MUS_PlayAreaSong?*/
+extern DISK_confirm(int16);/*DISK_confirm*/
 
-extern char D_00AC[8], D_00B4[8];/*DirIncrX, DirIncrY*/
-extern int16 D_00D2;/*GrAdapter*/
-extern unsigned char D_00D8;/*MouseOn*/
-extern char D_0202;/*StatusDirty*/
-extern char D_0203;/*PromptFlag?*/
-extern char D_0205;/*IsArmageddon?*/
-extern int16 D_0206;/*IdleAnimTick*/
-extern int16 D_0208;/*MapAnimEnabled*/
-extern int16 D_0714[0x45];/*ObjBlkTmpPending*/
-extern int16 D_079E;/*MoveAppliesTerrain*/
-extern unsigned char D_08A2;/*PartyListTop*/
-extern unsigned char D_08A4;/*InvenScroll*/
-extern unsigned char D_0A39;/*IsInConversation*/
-extern int16 D_04D2, D_04D4, D_04D6;/*BuiltAreaX, BuiltAreaY, BuiltAreaZ (map)*/
-extern int16 D_0D43;/*AdvanceBlocked*/
-extern int16 D_2362;
-extern int16 D_24D6;/*ScreenFade*/
-extern int16 D_24D8;/*ColorRed*/
-extern int16 D_24E4;/*ColorPaper*/
+extern char DirIncrX[8], DirIncrY[8];/*DirIncrX, DirIncrY*/
+extern int16 GrAdapter;/*GrAdapter*/
+extern unsigned char MouseOn;/*MouseOn*/
+extern char StatusDirty;/*StatusDirty*/
+extern char PromptFlag;/*PromptFlag?*/
+extern char IsArmageddon;/*IsArmageddon?*/
+extern int16 IdleAnimTick;/*IdleAnimTick*/
+extern int16 MapAnimEnabled;/*MapAnimEnabled*/
+extern int16 ObjBlkTmpPending[0x45];/*ObjBlkTmpPending*/
+extern int16 MoveAppliesTerrain;/*MoveAppliesTerrain*/
+extern unsigned char PartyListTop;/*PartyListTop*/
+extern unsigned char InvenScroll;/*InvenScroll*/
+extern unsigned char IsInConversation;/*IsInConversation*/
+extern int16 BuiltAreaX, BuiltAreaY, BuiltAreaZ;/*BuiltAreaX, BuiltAreaY, BuiltAreaZ (map)*/
+extern int16 AdvanceBlocked;/*AdvanceBlocked*/
+extern int16 HatchingDisabled;
+extern int16 ScreenFade;/*ScreenFade*/
+extern int16 ColorRed;/*ColorRed*/
+extern int16 ColorPaper;/*ColorPaper*/
 extern int16 D_24E6;/*ColorText*/
-extern int16 D_24EC;/*color of the default command's frame*/
+extern int16 ColorBrown;/*color of the default command's frame*/
 extern int16 D_24EE;/*color to erase it*/
-extern unsigned char D_27E8;/*GameStateStart: first byte of the saved game state*/
-extern unsigned char D_27EC;/*day of the month*/
-extern unsigned char D_27ED;/*month*/
-extern int16 D_27EE;/*year*/
-extern unsigned char D_27F2;/*Active*/
-extern int16 D_27F4, D_27F6, D_27F8;/*MapX, MapY, MapZ*/
-extern char D_2860;/*InCombat*/
-extern unsigned char D_2863;/*DefaultCommand*/
-extern char D_286A;/*GameStateEnd*/
-extern int16 D_2A7A;/*DiskFullChoice*/
-extern int16 D_2B7E;/*TextIdle*/
+extern unsigned char IsOnQuest;/*GameStateStart: first byte of the saved game state*/
+extern unsigned char Date_D;/*day of the month*/
+extern unsigned char Date_M;/*month*/
+extern int16 Date_Y;/*year*/
+extern unsigned char Active;/*Active*/
+extern int16 MapX, MapY, MapZ;/*MapX, MapY, MapZ*/
+extern char InCombat;/*InCombat*/
+extern unsigned char DefaultCommand;/*DefaultCommand*/
+extern char GameStateEnd;/*GameStateEnd*/
+extern int16 DiskFullChoice;/*DiskFullChoice*/
+extern int16 TextIdle;/*TextIdle*/
 extern char far *D_3298;/*0x100 bytes*/
 extern unsigned char D_329C[];/*ObjStatus*/
 extern struct tMouse D_3E9C;/*Mouse*/
@@ -208,34 +208,34 @@ extern int16 D_E656;/*NPC_2Handed*/
 extern struct tGr far *D_ED0C;/*GrInfo*/
 extern union tHandler D_ED10;/*GrDriver*/
 
-#define DirIncrX D_00AC
-#define DirIncrY D_00B4
-#define GrAdapter D_00D2
-#define MouseOn D_00D8
-#define StatusDirty D_0202
-#define IdleAnimTick D_0206
-#define MapAnimEnabled D_0208
-#define ObjBlkTmpPending D_0714
-#define MoveAppliesTerrain D_079E
-#define PartyListTop D_08A2
-#define InvenScroll D_08A4
-#define IsInConversation D_0A39
-#define AdvanceBlocked D_0D43
-#define BuiltAreaX D_04D2
-#define BuiltAreaY D_04D4
-#define BuiltAreaZ D_04D6
-#define ScreenFade D_24D6
-#define ColorRed D_24D8
-#define ColorPaper D_24E4
+#define DirIncrX DirIncrX
+#define DirIncrY DirIncrY
+#define GrAdapter GrAdapter
+#define MouseOn MouseOn
+#define StatusDirty StatusDirty
+#define IdleAnimTick IdleAnimTick
+#define MapAnimEnabled MapAnimEnabled
+#define ObjBlkTmpPending ObjBlkTmpPending
+#define MoveAppliesTerrain MoveAppliesTerrain
+#define PartyListTop PartyListTop
+#define InvenScroll InvenScroll
+#define IsInConversation IsInConversation
+#define AdvanceBlocked AdvanceBlocked
+#define BuiltAreaX BuiltAreaX
+#define BuiltAreaY BuiltAreaY
+#define BuiltAreaZ BuiltAreaZ
+#define ScreenFade ScreenFade
+#define ColorRed ColorRed
+#define ColorPaper ColorPaper
 #define ColorText D_24E6
-#define Active D_27F2
-#define MapX D_27F4
-#define MapY D_27F6
-#define MapZ D_27F8
-#define InCombat D_2860
-#define DefaultCommand D_2863
-#define DiskFullChoice D_2A7A
-#define TextIdle D_2B7E
+#define Active Active
+#define MapX MapX
+#define MapY MapY
+#define MapZ MapZ
+#define InCombat InCombat
+#define DefaultCommand DefaultCommand
+#define DiskFullChoice DiskFullChoice
+#define TextIdle TextIdle
 #define ObjStatus D_329C
 #define Mouse D_3E9C
 #define NPCMode D_4706
@@ -277,48 +277,48 @@ extern union tHandler D_ED10;/*GrDriver*/
 #define GrInfo D_ED0C
 #define GrDriver D_ED10
 
-#define MOUSE_POINTER C_2ABF_005E
-#define MOUSE_SERVE C_2ABF_00A7
+#define MOUSE_POINTER MOUSE_POINTER
+#define MOUSE_SERVE MOUSE_SERVE
 #define MOUSE_SHOW C_2ABF_013D
 #define MOUSE_HIDE C_2ABF_014E
-#define MOUSE_IN_AREA C_2ABF_01F8
-#define OSI_open C_0000_0245
-#define OSI_close C_0000_0284
-#define OSI_create C_0000_02B8
-#define OSI_read C_0000_0336
-#define OSI_write C_0000_041C
+#define MOUSE_IN_AREA MOUSE_IN_AREA
+#define OSI_open OSI_open
+#define OSI_close OSI_close
+#define OSI_create OSI_create
+#define OSI_read OSI_read
+#define OSI_write OSI_write
 #define KBD_GetKey C_29D1_000E
-#define PaletteAnimation C_0268_0574
-#define DrawMapWindow C_0359_0B23
-#define DisplayTick C_0359_0CD4
-#define PassTime C_0359_11B6
-#define RefreshStatus C_0359_1806
-#define MAP_LoadChunkIndexes C_08CB_00D0
-#define MAP_InitChunkCache C_08CB_0517
-#define MAP_LoadAround C_08CB_053A
-#define VIS_UpdateView C_09DA_0327
-#define OBJ_MakeDirFrame C_0A5D_0068
-#define MoveObj C_0A5D_1C76
-#define QuanType C_0A5D_213E
-#define OBJ_DeleteTmpBlocks C_0A5D_25CC
-#define LoadNewRegions C_0A5D_3083
-#define OBJ_CommitBlocks C_0A5D_32CC
-#define OBJ_InitLists C_0A5D_38A9
-#define OBJ_RelinkNPCs C_0A5D_390D
-#define STAT_refreshComMode C_0E13_016E
-#define STAT_RefreshInventory C_0E13_0E54
-#define STAT_PickInvenSlot C_0E13_10EA
-#define STAT_PickEquipSlot C_0E13_119B
-#define STAT_Ready C_0E13_12D4
-#define STAT_Unready C_0E13_1564
-#define TALK_talkTo C_0F79_00E0
-#define InitNPCTracker C_130F_4EEF
-#define COMBAT_TileDistance C_1810_0068
-#define COMBAT_breakOff C_1810_023B
-#define COMBAT_GetTargetAt C_1810_0D5B
-#define IsContainerType C_1DBD_0A02
-#define MUS_PlayAreaSong C_2701_01F1
-#define DISK_confirm C_2A81_0098
+#define PaletteAnimation PaletteAnimation
+#define DrawMapWindow DrawMapWindow
+#define DisplayTick DisplayTick
+#define PassTime PassTime
+#define RefreshStatus RefreshStatus
+#define MAP_LoadChunkIndexes MAP_LoadChunkIndexes
+#define MAP_InitChunkCache MAP_InitChunkCache
+#define MAP_LoadAround MAP_LoadAround
+#define VIS_UpdateView VIS_UpdateView
+#define OBJ_MakeDirFrame OBJ_MakeDirFrame
+#define MoveObj MoveObj
+#define QuanType QuanType
+#define OBJ_DeleteTmpBlocks OBJ_DeleteTmpBlocks
+#define LoadNewRegions LoadNewRegions
+#define OBJ_CommitBlocks OBJ_CommitBlocks
+#define OBJ_InitLists OBJ_InitLists
+#define OBJ_RelinkNPCs OBJ_RelinkNPCs
+#define STAT_refreshComMode STAT_refreshComMode
+#define STAT_RefreshInventory STAT_RefreshInventory
+#define STAT_PickInvenSlot STAT_PickInvenSlot
+#define STAT_PickEquipSlot STAT_PickEquipSlot
+#define STAT_Ready STAT_Ready
+#define STAT_Unready STAT_Unready
+#define TALK_talkTo TALK_talkTo
+#define InitNPCTracker InitNPCTracker
+#define COMBAT_TileDistance COMBAT_TileDistance
+#define COMBAT_breakOff COMBAT_breakOff
+#define COMBAT_GetTargetAt COMBAT_GetTargetAt
+#define IsContainerType IsContainerType
+#define MUS_PlayAreaSong MUS_PlayAreaSong
+#define DISK_confirm DISK_confirm
 
 #define GR_SET_COLOR(c)              (GrDriver.iii.ofs = 0x06, (*GrDriver.f)(c))
 #define GR_PUT_PIXEL(x,y)            (GrDriver.iii.ofs = 0x09, (*GrDriver.f)(x,y))
@@ -617,7 +617,7 @@ the game's opening conversation on day 1/1/0*/
 
 	if(InCombat)
 		COMBAT_breakOff();
-	D_0205 = 0;
+	IsArmageddon = 0;
 	MapAnimEnabled = 1;
 	SelectMode = 0;
 	StatusDisplay = 0x91;
@@ -631,23 +631,23 @@ the game's opening conversation on day 1/1/0*/
 	MAP_InitChunkCache();
 	setDefaultCommand(0xff);
 	StatusDirty = 1;
-	D_2362 = 1;
+	HatchingDisabled = 1;
 	GAME_Load();
 	if(!(TalkFlags[0x21] & 1)) {
 		TALK_talkTo(Active, 0x21, 0);
-		D_27EC = 1;
-		D_27ED = 1;
-		D_27EE = 0;
+		Date_D = 1;
+		Date_M = 1;
+		Date_Y = 0;
 		RefreshStatus();
 	}
-	D_2362 = 0;
+	HatchingDisabled = 0;
 	InitNPCTracker();
 	MUS_PlayAreaSong();
 	PassTime(0);
 	VIS_UpdateView();
 	ScreenFade = 1;
 	DrawMapWindow(1);
-	D_0203 = 1;
+	PromptFlag = 1;
 }
 
 /*load the game: read "schedule", "basetile" and the saved state in
@@ -696,11 +696,11 @@ the map around the party*/
 	OSI_read(fd, -1, 0x100, D_5100);
 	OSI_read(fd, -1, 0x100, D_4602);
 	OSI_read(fd, -1, 0x100, D_45FE);
-	OSI_read(fd, -1, (int32)((char *)&D_286A - (char *)&D_27E8), &D_27E8);
+	OSI_read(fd, -1, (int32)((char *)&GameStateEnd - (char *)&IsOnQuest), &IsOnQuest);
 	OSI_close(fd);
 
 	OBJ_RelinkNPCs();
-	VarInt['Q' - 0x37] = D_27E8;
+	VarInt['Q' - 0x37] = IsOnQuest;
 	InCombat = 0;
 	MapX = GetX(Party[Active]);
 	MapY = GetY(Party[Active]);
@@ -731,7 +731,7 @@ aboard a vehicle are put back on the map first)*/
 	}
 	DISK_confirm(8);
 	OBJ_CommitBlocks();
-	D_27E8 = VarInt['Q' - 0x37];
+	IsOnQuest = VarInt['Q' - 0x37];
 
 	DISK_confirm(8);
 	fd = OSI_create(/*04A4*/"savegame\\objlist");
@@ -760,7 +760,7 @@ aboard a vehicle are put back on the map first)*/
 	OSI_write(fd, -1, 0x100, D_5100);
 	OSI_write(fd, -1, 0x100, D_4602);
 	OSI_write(fd, -1, 0x100, D_45FE);
-	OSI_write(fd, -1, (int32)((char *)&D_286A - (char *)&D_27E8), &D_27E8);
+	OSI_write(fd, -1, (int32)((char *)&GameStateEnd - (char *)&IsOnQuest), &IsOnQuest);
 	OSI_close(fd);
 
 	MAP_LoadAround();
@@ -1132,7 +1132,7 @@ static /*C_05D0_14F0*/setDefaultCommand(int16 cmd) {
 	}
 	DefaultCommand = cmd;
 	if(DefaultCommand != 0xff) {
-		GR_SET_COLOR(D_24EC);
+		GR_SET_COLOR(ColorBrown);
 		x = TIL2SCR(DefaultCommand - 0x81) + ((DefaultCommand - 0x81) << 1);
 		GR_FILL_RECT(x + 8, 178, x + 26, 178);
 		GR_FILL_RECT(x + 8, 196, x + 26, 196);

@@ -35,33 +35,33 @@ struct tClipInfo/*size:9*/ {
 #define GR_SET_ANIM_FRAME(a,b)       (D_ED10.iii.ofs = 0x4b, (*D_ED10.f)(a,b))
 
 /*OSI file routines (asm)*/
-extern int16 C_0000_0245(char *);/*OSI_open*/
-extern C_0000_0284(int16);/*OSI_close*/
-extern int32 C_0000_0336(int16, int32, int32, void far *);/*OSI_read*/
+extern int16 OSI_open(char *);/*OSI_open*/
+extern OSI_close(int16);/*OSI_close*/
+extern int32 OSI_read(int16, int32, int32, void far *);/*OSI_read*/
 extern int16 C_2B57_001F(int16, int16);/*OSI_rand(lo, hi)*/
 
 /*other game modules*/
-extern char D_0202;
-extern int16 D_03B1;
-extern int16 D_03C5;/*index in the party of the member who acts?*/
-extern struct tClipInfo *D_03EC;/*CurClip*/
-extern int16 D_079E;/*MoveAppliesTerrain*/
-extern int16 D_0D45;/*VisibilityDirty*/
-extern int16 D_0D4B;
-extern int16 D_0DE4;
-extern int16 D_2360;/*ForceHatching*/
-extern int16 D_24D6;/*ScreenFade*/
-extern unsigned char D_27EC;/*day of the month (1-28)*/
-extern unsigned char D_27ED;/*month (1-12)*/
-extern int16 D_27EE;/*year*/
-extern unsigned char D_27F2;/*Active*/
-extern int16 D_27F4;/*MapX*/
-extern int16 D_27F6;/*MapY*/
-extern int16 D_27F8;/*MapZ*/
-extern char D_27FA[2];
-extern char D_2860;/*InCombat*/
-extern char D_2861;
-extern char D_2862;
+extern char StatusDirty;
+extern int16 EndPagingAtPrompt;
+extern int16 StatusMember;/*index in the party of the member who acts?*/
+extern struct tClipInfo *CurClip;/*CurClip*/
+extern int16 MoveAppliesTerrain;/*MoveAppliesTerrain*/
+extern int16 VisibilityDirty;/*VisibilityDirty*/
+extern int16 EnemyWarningGiven;
+extern int16 CombatOutcome;
+extern int16 ForceHatching;/*ForceHatching*/
+extern int16 ScreenFade;/*ScreenFade*/
+extern unsigned char Date_D;/*day of the month (1-28)*/
+extern unsigned char Date_M;/*month (1-12)*/
+extern int16 Date_Y;/*year*/
+extern unsigned char Active;/*Active*/
+extern int16 MapX;/*MapX*/
+extern int16 MapY;/*MapY*/
+extern int16 MapZ;/*MapZ*/
+extern char SpellFx[2];
+extern char InCombat;/*InCombat*/
+extern char SoloMember;
+extern char SavedNPCMode;
 extern unsigned char D_329C[];/*ObjStatus*/
 extern char D_44FA[];/*MovePts*/
 extern unsigned char far *D_4602;/*NPCFlag*/
@@ -93,37 +93,37 @@ extern int16 D_EBD2[0x40];/*MissileHitList*/
 extern union tHandler D_ED10;/*GrDriver*/
 extern int16 ViewX, ViewY;
 
-extern C_0359_0CD4();/*DisplayTick*/
-extern C_0359_11B6(int16);/*PassTime*/
-extern C_0359_1905();/*SetPartyMode*/
-extern int16 C_05D0_0004(int16, int16, int16, int16);
-extern C_05D0_004D(int16);
-extern cdecl C_05D0_2DB9(char far *, ...);/*CON_printf*/
+extern DisplayTick();/*DisplayTick*/
+extern PassTime(int16);/*PassTime*/
+extern SetPartyMode();/*SetPartyMode*/
+extern int16 CON_mouseOffAt(int16, int16, int16, int16);
+extern CON_mouseOn(int16);
+extern cdecl CON_printf(char far *, ...);/*CON_printf*/
 extern VIS_UpdateView();
-extern int16 C_0A5D_0677(int16, int16, int16);/*OBJ_FindTypeAt(type, x, y)*/
-extern int16 C_0A5D_0A45(int16, int16, int16);
-extern int16 C_0A5D_0EB6(int16, int16, int16, int16, int16, int16);/*AddObj?*/
-extern C_0A5D_1506(int16);/*DeleteObj*/
-extern C_0A5D_1727(int16, int16, int16);/*OBJ_PurgeFarLocals*/
-extern C_0A5D_1B36(int16);/*OBJ_ReviveFromBody*/
-extern C_0A5D_1C76(int16, int16, int16, int16);/*MoveObj*/
-extern C_0A5D_2DD5();/*OBJ_RebuildMapObjPtr*/
-extern C_0A5D_3083(int16, int16, int16);/*LoadNewRegions*/
-extern C_0A5D_3577();/*ShowObjects*/
-extern C_0E13_0BA1();
-extern C_11FF_00B0(int16);/*SPELL_ReviveNPC*/
-extern C_130F_1EC7(int16, int16);/*MoveFollowers*/
-extern C_130F_384C(int16, int16, int16);/*TryStraightMove*/
-extern int16 C_130F_3AB8(int16, int16, int16);/*TryMoveTo*/
-extern int16 C_1810_0068(int16, int16, int16);/*COMBAT_TileDistance*/
-extern C_1810_023B();/*COMBAT_breakOff*/
-extern int16 C_1810_062A(int16);/*MaxHP*/
-extern C_2667_08E0();/*EGG_hatchArea*/
-extern C_2701_01F1();/*MUS_PlayAreaSong?*/
-extern C_2701_0648(int16);/*MUS_PlaySfx?*/
+extern int16 OBJ_FindTypeAt(int16, int16, int16);/*OBJ_FindTypeAt(type, x, y)*/
+extern int16 FindInvType(int16, int16, int16);
+extern int16 AddMapObj(int16, int16, int16, int16, int16, int16);/*AddObj?*/
+extern DeleteObj(int16);/*DeleteObj*/
+extern OBJ_PurgeFarLocals(int16, int16, int16);/*OBJ_PurgeFarLocals*/
+extern OBJ_ReviveFromBody(int16);/*OBJ_ReviveFromBody*/
+extern MoveObj(int16, int16, int16, int16);/*MoveObj*/
+extern OBJ_RebuildMapObjPtr();/*OBJ_RebuildMapObjPtr*/
+extern LoadNewRegions(int16, int16, int16);/*LoadNewRegions*/
+extern ShowObjects();/*ShowObjects*/
+extern STAT_DrawInventory();
+extern SPELL_ReviveNPC(int16);/*SPELL_ReviveNPC*/
+extern MoveFollowers(int16, int16);/*MoveFollowers*/
+extern TryStraightMove(int16, int16, int16);/*TryStraightMove*/
+extern int16 TryMoveTo(int16, int16, int16);/*TryMoveTo*/
+extern int16 COMBAT_TileDistance(int16, int16, int16);/*COMBAT_TileDistance*/
+extern COMBAT_breakOff();/*COMBAT_breakOff*/
+extern int16 MaxHP(int16);/*MaxHP*/
+extern EGG_hatchArea();/*EGG_hatchArea*/
+extern MUS_PlayAreaSong();/*MUS_PlayAreaSong?*/
+extern MUS_PlaySfx(int16);/*MUS_PlaySfx?*/
 extern C_2701_0684();
-extern C_276B_1756();/*DrawSkyBar*/
-extern C_2A81_0098(int16);/*DISK_confirm*/
+extern DrawSkyBar();/*DrawSkyBar*/
+extern DISK_confirm(int16);/*DISK_confirm*/
 
 #define GetType(i) (D_9CFA[i] & 0x3ff)
 #define GetFrame(i) (D_9CFA[i] >> 10)
@@ -198,10 +198,10 @@ static /*C_08CB_0003*/cacheChunk(int16 chunkIdx) {
 	if(cacheIdx < 0) {
 		cacheIdx = oldestIdx;
 		D_B6DA[cacheIdx] = chunkIdx;
-		C_2A81_0098(3);
-		ChunksFile = C_0000_0245("chunks");
-		C_0000_0336(ChunksFile, (int32)chunkIdx << 6, 0x40, D_B6FA[cacheIdx]);
-		C_0000_0284(ChunksFile);
+		DISK_confirm(3);
+		ChunksFile = OSI_open("chunks");
+		OSI_read(ChunksFile, (int32)chunkIdx << 6, 0x40, D_B6FA[cacheIdx]);
+		OSI_close(ChunksFile);
 	}
 	/*update chunks "age"*/
 	for(i = 0; i < 16; i ++) {
@@ -236,11 +236,11 @@ static /*C_08CB_0003*/cacheChunk(int16 chunkIdx) {
 	if(!mustLoad)
 		return;
 	if(z != 0) {
-		C_2A81_0098(8);
-		MapFile = C_0000_0245("map");
+		DISK_confirm(8);
+		MapFile = OSI_open("map");
 		/*z * 0x600 + 0x5a00 = 0x6000 + (z - 1) * 0x600*/
-		C_0000_0336(MapFile, (int32)((z + z + z) << 9) + 0x5a00, 4 * 0x180, D_BAFA);
-		C_0000_0284(MapFile);
+		OSI_read(MapFile, (int32)((z + z + z) << 9) + 0x5a00, 4 * 0x180, D_BAFA);
+		OSI_close(MapFile);
 		LoadedMapZ = z;
 		for(i = 0; i < 4; i ++)
 			LoadedSuperChunks[i] = -1;
@@ -268,17 +268,17 @@ static /*C_08CB_0003*/cacheChunk(int16 chunkIdx) {
 			LoadedSuperChunks[1] = (mapId + 1) & 0x3f;
 			LoadedSuperChunks[2] = (mapId + 8) & 0x3f;
 			LoadedSuperChunks[3] = (mapId + 9) & 0x3f;
-			C_2A81_0098(8);
-			MapFile = C_0000_0245("map");
+			DISK_confirm(8);
+			MapFile = OSI_open("map");
 			for(i = 0; i < 4; i ++) {
 				/*superchunk id * 0x180*/
 				fileOfs = (int32)LoadedSuperChunks[i] << 7; fileOfs += fileOfs << 1;
 				/*window slot * 0x180*/
 				bufOfs = i << 7; bufOfs += bufOfs << 1;
 				pSlot = D_BAFA + bufOfs;
-				C_0000_0336(MapFile, fileOfs, 0x180, pSlot);
+				OSI_read(MapFile, fileOfs, 0x180, pSlot);
 			}
-			C_0000_0284(MapFile);
+			OSI_close(MapFile);
 		}
 		LoadedMapZ = 0;
 	}
@@ -293,11 +293,11 @@ static /*C_08CB_0003*/cacheChunk(int16 chunkIdx) {
 	int16 i, j;
 	int16 anX, anY, cacheIdx;
 
-	D_BAFE = anX = (D_27F4 - 0x10) & 0x3f8;
-	ViewX = (D_27F4 - anX - 5) & 0x1f;
-	D_BB00 = anY = (D_27F6 - 0x10) & 0x3f8;
-	ViewY = (D_27F6 - anY - 5) & 0x1f;
-	if(D_27F8)
+	D_BAFE = anX = (MapX - 0x10) & 0x3f8;
+	ViewX = (MapX - anX - 5) & 0x1f;
+	D_BB00 = anY = (MapY - 0x10) & 0x3f8;
+	ViewY = (MapY - anY - 5) & 0x1f;
+	if(MapZ)
 		MapCoordMask = 0xff;
 	else
 		MapCoordMask = 0x3ff;
@@ -305,33 +305,33 @@ static /*C_08CB_0003*/cacheChunk(int16 chunkIdx) {
 	anX = D_BAFE;
 	anY = D_BB00;
 	/* */
-	if(anX != BuiltAreaX || anY != BuiltAreaY || D_27F8 != BuiltAreaZ) {
-		C_0A5D_2DD5();
+	if(anX != BuiltAreaX || anY != BuiltAreaY || MapZ != BuiltAreaZ) {
+		OBJ_RebuildMapObjPtr();
 		/*NPCs inside the new area but missing from MapObjPtr: put them back*/
-		D_079E = 0;
+		MoveAppliesTerrain = 0;
 		for(i = 0; i < 0x100; i ++) {
 			anX = (GetX(i) - D_BAFE) & MapCoordMask;
 			anY = (GetY(i) - D_BB00) & MapCoordMask;
 			if(D_9CFA[i])
 			if((D_329C[i] & 0x18) == 0)
-			if(GetZ(i) == D_27F8)
+			if(GetZ(i) == MapZ)
 			if(anX < 40 && anY < 40)
 			if(D_D98C[anY][anX] != i)
-				C_0A5D_1C76(i, GetX(i), GetY(i), D_27F8);
+				MoveObj(i, GetX(i), GetY(i), MapZ);
 		}
-		D_079E = 1;
+		MoveAppliesTerrain = 1;
 
 		anX = D_BAFE;
 		anY = D_BB00;
-		C_0A5D_1727(D_BAFE + 20, D_BB00 + 20, D_27F8);
+		OBJ_PurgeFarLocals(D_BAFE + 20, D_BB00 + 20, MapZ);
 
 		BuiltAreaX = anX;
 		BuiltAreaY = anY;
-		BuiltAreaZ = D_27F8;
+		BuiltAreaZ = MapZ;
 		/*copy the 5x5 chunks of the area (i = x, j = y)*/
 		for(i = 0; i < 40; i += 8) {
 			for(j = 0; j < 40; j += 8) {
-				cacheIdx = cacheChunk(getChunkIdxAt((BuiltAreaX + i) & 0x3ff, (BuiltAreaY + j) & 0x3ff, D_27F8));
+				cacheIdx = cacheChunk(getChunkIdxAt((BuiltAreaX + i) & 0x3ff, (BuiltAreaY + j) & 0x3ff, MapZ));
 				pChunk = D_B6FA[cacheIdx][0];
 				pMap = &(D_470A[j][i]);
 				for(anY = 0; anY < 8; anY ++) {
@@ -341,9 +341,9 @@ static /*C_08CB_0003*/cacheChunk(int16 chunkIdx) {
 				}
 			}
 		}
-		C_2667_08E0();
+		EGG_hatchArea();
 	}
-	D_0D45 = 1;
+	VisibilityDirty = 1;
 }
 
 /*empty the chunk cache*/
@@ -359,8 +359,8 @@ static /*C_08CB_0003*/cacheChunk(int16 chunkIdx) {
 /*load everything (objects regions, chunk indexes, area tiles)
   around MapX, MapY, MapZ*/
 /*C_08CB_053A*/MAP_LoadAround() {
-	C_0A5D_3083(D_27F4, D_27F6, D_27F8);
-	MAP_LoadChunkIndexes(D_27F4, D_27F6, D_27F8);
+	LoadNewRegions(MapX, MapY, MapZ);
+	MAP_LoadChunkIndexes(MapX, MapY, MapZ);
 	MAP_BuildArea();
 }
 
@@ -386,27 +386,27 @@ static /*C_08CB_0003*/cacheChunk(int16 chunkIdx) {
 				if(D_6CF0[objNum] & 0x04)
 					D_9CFA[objNum] = D_B53E[objNum];
 				D_6CF0[objNum] &= ~(0x04|0x02);
-				if(GetZ(objNum) == D_27F8 && !((D_6CF0[objNum] & 0x16) || (D_4602[objNum] & 0x10))) {
-					if(GetX(objNum) == D_27F4 && GetY(objNum) == D_27F6) {
+				if(GetZ(objNum) == MapZ && !((D_6CF0[objNum] & 0x16) || (D_4602[objNum] & 0x10))) {
+					if(GetX(objNum) == MapX && GetY(objNum) == MapY) {
 						/*arrived: remove from map*/
 						if(withAnimation) {
-							C_0A5D_3577();
-							C_0359_0CD4();
+							ShowObjects();
+							DisplayTick();
 						}
-						D_079E = 0;
-						C_0A5D_1C76(objNum, D_27F4, D_27F6, 6);
-						D_079E = 1;
+						MoveAppliesTerrain = 0;
+						MoveObj(objNum, MapX, MapY, 6);
+						MoveAppliesTerrain = 1;
 						if(withAnimation == 1) {
-							D_24D6 = 1;
-							C_0A5D_3577();
-							C_0359_0CD4();
+							ScreenFade = 1;
+							ShowObjects();
+							DisplayTick();
 						}
-					} else if(!C_130F_3AB8(objNum, D_27F4, D_27F6)) {
+					} else if(!TryMoveTo(objNum, MapX, MapY)) {
 						/*blocked: jump if adjacent, else random step*/
-						if(C_1810_0068(objNum, D_27F4, D_27F6) < 2)
-							C_0A5D_1C76(objNum, D_27F4, D_27F6, D_27F8);
+						if(COMBAT_TileDistance(objNum, MapX, MapY) < 2)
+							MoveObj(objNum, MapX, MapY, MapZ);
 						else
-							C_130F_384C(objNum, C_2B57_001F(0, 3) << 1, 1);
+							TryStraightMove(objNum, C_2B57_001F(0, 3) << 1, 1);
 					} else {
 						allArrived = 0;
 					}
@@ -414,8 +414,8 @@ static /*C_08CB_0003*/cacheChunk(int16 chunkIdx) {
 				D_44FA[objNum] = D_4606[objNum];
 			}
 			if(withAnimation) {
-				C_0A5D_3577();
-				C_0359_0CD4();
+				ShowObjects();
+				DisplayTick();
 			}
 			if(allArrived)
 				break;
@@ -423,12 +423,12 @@ static /*C_08CB_0003*/cacheChunk(int16 chunkIdx) {
 	}
 
 	/*whoever is left (asleep, paralyzed, other level...) is taken anyway*/
-	D_079E = 0;
+	MoveAppliesTerrain = 0;
 	for(i = 0; i < D_9CF6; i ++) {
 		if(GetZ(D_4EDA[i]) != 6)
-			C_0A5D_1C76(D_4EDA[i], D_27F4, D_27F6, 6);
+			MoveObj(D_4EDA[i], MapX, MapY, 6);
 	}
-	D_079E = 1;
+	MoveAppliesTerrain = 1;
 }
 
 /*put the whole party back on the map at (x, y, z) and let the
@@ -436,24 +436,24 @@ static /*C_08CB_0003*/cacheChunk(int16 chunkIdx) {
 /*C_08CB_0754*/PartyExit(int16 x, int16 y, int16 z, int16 withAnimation) {
 	int16 i;
 
-	D_079E = 0;
+	MoveAppliesTerrain = 0;
 	for(i = 0; i < D_9CF6; i ++)
-		C_0A5D_1C76(D_4EDA[i], x, y, z);
-	D_079E = 1;
+		MoveObj(D_4EDA[i], x, y, z);
+	MoveAppliesTerrain = 1;
 
-	C_0359_1905();
+	SetPartyMode();
 
 	if(withAnimation == 1) {
-		D_24D6 = 1;
-		C_0A5D_3577();
-		C_0359_0CD4();
+		ScreenFade = 1;
+		ShowObjects();
+		DisplayTick();
 	}
 
 	for(i = 0; i < 5; i ++) {
-		C_130F_1EC7(D_4EDA[D_27F2], 1);
+		MoveFollowers(D_4EDA[Active], 1);
 		if(withAnimation) {
-			C_0A5D_3577();
-			C_0359_0CD4();
+			ShowObjects();
+			DisplayTick();
 		}
 	}
 	for(i = 0; i < D_9CF6; i ++)
@@ -464,18 +464,18 @@ static /*C_08CB_0003*/cacheChunk(int16 chunkIdx) {
 /*C_08CB_07FE*/PartyTeleport(int16 x, int16 y, int16 z, int16 withAnimation) {
 	PartyEnter(withAnimation);
 
-	D_27F4 = x;
-	D_27F6 = y;
-	D_27F8 = z;
+	MapX = x;
+	MapY = y;
+	MapZ = z;
 	MAP_LoadAround();
 
-	D_2360 = 1;
-	C_2667_08E0();
-	D_2360 = 0;
+	ForceHatching = 1;
+	EGG_hatchArea();
+	ForceHatching = 0;
 
 	VIS_UpdateView();
-	C_276B_1756();
-	C_0359_11B6(0);
+	DrawSkyBar();
+	PassTime(0);
 	PartyExit(x, y, z, withAnimation);
 }
 
@@ -488,76 +488,76 @@ static /*C_08CB_0003*/cacheChunk(int16 chunkIdx) {
 	toLevel1 = 0;
 	qual = GetQual(objNum);
 	type = GetType(objNum);
-	if(D_2860)
-		C_1810_023B();
-	D_27F4 = GetX(objNum);
-	D_27F6 = GetY(objNum);
+	if(InCombat)
+		COMBAT_breakOff();
+	MapX = GetX(objNum);
+	MapY = GetY(objNum);
 	PartyEnter((type == 0xe3)?0:2);
 	C_2701_0684();
 	if(type == 0x14) {
-		found = C_0A5D_0A45(D_4EDA[D_03C5], 0x15, -1);
+		found = FindInvType(D_4EDA[StatusMember], 0x15, -1);
 		if(found >= 0) {
 			GR_SET_ANIM_FRAME(TILE_FRAME(found), 0x10c);
-			C_0E13_0BA1();
+			STAT_DrawInventory();
 		}
-		D_27F4 = D_04F8[qual][0];
-		D_27F6 = D_04F8[qual][1];
-		D_27F8 = 1;
+		MapX = D_04F8[qual][0];
+		MapY = D_04F8[qual][1];
+		MapZ = 1;
 		toLevel1 = 1;
 	} else if(type == 0xa3) {
-		D_27F4 = D_0570[qual - 101][0];
-		D_27F6 = D_0570[qual - 101][1];
-		D_27F8 = 2;
+		MapX = D_0570[qual - 101][0];
+		MapY = D_0570[qual - 101][1];
+		MapZ = 2;
 	} else if(type == 0x16) {
-		found = C_0A5D_0A45(D_4EDA[D_03C5], 0x15, -1);
+		found = FindInvType(D_4EDA[StatusMember], 0x15, -1);
 		if(found >= 0) {
 			GR_SET_ANIM_FRAME(TILE_FRAME(found), 0x10b);
-			C_0E13_0BA1();
+			STAT_DrawInventory();
 		}
-		D_27F4 = D_04D8[qual - 1][0];
-		D_27F6 = D_04D8[qual - 1][1];
+		MapX = D_04D8[qual - 1][0];
+		MapY = D_04D8[qual - 1][1];
 		if(qual == 8)
-			D_27F8 = 2;
+			MapZ = 2;
 		else
-			D_27F8 = 0;
+			MapZ = 0;
 	} else if(type == 0xe3) {
-		D_27F4 = D_052C[qual - 104][0];
-		D_27F6 = D_052C[qual - 104][1];
-		D_27F8 = 0;
+		MapX = D_052C[qual - 104][0];
+		MapY = D_052C[qual - 104][1];
+		MapZ = 0;
 	} else if(type == 0x103) {
-		D_27F4 = 0xc0;
-		D_27F6 = 0x1cc;
-		D_27F8 = 0;
+		MapX = 0xc0;
+		MapY = 0x1cc;
+		MapZ = 0;
 	} else if(type == 0xa0) {
-		D_27F4 = 0x9d;
-		D_27F6 = 0x89;
-		D_27F8 = 3;
+		MapX = 0x9d;
+		MapY = 0x89;
+		MapZ = 3;
 	}
 	MAP_LoadAround();
 	if(toLevel1) {
 		/*the way back: an object 0x16 of the same quality*/
-		other = C_0A5D_0677(0x16, D_27F4, D_27F6);
+		other = OBJ_FindTypeAt(0x16, MapX, MapY);
 		if(other >= 0 && GetQual(other) == qual) {
 			D_9CFA[other] = GetType(other) + 0x400;
 		} else {
 			if(other >= 0)
-				C_0A5D_1506(other);
-			D_329C[C_0A5D_0EB6(0x416, 0, qual << 8, D_27F4, D_27F6, D_27F8)] &= ~0x20;
+				DeleteObj(other);
+			D_329C[AddMapObj(0x416, 0, qual << 8, MapX, MapY, MapZ)] &= ~0x20;
 		}
 	}
 	VIS_UpdateView();
-	C_276B_1756();
-	C_0359_11B6(0);
-	PartyExit(D_27F4, D_27F6, D_27F8, (type == 0xe3 || type == 0xa3)?0:2);
+	DrawSkyBar();
+	PassTime(0);
+	PartyExit(MapX, MapY, MapZ, (type == 0xe3 || type == 0xa3)?0:2);
 	if(type == 0x103 && (D_6EFC[1] & 4)) {
-		D_03EC->attrFlags |= 0x10;
-		C_05D0_2DB9("\nThe mechanism supporting the trap door fails just as you");
-		C_05D0_2DB9(" and your companions leave the stairwell, sealing the entrance");
-		C_05D0_2DB9(" to the underground city.\n");
-		C_0A5D_1506(C_0A5D_0677(0xa0, 0xc0, 0x1cc));
-		D_03B1 = 1;
+		CurClip->attrFlags |= 0x10;
+		CON_printf("\nThe mechanism supporting the trap door fails just as you");
+		CON_printf(" and your companions leave the stairwell, sealing the entrance");
+		CON_printf(" to the underground city.\n");
+		DeleteObj(OBJ_FindTypeAt(0xa0, 0xc0, 0x1cc));
+		EndPagingAtPrompt = 1;
 	}
-	C_2701_01F1();
+	MUS_PlayAreaSong();
 }
 
 /*go through objNum (object type 0x44): underground, to the other object
@@ -568,27 +568,27 @@ static /*C_08CB_0003*/cacheChunk(int16 chunkIdx) {
 
 	qual = GetQual(objNum);
 	type = GetType(objNum);
-	if(D_2860)
-		C_1810_023B();
+	if(InCombat)
+		COMBAT_breakOff();
 	PartyEnter(1);
-	if(D_27F8) {
+	if(MapZ) {
 		for(i = 0; i < 0xc00; i ++) {
 			if(GetType(i) == 0x44 && i != objNum && GetQual(i) == qual) {
-				D_27F4 = GetX(i);
-				D_27F6 = GetY(i);
+				MapX = GetX(i);
+				MapY = GetY(i);
 				break;
 			}
 		}
 	} else {
-		D_27F4 = D_05C0[qual][0];
-		D_27F6 = D_05C0[qual][1];
+		MapX = D_05C0[qual][0];
+		MapY = D_05C0[qual][1];
 	}
 	MAP_LoadAround();
 	VIS_UpdateView();
-	C_276B_1756();
-	C_0359_11B6(0);
-	PartyExit(D_27F4, D_27F6, D_27F8, 1);
-	C_2701_01F1();
+	DrawSkyBar();
+	PassTime(0);
+	PartyExit(MapX, MapY, MapZ, 1);
+	MUS_PlayAreaSong();
 }
 
 /*after the party's death: bring the dead party members back to life,
@@ -598,7 +598,7 @@ static /*C_08CB_0003*/cacheChunk(int16 chunkIdx) {
 	int16 i, flag, clip;
 	int16 memberObj, bodyObj;
 
-	D_27F2 = -1;
+	Active = -1;
 	for(i = 0; i < 0xc0; i ++) {
 		if((D_6CF0[i] & 0x80) && (D_6CF0[i] & 0x10)) {
 			/*look for the NPC's dead body*/
@@ -606,13 +606,13 @@ static /*C_08CB_0003*/cacheChunk(int16 chunkIdx) {
 				if(GetType(bodyObj) == 0xf9 && GetQual(bodyObj) == i) {
 					D_B642 = bodyObj;
 					if(i == 1) {
-						C_0A5D_1B36(bodyObj);
+						OBJ_ReviveFromBody(bodyObj);
 						D_6CF0[1] &= ~0x10;
 						D_9CFA[1] = D_B53E[1];
 						D_6CF0[1] &= ~0x1f;
 					} else {
-						D_079E = 0;
-						C_11FF_00B0(bodyObj);
+						MoveAppliesTerrain = 0;
+						SPELL_ReviveNPC(bodyObj);
 					}
 					break;
 				}
@@ -634,17 +634,17 @@ static /*C_08CB_0003*/cacheChunk(int16 chunkIdx) {
 		D_6CF0[memberObj] = (D_6CF0[memberObj] & ~0x60) | 0x40;
 		D_329C[memberObj] &= ~0x46;
 		D_6CF0[memberObj] &= ~0x1e;
-		D_6DF4[memberObj] = C_1810_062A(memberObj);
+		D_6DF4[memberObj] = MaxHP(memberObj);
 		D_51E4[memberObj] = D_51E4[memberObj] * 3 / 4;
 		D_44FA[memberObj] = D_4606[memberObj];
 	}
 	for(i = 0; i < 2; i ++)
-		D_27FA[i] = 0;
+		SpellFx[i] = 0;
 	for(i = 0; i < 0x40; i ++)
 		D_EBD2[i] = -1;
-	C_0359_1905();
-	D_2860 = D_0D4B = 0;
-	if(D_2861 < 0)
+	SetPartyMode();
+	InCombat = EnemyWarningGiven = 0;
+	if(SoloMember < 0)
 		flag = 1;
 	else
 		flag = 0;
@@ -657,32 +657,32 @@ static /*C_08CB_0003*/cacheChunk(int16 chunkIdx) {
 				D_5100[D_4EDA[i]] = i;
 		}
 	}
-	if(D_2861 < 0)
+	if(SoloMember < 0)
 		i = 0;
 	else
-		i = D_2861;
-	D_2862 = D_4706[D_4EDA[i]];
+		i = SoloMember;
+	SavedNPCMode = D_4706[D_4EDA[i]];
 	D_4706[D_4EDA[i]] = 2;
-	clip = C_05D0_0004(0x40, 0, 0x5f, 0xf);
+	clip = CON_mouseOffAt(0x40, 0, 0x5f, 0xf);
 	GR_PUT_TILE_SCREEN(0x173, 0x40, 0);
 	GR_PUT_TILE_SCREEN(0x174, 0x50, 0);
-	C_05D0_004D(clip);
-	D_0DE4 = 0;
+	CON_mouseOn(clip);
+	CombatOutcome = 0;
 	PartyTeleport(0x19c, 0x123, 0, 0);
 	/*a week passes*/
-	if((D_27EC += 7) > 28) {
-		D_27EC -= 28;
-		if(++D_27ED > 12) {
-			D_27ED = 1;
-			D_27EE ++;
+	if((Date_D += 7) > 28) {
+		Date_D -= 28;
+		if(++Date_M > 12) {
+			Date_M = 1;
+			Date_Y ++;
 		}
 	}
-	D_24D6 = 1;
-	C_0A5D_3577();
-	C_2701_0648(0xd);
-	C_0359_0CD4();
-	D_0202 = 1;
-	D_079E = 1;
+	ScreenFade = 1;
+	ShowObjects();
+	MUS_PlaySfx(0xd);
+	DisplayTick();
+	StatusDirty = 1;
+	MoveAppliesTerrain = 1;
 }
 
 /*12-bit index of the chunk containing tile (x, y, z)
