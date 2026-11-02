@@ -59,16 +59,33 @@ def table():
     return t
 
 
+def default_flags(p):
+    """the flags a C source is compiled with: its own flags line, or its target's default"""
+    import tcc
+    ap = os.path.abspath(p)
+    dflt = target.T['flags']
+    for name, tt in target.TARGETS.items():
+        if ap.startswith(os.path.join(ROOT, tt['src']) + os.sep):
+            dflt = tt['flags']
+    return tcc.file_flags(p, dflt)
+
+
 def parse_file(p, fn, t):
     """add the definitions of source file p (named fn) to table t"""
     if True:
         s = read(p)
         if p.lower().endswith(('.c', '.h')):
+            # compiled with -p (GAME.EXE's modules), functions are pascal unless declared cdecl
+            dpascal = '-p' in default_flags(p).split()
             for m in re.finditer(r'/\*C_([0-9A-F]{4})_([0-9A-F]{4})\*/\s*((?:[\w\*]+\s+)*?)\**\s*(\w+)\s*\(', s):
-                quals = m.group(3)
-                lang = 'pascal' if 'pascal' in quals.split() else 'c'
+                quals = m.group(3).split()
+                if 'extern' in quals:  # a declaration, not the definition
+                    continue
+                lang = 'pascal' if 'pascal' in quals or (dpascal and 'cdecl' not in quals) else 'c'
                 t[('C', int(m.group(1), 16), int(m.group(2), 16))] = (m.group(4), fn, lang, 'static' in quals)
             for m in re.finditer(r'/\*([0-9A-F]{4})\*/\s*(?:static\s+)?[\w\s\*]+?\b(D_[0-9A-F]{4}|\w+)\s*[\[=;]', s):
+                if re.search(r'\bextern\b', m.group(0)):
+                    continue
                 t.setdefault(('D', int(m.group(1), 16)), (m.group(2), fn, 'c', False))
         else:
             for m in re.finditer(r'^(?:FProc|ProcStart|NProc)\s+(\w+)\s*;\s*([0-9A-F]{4}):([0-9A-F]{4})', s, re.M):

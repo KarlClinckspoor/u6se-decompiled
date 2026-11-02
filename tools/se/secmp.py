@@ -147,6 +147,7 @@ def main():
     ap.add_argument('--include', action='append', default=[])
     ap.add_argument('--learn', action='store_true', help='add unknown external names to the symbol file')
     ap.add_argument('--length', help='expected code length (hex): also reports a short or long module')
+    ap.add_argument('--cseg', help='the code segment to compare, for a module that has several (by name)')
     ap.add_argument('-v', action='store_true')
     a = ap.parse_args()
 
@@ -185,7 +186,9 @@ def main():
         dmap = shared.data_map()
     dsyms = AddrNames(dsyms, r'_?D_([0-9A-F]{4})', lambda mm: dmap.get(int(mm.group(1), 16), int(mm.group(1), 16)))
     m = omf.parse_obj(path)
-    cseg = [s for s in m.segs[1:] if s.cls == 'CODE']
+    cseg = [s for s in m.segs[1:] if s.cls == 'CODE' and (not a.cseg or s.name.upper() == a.cseg.upper())]
+    if len(cseg) > 1 and not a.cseg:  # several: the one named after the frame compared
+        cseg = [s for s in cseg if re.fullmatch(r'SEG_%04X(_TEXT)?' % int(a.seg, 16), s.name, re.I)] or cseg
     if len(cseg) != 1:
         sys.exit('expected one CODE segment, got %s' % cseg)
     cs = cseg[0]
@@ -218,6 +221,19 @@ def main():
             if tgt not in bases:
                 bases[tgt] = c.most_common(1)[0][0]
 
+    def named_seg(name):
+        """(frame, first byte) of another code segment named after its frame, SEG_XXXX[_TEXT]
+        (asm modules with several code segments), from modules.txt"""
+        mm = re.fullmatch(r'SEG_([0-9A-F]{4})(?:_TEXT)?', name, re.I)
+        if not mm:
+            return None
+        fr = int(mm.group(1), 16)
+        import shared
+        for m in shared.read_modules(target.T['src']):
+            if m['frame'] == fr:
+                return fr, m['at']
+        return fr, 0
+
     def check_fixups(seg, seg_addr):
         """seg_addr: image address of seg's byte 0"""
         for f in seg.fixups:
@@ -245,6 +261,10 @@ def main():
                 elif f.tkind == 'seg' and f.target == cs.name:
                     if sg != segp or off != f.disp + at:
                         problems.append((where, 'far ptr to own code +%x: original %04x:%04x' % (f.disp, sg, off)))
+                elif f.tkind == 'seg' and named_seg(f.target):
+                    fr, a0 = named_seg(f.target)
+                    if (sg, off) != (fr, (a0 + f.disp) & 0xFFFF):
+                        problems.append((where, 'far ptr to %s+%x: original %04x:%04x' % (f.target, f.disp, sg, off)))
                 else:
                     problems.append((where, 'far ptr to %s %s: unchecked (original %04x:%04x)' % (f.tkind, f.target, sg, off)))
             elif f.loc in (1, 5) and f.mode == 0 and f.tkind == 'seg' and f.target == cs.name:
@@ -281,11 +301,16 @@ def main():
                     elif (want + f.disp) & 0xFFFF != v:
                         problems.append((where, 'offset %s+%x: original %04x, %s is at %04x' % (
                             f.target, f.disp, v, f.target, want)))
+                elif f.tkind == 'seg' and named_seg(f.target):
+                    if (named_seg(f.target)[1] + f.disp) & 0xFFFF != v:
+                        problems.append((where, 'offset in %s+%x: original %04x' % (f.target, f.disp, v)))
                 else:
                     problems.append((where, 'offset to %s %s+%x unchecked (original %04x)' % (f.tkind, f.target, f.disp, v)))
             elif f.loc == 2:  # segment base
                 v = ds_word(addr)
                 want = DGROUP if f.target in ('DGROUP', '_DATA', '_BSS') else (segp if f.target == cs.name else None)
+                if want is None and f.tkind == 'seg' and named_seg(f.target):
+                    want = named_seg(f.target)[0]
                 if f.tkind == 'ext':
                     want = DGROUP if dsyms.get(f.target) is not None else syms.get(f.target, (None,))[0]
                 if want is None or v != want:

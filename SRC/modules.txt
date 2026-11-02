@@ -3,7 +3,7 @@
 # LEN: bytes up to the next module (hex; may include one byte of word-alignment padding); SOURCE: the file
 # in SRC/ ("-" while not decompiled; ../SRC_S/... for the library SAVAGE.EXE shares). "-" as FRAME: data only.
 # 0000 242: Origin's OSI file routines, in _TEXT right after C0M (U6: OSILIB/OSI_FILE.ASM, linked second).
-0000 242 421 -
+0000 242 421 OSILIB/OSI_FILE.ASM 01F6-0200
 0268 B F0B -  # U6 main
 0359 6 276E -  # U6 gameloop
 05D0 4 2FAC -  # U6 console
@@ -11,7 +11,7 @@
 09DA E 823 -  # U6 visible
 0A5D 1 3B69 -  # U6 object
 0E13 A 1664 -  # U6 status
-0F79 E 136 -  # U6 talk
+0F79 E 136 talk.c 0A06-0A36  # U6 talk
 0F8D 4 271C -  # U6 talkdr
 11FF 0 1102 -  # U6 spell
 130F 2 5015 -  # U6 npctrack
@@ -20,15 +20,15 @@
 2667 6 9A4 -  # U6 egg
 2701 A 69B -  # U6 music
 276B 5 2669 -  # U6 gfx
-29D1 E 62 -  # U6 kbd (asm)
+29D1 E 62 OSILIB/KBD.ASM
 29D8 0 A93 -  # U6 rest
-2A81 3 3E5 -  # U6 disk
-2ABF 8 358 -  # OSI assembly (U6 OSILIB)
-2AF5 0 66 -  # OSI assembly (U6 OSILIB)
-2AFB 6 14 -  # OSI assembly (U6 OSILIB)
-2AFC A 52A -  # OSI assembly (U6 OSILIB)
-2B4F 4 7E -  # OSI assembly (U6 OSILIB)
-2B57 2 52 -  # ~ SAVAGE 0D23 RANDOM.ASM (89%)
+2A81 3 3E5 disk.c 2A64-2B34  # U6 disk
+2ABF 8 358 OSILIB/MOUSE.ASM 2B34-2B42
+2AF5 0 66 OSILIB/LOW.ASM 2B42-2BDA  # U6 OSILIB LOW: three code segments, 2AF5, 2AFB, 2AFC
+2AFB 6 14 OSILIB/LOW.ASM  # its second code segment
+2AFC A 530 OSILIB/LOW.ASM  # its third code segment
+2B4F A 78 OSILIB/DELAY.ASM 2BDA-2BE2
+2B57 2 52 OSILIB/RAND.ASM 2BE2-2BE6  # U6's RAND.ASM without its second code segment
 2B5C 4 1BB2 ../SRC_S/music.c 2BE6-2ED3
 2D17 6 128 ../SRC_S/LIB/EMSINIT.ASM 2ED4-2EF2
 2D29 E 1FD ../SRC_S/LIB/EMSALLOC.ASM
