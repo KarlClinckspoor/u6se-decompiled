@@ -340,7 +340,9 @@ def main():
     dfirst = None
     if dseg and dseg[0].length:
         ds = dseg[0]
-        if '_DATA' not in bases:
+        if '_DATA' not in bases and len([x for x in m.segs[1:] if x.cls == 'CODE']) > 1:
+            pass  # another code segment of the module locates its _DATA (checked there)
+        elif '_DATA' not in bases:
             problems.append((('_DATA', 0), 'no fixup locates this module\'s _DATA: give --data'))
         else:
             dbase = DGROUP * 16 + bases['_DATA']

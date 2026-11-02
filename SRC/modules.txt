@@ -4,7 +4,7 @@
 # in SRC/ ("-" while not decompiled; ../SRC_S/... for the library SAVAGE.EXE shares). "-" as FRAME: data only.
 # 0000 242: Origin's OSI file routines, in _TEXT right after C0M (U6: OSILIB/OSI_FILE.ASM, linked second).
 0000 242 421 OSILIB/OSI_FILE.ASM 01F6-0200
-0268 B F0B -  # U6 main
+0268 B F0B main.c 00A8-01F6  # U6 main
 0359 6 276E -  # U6 gameloop
 05D0 4 2FAC -  # U6 console
 08CB 0 10FE -  # U6 map
