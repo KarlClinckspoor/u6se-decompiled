@@ -2,6 +2,7 @@
 # FRAME AT LEN SOURCE   FRAME: the module code segment (paragraph); AT: its first byte in the frame;
 # LEN: bytes up to the next module (hex; may include one byte of word-alignment padding);
 # SOURCE: the file in SRC_S/ ("-" while not decompiled).
+- - 0 drvdata.c 00A8-00C0
 034C B 2E98 main.c 00C0-1E3E
 0636 3 E63 title.c 1E3E-200E
 071C 6 156 sprites.c 200E-2014

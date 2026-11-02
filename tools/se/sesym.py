@@ -48,7 +48,8 @@ def table():
         if p.lower().endswith(('.c', '.h')):
             for m in re.finditer(r'/\*C_([0-9A-F]{4})_([0-9A-F]{4})\*/\s*((?:[\w\*]+\s+)*?)\**\s*(\w+)\s*\(', s):
                 quals = m.group(3)
-                t[('C', int(m.group(1), 16), int(m.group(2), 16))] = (m.group(4), fn, 'c', 'static' in quals)
+                lang = 'pascal' if 'pascal' in quals.split() else 'c'
+                t[('C', int(m.group(1), 16), int(m.group(2), 16))] = (m.group(4), fn, lang, 'static' in quals)
             for m in re.finditer(r'/\*([0-9A-F]{4})\*/\s*(?:static\s+)?[\w\s\*]+?\b(D_[0-9A-F]{4}|\w+)\s*[\[=;]', s):
                 t.setdefault(('D', int(m.group(1), 16)), (m.group(2), fn, 'c', False))
         else:
@@ -93,8 +94,10 @@ def main():
                 used_by_c.update(re.findall(r'\b(C_[0-9A-F]{4}_[0-9A-F]{4}|D_[0-9A-F]{4})\b', read(p)))
         for k, v in t.items():
             addr = 'C_%04X_%04X' % k[1:] if k[0] == 'C' else 'D_%04X' % k[1]
-            if v[2] == 'c' and v[0] == addr:
-                continue  # still named by its address
+            if v[2] in ('c', 'pascal') and v[0] == addr:
+                # still named by its address: only assembly needs the C link name
+                amap[addr] = ('_' + addr) if v[2] == 'c' else addr
+                continue
             cmap[addr] = cname(v)
             if v[2] == 'asm':
                 label = v[0]
