@@ -8,6 +8,6 @@ Constraints: several agents work in parallel in this repository. Only create/edi
 
 Done = secmp says code identical and --data-range matches for every assigned module. If after a long, honest effort a few functions still differ, stop and report them precisely (address, what differs, what you tried). Your final report (short): for each file, frame/AT, status, the _DATA range, flags used, functions you named (address = name) and which kept address names, anything learned about the compiler or the tools that other agents should know, and any tool bug.
 
-Also read /tmp/claude-0/-home-claude/46ad1a9e-8818-57a9-8857-b00812266a55/scratchpad/notes.txt: lessons from the modules already finished (include path: secmp needs --include SRC).
+Also read docs/GAME_NOTES.md: lessons from the modules already finished (include path: secmp needs --include SRC).
 
 Your assignment:
