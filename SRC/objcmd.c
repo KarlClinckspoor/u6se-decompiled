@@ -525,8 +525,9 @@ void C_1DBD_5069(int16, int16, int16);
 	MUS_PlayAreaSong();
 }
 
-/*the last cut scene (MIDGAME5): saves the game and runs SAVAGE.EXE for
-  the endgame, with the configuration and the date as arguments*/
+/*the last cut scene (MIDGAME5): deletes the temporary object blocks (it does
+  not save the game) and runs SAVAGE.EXE for the endgame, with the configuration,
+  the date and the ending (LA/LT) as arguments*/
 /*C_1DBD_077E*/C_1DBD_077E() {
 	unsigned char text[4];
 	char config[4];

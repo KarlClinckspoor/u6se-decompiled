@@ -62,7 +62,8 @@ are in `docs/GAME_NOTES.md`.
 - **Use handlers** (objcmd.c): tar, clay, grinder, sieve, loom, gunpowder and flash powder,
   camera, rope, drums, bucket of water, turtle bait and riding the turtle, the statue
   heads, Jimmy's notes, the Yunapotli doors, and the machine. Cut scenes 1-4 and the last
-  one, which saves the game and runs SAVAGE.EXE, are at the start of the module.
+  one, which runs SAVAGE.EXE for the endgame (without saving the game), are at the start of
+  the module.
 - **View** (visible.c, gfx.c): no X-ray view. The light radius is `level*2 - 1`. Portraits
   have backgrounds by place and time of day (`bkgrnd.lzc`). The MIDGAMEn.LZC pictures come
   with text pages. Wall variants are based at 0x120 or 0x110, with no corner tiles.
