@@ -18,6 +18,8 @@ readable Ultima VI decompilation, [u6-decompiled](https://github.com/KarlClincks
 - [`docs/WRITEUP.md`](docs/WRITEUP.md): what the decompilation taught. How the compiler was
   identified, Turbo C++ 1.00's code-shape rules, what the link needed, and how Savage
   Empire differs from Ultima VI.
+- [`docs/MECHANICS.md`](docs/MECHANICS.md): how the game plays, read from the code.
+  Conversations and quest flags, time and rest, stats and levels, and combat.
 - [`docs/FINDINGS.md`](docs/FINDINGS.md): the engine compared with Ultima VI's, point by point.
 - [`docs/MAP.md`](docs/MAP.md): the layout of both executables.
 - [`SRC_S/DECOMP.md`](SRC_S/DECOMP.md), [`SRC/DECOMP.md`](SRC/DECOMP.md): the rules of the
