@@ -27,6 +27,22 @@ readable Ultima VI decompilation, [u6-decompiled](https://github.com/KarlClincks
   in link order.
 - [`docs/GAME_NOTES.md`](docs/GAME_NOTES.md): compiler lessons, module by module.
 
+## Exporting the dialogue
+
+`tools/se/dialogue_export.py` (Python 3, no dependencies; ported from u6-decompiled's exporter)
+disassembles the 68 conversation scripts of `TALK.LZC` and writes them as JSON. The result
+for the GOG release is in [`dialogue.json`](dialogue.json).
+
+    python3 tools/se/dialogue_export.py -o dialogue.json              # every script: text, IF/ELSE, GOTOs, flags, keyword blocks
+    python3 tools/se/dialogue_export.py --format text --name aiela    # only the words, per keyword
+    python3 tools/se/dialogue_export.py --check                       # disassemble everything, report problems
+
+It reads `gamedata/SAVAGE/` by default (`-d` or `SE_GAMEDIR` for another folder). The walk is
+static, so every branch of every IF is exported. Text keeps the engine's escapes (`$P`, `#K`,
+`*`, `@word`); see "Conversations" in `docs/MECHANICS.md`. Script entry *i* belongs to NPC *i*+2;
+entries 0x3E-0x48 are shared by eight NPCs each. Entry 54 (NPC 0x38) contains a malformed
+`$2 := ...` that the engine ignores; it is exported as `bad_let`.
+
 ## Building
 
 You need the game and the original tools; neither is in this repository.
