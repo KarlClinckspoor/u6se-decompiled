@@ -134,7 +134,7 @@ extern union tHandler D_ED10;/*GrDriver*/
 extern AnimateTilesAndActors(void);/*AnimateTilesAndActors*/
 extern DrawMapWindow(int16);/*DrawMapWindow*/
 extern DisplayTick(void);/*DisplayTick*/
-extern int16 C_0359_0D58(int16);
+extern int16 RedrawMapWithObjects(int16);
 extern PassTime(int16);/*PassTime*/
 extern RefreshStatus(void);/*RefreshStatus*/
 extern SetPartyMode(void);/*SetPartyMode*/
@@ -168,14 +168,14 @@ extern STAT_ShowParty(int16);/*STAT_ShowParty*/
 extern STAT_refreshComMode(void);/*STAT_refreshComMode*/
 extern STAT_DrawInventory(void);/*STAT_DrawInventory*/
 extern STAT_ShowInventory(int16);/*STAT_ShowInventory*/
-extern int16 C_130F_0002(int16);
-extern int16 C_130F_004D(int16);
-extern int16 C_130F_0070(int16);
-extern int16 C_130F_00A7(int16);
-extern int16 C_130F_00CA(int16);
-extern int16 C_130F_0136(int16);
+extern int16 IsTwoTileCreature(int16);
+extern int16 IsPteranodon(int16);
+extern int16 IsThreeTileCreature(int16);
+extern int16 IsGorilla(int16);
+extern int16 IsTyrannosaurus(int16);
+extern int16 IsSingleTileCreature(int16);
 extern int16 CanMoveTo(int16, int16, int16);/*CanMoveTo*/
-extern int16 C_130F_1199(int16);
+extern int16 HasThreeStepFrames(int16);
 extern SubMov(int16, int16);/*SubMov*/
 extern int16 TryStraightMove(int16, int16, int16);/*TryStraightMove(npc, dir, ?)*/
 extern int16 TryMoveTo(int16, int16, int16);/*TryMoveTo(npc, x, y): 0 if not moved*/
@@ -700,7 +700,7 @@ COMBAT_beginAttacked(void);
 /*set to "unconscious" type: called when an actor falls asleep or dies.
   Actors take their dead body shape from DeadShape (NPCs 11, 31, 47, 55
   and the "vanishing" monster classes have none); for the creatures of
-  several tiles (C_130F_00CA/C_130F_0070) the original shape is kept in
+  several tiles (IsTyrannosaurus/IsThreeTileCreature) the original shape is kept in
   OrigShapeType, the parts around are removed and the body made of
   several objects (with blood when dead). Monsters of class flag 0x2000
   bleed. returns 1 if the actor has a body shape (0: it must disappear)*/
@@ -718,7 +718,7 @@ COMBAT_beginAttacked(void);
 		C_1DBD_6DD9(objNum);
 		objType = GetType(objNum);
 	}
-	if(C_130F_00CA(objNum) || C_130F_0070(objNum))
+	if(IsTyrannosaurus(objNum) || IsThreeTileCreature(objNum))
 		OrigShapeType[objNum] = ObjShapeType[objNum];
 	if(objNum == 0x1f || objNum == 0x2f || objNum == 0x37 || objNum == 0x0b) {
 		deadShape = 0;
@@ -730,7 +730,7 @@ COMBAT_beginAttacked(void);
 		objCls = GetMonsterClass(objType);
 	}
 	if(deadShape && !(MonsterFlags[objCls + 1] & 0x1000) && !(MonsterFlags[objCls + 1] & 0x800)) {
-		if(!C_130F_00CA(objNum) && !C_130F_0070(objNum)) {
+		if(!IsTyrannosaurus(objNum) && !IsThreeTileCreature(objNum)) {
 			ObjShapeType[objNum] = deadShape;
 		} else {
 			MUS_PlaySfx(0x1f);
@@ -792,9 +792,9 @@ COMBAT_beginAttacked(void);
 		if((MonsterFlags[objCls + 1] & 0x800) || (MonsterFlags[objCls + 1] & 0x1000)) {
 			deadShape = 0;
 			if((MonsterFlags[objCls + 1] & 0x1000) && CLOSE_ENOUGH(5, GetX(objNum), GetY(objNum), MapX, MapY))
-				C_0359_0D58(1);
+				RedrawMapWithObjects(1);
 		}
-		if((MonsterFlags[objCls + 1] & 0x2000) && objNum >= 0x10 && !C_130F_00CA(objNum) && !C_130F_0070(objNum)) {
+		if((MonsterFlags[objCls + 1] & 0x2000) && objNum >= 0x10 && !IsTyrannosaurus(objNum) && !IsThreeTileCreature(objNum)) {
 			if((obj = AddMapObj(0xf8, 0x20, 0, GetX(objNum), GetY(objNum), MapZ)) >= 0)
 				ObjShapeType[obj] = GetType(obj) + (OSI_rand(0, 2) << 10);
 		}
@@ -1355,7 +1355,7 @@ COMBAT_beginAttacked(void);
 						DeleteObj(itemObj);
 					else
 						MoveObj(itemObj, MissileEnd[0], MissileEnd[1], MapZ);
-					C_0359_0D58(0);
+					RedrawMapWithObjects(0);
 				}
 				invChanged = 1;
 			} else if(typ == 0x32) {
@@ -1389,7 +1389,7 @@ COMBAT_beginAttacked(void);
 						DeleteObj(weap_objNum);
 					else
 						MoveObj(weap_objNum, MissileEnd[0], MissileEnd[1], MapZ);
-					C_0359_0D58(0);
+					RedrawMapWithObjects(0);
 				}
 			}
 		break;
@@ -1587,7 +1587,7 @@ COMBAT_beginAttacked(void);
 			dir = GetDirection(objNum);
 			COMBAT_Kill(objNum);
 			if(CLOSE_ENOUGH(5, x, y, MapX, MapY))
-				C_0359_0D58(1);
+				RedrawMapWithObjects(1);
 			do {
 				switch(dir) {
 					case 0: y ++; break;
@@ -1610,7 +1610,7 @@ COMBAT_beginAttacked(void);
 				AddMapObj(0x4e, 0x20, 0, GetX(head), GetY(head), MapZ);
 				COMBAT_Kill(head);
 				if(CLOSE_ENOUGH(5, GetX(head), GetY(head), MapX, MapY))
-					C_0359_0D58(1);
+					RedrawMapWithObjects(1);
 				return 10;
 			}
 		} else {
@@ -2120,7 +2120,7 @@ COMBAT_beginAttacked(void);
 			}
 		} else if(weap_typ == 0xd1 && GetType(opp_objNum) == 0x11) {
 			C_1DBD_4F8E(GetX(opp_objNum), GetY(opp_objNum), AddMapObj(0xf2, 0x20, 0, GetX(opp_objNum), GetY(opp_objNum), MapZ));
-			C_0359_0D58(0);
+			RedrawMapWithObjects(0);
 		} else {
 			__DoHit(att_objNum, opp_objNum, damage);
 		}
@@ -2304,10 +2304,10 @@ COMBAT_beginAttacked(void);
 	range = 9;
 	xo = GetX(objNum);
 	yo = GetY(objNum);
-	if(C_130F_0136(objNum))
+	if(IsSingleTileCreature(objNum))
 		return COMBAT_range(x, y, xo, yo);
 	frame = GetFrame(objNum);
-	if(C_130F_0002(objNum)) {
+	if(IsTwoTileCreature(objNum)) {
 		dir = frame >> 2;
 		switch(dir) {
 			case 0:
@@ -2327,8 +2327,8 @@ COMBAT_beginAttacked(void);
 					range = 1;
 			break;
 		}
-	} else if(C_130F_004D(objNum)) {
-		if(C_130F_1199(objNum))
+	} else if(IsPteranodon(objNum)) {
+		if(HasThreeStepFrames(objNum))
 			dir = frame / 6;
 		else
 			dir = frame >> 2;
@@ -2350,8 +2350,8 @@ COMBAT_beginAttacked(void);
 					range = 1;
 			break;
 		}
-	} else if(C_130F_0070(objNum)) {
-		if(C_130F_1199(objNum))
+	} else if(IsThreeTileCreature(objNum)) {
+		if(HasThreeStepFrames(objNum))
 			dir = frame / 6;
 		else
 			dir = frame >> 2;
@@ -2373,7 +2373,7 @@ COMBAT_beginAttacked(void);
 					range = 1;
 			break;
 		}
-	} else if(C_130F_00A7(objNum)) {
+	} else if(IsGorilla(objNum)) {
 		dir = frame >> 3;
 		switch(dir) {
 			case 0:
@@ -2393,8 +2393,8 @@ COMBAT_beginAttacked(void);
 					range = 1;
 			break;
 		}
-	} else if(C_130F_00CA(objNum)) {
-		if(C_130F_1199(objNum))
+	} else if(IsTyrannosaurus(objNum)) {
+		if(HasThreeStepFrames(objNum))
 			dir = frame / 6;
 		else
 			dir = frame >> 4;

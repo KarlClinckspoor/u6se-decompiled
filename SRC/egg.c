@@ -76,7 +76,7 @@ extern int16 AddInvObj(int16, int16, int16, int16);/*AddInvObj*/
 extern int16 AddMonster(int16, int16, int16, int16);/*AddMonster*/
 extern DeleteObj(int16);/*DeleteObj*/
 extern int16 QuanType(int16);/*QuanType*/
-extern int16 C_130F_0002(int16);
+extern int16 IsTwoTileCreature(int16);
 extern int16 COMBAT_TryTeleport(int16, int16);/*COMBAT_TryTeleport*/
 extern int16 C_1DBD_18FD(int16, int16);
 extern MUS_EventJingle();
@@ -178,7 +178,7 @@ extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
 	D_4706[objNum] =
 	D_53E4[objNum] = 8;
 
-	if(objType == 0x120 || C_130F_0002(objNum)) {
+	if(objType == 0x120 || IsTwoTileCreature(objNum)) {
 		D_9CFA[objNum] = GetType(objNum) + (1 << 10);
 	} else if(objType == 0x128) {
 		D_9CFA[objNum] = GetType(objNum) + (3 << 10);

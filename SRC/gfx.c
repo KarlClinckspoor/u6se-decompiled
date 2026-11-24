@@ -1054,7 +1054,7 @@ PortraitBg(int16 x, int16 y);
 }
 
 /*draw the status area background (bkgrnd.lzc entry 0) at 183,6*/
-/*C_276B_1BAF*/C_276B_1BAF() {
+/*C_276B_1BAF*/DrawStatusBackground() {
 	DISK_confirm(2);
 	LZC_load("bkgrnd.lzc", 0, D_54E8, 0, D_3EB6);
 	GR_DRAW_BITMAP(&D_3268, 0xb7, 6, D_54E8, 0);
@@ -1145,14 +1145,15 @@ PortraitBg(int16 x, int16 y);
 	}
 }
 
-/*tile in 0x4c-0x5c or 0x6c-0x6f (drawn brown by the peer map)*/
-/*C_276B_1EB2*/C_276B_1EB2(int16 tile) {
+/*is the tile an earth tile (0x4c-0x5c, 0x6c-0x6f; drawn brown by the peer
+ map)?*/
+/*C_276B_1EB2*/IsEarthTile(int16 tile) {
 	return (tile >= 0x4c && tile <= 0x5c) || (tile >= 0x6c && tile <= 0x6f);
 }
 
 /*peer: draw one map tile as a 4x4 dot at x,y:
   tileNum < 0 = an NPC (white with green corners), 0xff = black,
-  damaging = red, C_276B_1EB2 = brown, C_1810_0F71 = gray, impassable =
+  damaging = red, IsEarthTile = brown, C_1810_0F71 = gray, impassable =
   blue (wet) or light green, other terrain (< 0x100) = green;
   passable object tiles are not drawn*/
 /*C_276B_1ED9*/static peer_tile(int16 tileNum, int16 x, int16 y) {
@@ -1165,7 +1166,7 @@ PortraitBg(int16 x, int16 y);
 		color = 0;
 	} else if(TerrainType[tileNum] & 8) {
 		color = ColorRed;
-	} else if(C_276B_1EB2(tileNum)) {
+	} else if(IsEarthTile(tileNum)) {
 		color = ColorBrown;
 	} else if(C_1810_0F71(tileNum)) {
 		color = ColorGray;

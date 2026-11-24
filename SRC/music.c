@@ -63,7 +63,7 @@ extern DisplayTick();/*DisplayTick*/
 extern RefreshStatus();
 extern CON_putch0(int16);/*CON_putch0*/
 extern cdecl CON_printf(char far *, ...);/*CON_printf*/
-extern C_08CB_0C73();
+extern PartyResurrect();
 extern ResetMapView();
 extern DISK_confirm(int16);/*DISK_confirm*/
 extern char far UnconsciousMsg[];/*UnconsciousMsg*/
@@ -345,7 +345,7 @@ song 8*/
 }
 
 /*the party is knocked out: "Overcome by your wounds...", song 11, then the
-party awakens in Intanya's hut (C_08CB_0C73)*/
+party awakens in Intanya's hut (PartyResurrect)*/
 /*C_2701_0556*/PartyUnconscious() {
 	int16 song;
 	int16 i = 0;
@@ -377,7 +377,7 @@ party awakens in Intanya's hut (C_08CB_0C73)*/
 		SetNextSong(D_ECBC[song], 0);
 	}
 	CON_printf(AwakenAtIntanyaMsg);
-	C_08CB_0C73();
+	PartyResurrect();
 	EndPagingAtPrompt = 1;
 	AnimateAtPrompt = 1;
 }

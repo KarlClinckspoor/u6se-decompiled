@@ -79,7 +79,7 @@ extern char *GetObjectString(int16);/*GetObjectString*/
 extern STAT_DrawInventory();/*STAT_DrawInventory*/
 extern STAT_ShowInventory(int16);/*STAT_ShowInventory*/
 extern int16 JoinParty(int16);/*JoinParty*/
-extern int16 C_130F_0136(int16);
+extern int16 IsSingleTileCreature(int16);
 extern int16 CanMoveTo(int16, int16, int16);/*can objNum move to (x, y)?*/
 extern int16 COMBAT_ResistsSpell(int16, int16);/*COMBAT_ResistsSpell?*/
 extern int16 MaxHP(int16);/*MaxHP*/
@@ -88,7 +88,7 @@ extern int16 EGG_generate(int16, int16, int16, int16);/*EGG_generate*/
 extern MUS_PlaySfx(int16);/*MUS_PlaySfx*/
 extern MagicalHalo(int16, int16);/*MagicalHalo*/
 extern DrawPortrait(int16, int16, int16);/*DrawPortrait*/
-extern C_276B_1BAF();
+extern DrawStatusBackground();
 extern PeerMap();/*PeerMap*/
 extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
 
@@ -444,7 +444,7 @@ extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
 					D_6CF0[*p] |= 1;
 				break;
 			case 0x20:
-				if((D_6CF0[*p] & 0x20) && !(D_329C[*p] & 0x40) && !COMBAT_ResistsSpell(StatusMember, *p) && C_130F_0136(*p)) {
+				if((D_6CF0[*p] & 0x20) && !(D_329C[*p] & 0x40) && !COMBAT_ResistsSpell(StatusMember, *p) && IsSingleTileCreature(*p)) {
 					list[count ++] = *p;
 					D_329C[*p] |= 0x40;
 				}
@@ -454,7 +454,7 @@ extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
 					list[count ++] = *p;
 				break;
 			case 0x11:
-				if((D_6CF0[*p] & 0x20) && !(D_329C[*p] & 4) && !COMBAT_ResistsSpell(StatusMember, *p) && C_130F_0136(*p))
+				if((D_6CF0[*p] & 0x20) && !(D_329C[*p] & 4) && !COMBAT_ResistsSpell(StatusMember, *p) && IsSingleTileCreature(*p))
 					list[count ++] = *p;
 				break;
 		}
@@ -527,7 +527,7 @@ extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
 			StatusDisplay = 0x9e;
 			mouseState = CON_mouseOffAt(183, 6, 314, 118);
 			GR_FILL_RECT(183, 6, 314, 118);
-			C_276B_1BAF();
+			DrawStatusBackground();
 			DrawPortrait(1000, 210, 7);
 			DisplayTick();
 			MUS_PlaySfx(0x10);

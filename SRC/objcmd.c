@@ -51,7 +51,7 @@ extern int16 cdecl MOUSE_HIDE(void);/*MOUSE_HIDE*/
 /*map*/
 extern PartyTeleport(int16, int16, int16, int16);
 extern MAP_LoadAround(void);
-extern C_08CB_0855(int16);/*goes through the entrance objNum*/
+extern GoThroughEntrance(int16);/*goes through the entrance objNum*/
 extern unsigned char GetTileAtXYZ(int16, int16, int16);
 /*visible*/
 extern VIS_UpdateView(void);
@@ -107,7 +107,7 @@ extern JoinParty(int16);
 extern MoveFollowers(int16, int16);/*MoveFollowers*/
 extern UpdateMoveFrame(int16, int16);
 extern SubMov(int16, int16);
-extern int16 C_130F_014E(int16);/*is there land next to the vehicle?*/
+extern int16 IsRaftAtShore(int16);/*is there land next to the vehicle?*/
 extern Board(int16);
 extern int16 Unboard(int16);
 extern int16 CanMoveTo(int16, int16, int16);
@@ -138,7 +138,7 @@ extern MUS_PlaySfx(int16);
 extern ClearMapWindow(int16);
 extern ShowMidgame(int16, int16, unsigned char *);
 extern int16 far *Explosion(int16, int16, int16);
-extern C_276B_1BAF(void);/*clears the status panel for a portrait?*/
+extern DrawStatusBackground(void);/*clears the status panel for a portrait?*/
 extern DrawPortrait(int16, int16, int16);
 /*far messages*/
 extern char far NothingMsg[];/*"nothing!\n"*/
@@ -844,7 +844,7 @@ void C_1DBD_5069(int16, int16, int16);
 	savedClip = CurClip;
 	HideMouse
 	savedStatus = StatusDisplay;
-	C_276B_1BAF();
+	DrawStatusBackground();
 	DrawPortrait(objNum, 0xd2, 7);
 	if(objNum >= 0xb0) {
 		switch(ObjShapeType[objNum]) {
@@ -2335,7 +2335,7 @@ void C_1DBD_5069(int16, int16, int16);
 		}
 	}
 	if(IN_VEHICLE && actor == objNum) {
-		if(C_130F_014E(objNum))
+		if(IsRaftAtShore(objNum))
 			objNum = Unboard(1);
 		else
 			CON_printf("\nOnly next to land.\n");
@@ -4190,13 +4190,13 @@ void C_1DBD_5069(int16, int16, int16);
 			break;
 		case 0x14:
 			if(SoloMember == -1)
-				C_08CB_0855(SelectionObj);
+				GoThroughEntrance(SelectionObj);
 			else
 				CON_printf(NotInSoloMsg);
 			break;
 		case 0x16:
 			if(SoloMember == -1 && GetFrame(SelectionObj) == 1)
-				C_08CB_0855(SelectionObj);
+				GoThroughEntrance(SelectionObj);
 			else if(GetFrame(SelectionObj) == 0)
 				CON_printf("You need a rope dropped from above.\n");
 			else

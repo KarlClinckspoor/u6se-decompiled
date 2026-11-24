@@ -724,7 +724,7 @@ TalkFlags[1] & 4 is set*/
 }
 
 /*redraw the map window, with the objects rebuilt; fade it in if mode is 1*/
-/*C_0359_0D58*/C_0359_0D58(int16 mode) {
+/*C_0359_0D58*/RedrawMapWithObjects(int16 mode) {
 	DrawMapWindow(1);
 	if(mode == 1) {
 		ShowObjects();

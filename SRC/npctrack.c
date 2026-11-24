@@ -100,8 +100,8 @@ extern int16 SearchArea(int16, int16, int16, int16);/*SearchArea(x1, y1, x2, y2)
 extern PartyUnconscious();/*the Avatar is knocked out (U6: PartyDeath)*/
 extern TALK_talkTo(int16, int16, int16);/*TALK_talkTo(partyId, objNum, showName)*/
 extern PassTime(int16);/*PassTime(minutes)*/
-extern C_08CB_0855(int16);/*goes through the entrance objNum (cave, stairs...)*/
-extern C_08CB_0B8B(int16);/*goes through objNum (object type 0x44)*/
+extern GoThroughEntrance(int16);/*goes through the entrance objNum (cave, stairs...)*/
+extern GoThroughTeleporter(int16);/*goes through objNum (object type 0x44)*/
 extern STAT_ShowParty(int16);/*STAT_ShowParty*/
 extern MUS_PlayAreaSong();/*MUS_PlayAreaSong*/
 extern DrawSkyBar();/*DrawSkyBar*/
@@ -364,9 +364,10 @@ extern int16 D_EBCA;/*PTH_Found*/
 /*0DC0*/char PTH_DirX[] = { 0,1,0,-1};
 /*0DC4*/char PTH_DirY[] = {-1,0,1, 0};
 
-/*creature types that take a square more to the west/north (2x2 body
- anchored at its south-east square)*/
-/*C_130F_0002*/C_130F_0002(int16 objNum) {
+/*is objNum one of the creatures with a 2x2 body anchored at its south-east
+ square (0x11B serpent woman, 0x12C plesiosaur, 0x147 ankylosaurus,
+ 0x14A-0x14F)? Its body takes a square more to the west/north*/
+/*C_130F_0002*/IsTwoTileCreature(int16 objNum) {
 	int16 objTyp;
 
 	objTyp = GetType(objNum);
@@ -377,14 +378,17 @@ extern int16 D_EBCA;/*PTH_Found*/
 	;
 }
 
-/*C_130F_004D*/C_130F_004D(int16 objNum) {
+/*is objNum a pteranodon (type 0x120)?*/
+/*C_130F_004D*/IsPteranodon(int16 objNum) {
 	int16 objTyp;
 
 	objTyp = GetType(objNum);
 	return objTyp == 0x120;
 }
 
-/*C_130F_0070*/C_130F_0070(int16 objNum) {
+/*is objNum one of the creatures of three tiles (0x11C baby apatosaurus,
+ 0x121 allosaurus, 0x129 robosaurus, 0x12F stegosaurus, 0x131 triceratops)?*/
+/*C_130F_0070*/IsThreeTileCreature(int16 objNum) {
 	int16 objTyp;
 
 	objTyp = GetType(objNum);
@@ -394,22 +398,25 @@ extern int16 D_EBCA;/*PTH_Found*/
 	;
 }
 
-/*C_130F_00A7*/C_130F_00A7(int16 objNum) {
+/*is objNum a gorilla (type 0x128, a 2x2 body like the raft)?*/
+/*C_130F_00A7*/IsGorilla(int16 objNum) {
 	int16 objTyp;
 
 	objTyp = GetType(objNum);
 	return objTyp == 0x128;
 }
 
-/*C_130F_00CA*/C_130F_00CA(int16 objNum) {
+/*is objNum a tyrannosaurus (type 0x126, the biggest body)?*/
+/*C_130F_00CA*/IsTyrannosaurus(int16 objNum) {
 	int16 objTyp;
 
 	objTyp = GetType(objNum);
 	return objTyp == 0x126;
 }
 
-/*is objTyp a single-square creature?*/
-/*C_130F_00ED*/C_130F_00ED(int16 objTyp) {
+/*is objTyp a creature type of one square (0x11A, 0x123, 0x124, 0x12B,
+ 0x12D, 0x12E, 0x133-0x146, 0x150 and up)?*/
+/*C_130F_00ED*/IsSingleTileType(int16 objTyp) {
 	return
 		(objTyp >= 0x133 && objTyp <= 0x146) || objTyp >= 0x150 ||
 		objTyp == 0x12d || objTyp == 0x12e || objTyp == 0x12b ||
@@ -417,13 +424,16 @@ extern int16 D_EBCA;/*PTH_Found*/
 	;
 }
 
-/*C_130F_0136*/C_130F_0136(int16 objNum) {
-	return C_130F_00ED(GetType(objNum));
+/*is objNum a creature of one square (IsSingleTileType of its type)? Only
+ these move diagonally*/
+/*C_130F_0136*/IsSingleTileCreature(int16 objNum) {
+	return IsSingleTileType(GetType(objNum));
 }
 
-/*is there a tile of the C_1DBD_0A29 kind under the 2x2 body of objNum
- (its square and the 3 squares to the west/north)?*/
-/*C_130F_014E*/C_130F_014E(int16 objNum) {
+/*is one of the four squares of the raft objNum (its own and those
+ west/north of it) a shore tile (C_1DBD_0A29)? (objcmd.c's raft: "Only next
+ to land.")*/
+/*C_130F_014E*/IsRaftAtShore(int16 objNum) {
 	int16 x, y;
 	int16 i, j;
 
@@ -438,9 +448,10 @@ extern int16 D_EBCA;/*PTH_Found*/
 	return 0;
 }
 
-/*can the 2x2 body of objNum move by (delta_x, delta_y)? 0 if one of its
- squares is on a C_1DBD_0A29 tile and so is the square it would move to*/
-/*C_130F_01C6*/C_130F_01C6(int16 objNum, int16 delta_x, int16 delta_y) {
+/*can the raft objNum (a 2x2 body) move by (delta_x, delta_y)? 0 if one of
+ its squares is on a shore tile (C_1DBD_0A29) and so is the square it would
+ move to (CanMoveTo's boat case; Martian Dreams' BargeCanMove)*/
+/*C_130F_01C6*/RaftCanMove(int16 objNum, int16 delta_x, int16 delta_y) {
 	int16 x, y;
 	int16 i, j;
 
@@ -515,7 +526,7 @@ extern int16 D_EBCA;/*PTH_Found*/
 		ethereal = 0;
 		walks = 1;
 	}
-	isSmall = C_130F_0136(objNum);
+	isSmall = IsSingleTileCreature(objNum);
 	if(GetType(objNum) == 0x148 || objNum == 0x19 || objNum == 0x23)
 		return 0;
 	if(GetZ(objNum) == MapZ && GetCoordUse(objNum) == 0) {
@@ -530,7 +541,7 @@ extern int16 D_EBCA;/*PTH_Found*/
 		/*only small creatures move diagonally*/
 		if(!isSmall && objTyp != 0x149 && ((north & east) || (north & west) || (south & east) || (south & west)))
 			return 0;
-		if(C_130F_00CA(objNum)) {
+		if(IsTyrannosaurus(objNum)) {
 			isBig = 1;
 			if(east) {
 				MoveFromX ++;
@@ -564,7 +575,7 @@ extern int16 D_EBCA;/*PTH_Found*/
 				destSide_x = x - 1;
 				destSide_y = y;
 			}
-		} else if(C_130F_00A7(objNum) || isBoat) {
+		} else if(IsGorilla(objNum) || isBoat) {
 			isBig = 1;
 			if(east) {
 				ownSide_x = MoveFromX;
@@ -594,7 +605,7 @@ extern int16 D_EBCA;/*PTH_Found*/
 				destSide_x = x - 1;
 				destSide_y = y;
 			}
-		} else if(C_130F_0070(objNum)) {
+		} else if(IsThreeTileCreature(objNum)) {
 			if(east) {
 				MoveFromX ++;
 				x ++;
@@ -611,7 +622,7 @@ extern int16 D_EBCA;/*PTH_Found*/
 				MoveFromY ++;
 				y ++;
 			}
-		} else if(C_130F_0002(objNum)) {
+		} else if(IsTwoTileCreature(objNum)) {
 			if(west) {
 				MoveFromX --;
 				x --;
@@ -620,7 +631,7 @@ extern int16 D_EBCA;/*PTH_Found*/
 				MoveFromY --;
 				y --;
 			}
-		} else if(C_130F_004D(objNum)) {
+		} else if(IsPteranodon(objNum)) {
 			isBig = 1;
 			if(east || west) {
 				ownSide_x = MoveFromX;
@@ -714,7 +725,7 @@ extern int16 D_EBCA;/*PTH_Found*/
 		dir_x = east?1:(west?-1:0);
 		dir_y = south?1:(north?-1:0);
 		canLeave = 1;
-		if(C_130F_01C6(objNum, dir_x, dir_y) && (terrain & 1) && (destSideTerrain & 1))
+		if(RaftCanMove(objNum, dir_x, dir_y) && (terrain & 1) && (destSideTerrain & 1))
 			canEnter = 1;
 	}
 	if((terrain & 8) || (destSideTerrain != -1 && (destSideTerrain & 8)))
@@ -930,14 +941,18 @@ c_0faa:
 	return 0;
 }
 
-/*C_130F_1199*/C_130F_1199(int16 objNum) {
+/*is objNum of type 0x120, 0x121 or 0x126 (pteranodon, allosaurus,
+ tyrannosaurus): the creatures with three step frames per facing?*/
+/*C_130F_1199*/HasThreeStepFrames(int16 objNum) {
 	int16 objTyp;
 
 	objTyp = GetType(objNum);
 	return objTyp == 0x120 || objTyp == 0x121 || objTyp == 0x126;
 }
 
-/*C_130F_11C6*/C_130F_11C6(int16 objNum) {
+/*is objNum of a human type (0x136-0x146) or of type 0x12D (4 frames per
+ facing, as UpdateMoveFrame's humanoid case)? Not called*/
+/*C_130F_11C6*/IsHumanoid(int16 objNum) {
 	int16 objTyp;
 
 	objTyp = GetType(objNum);
@@ -1106,7 +1121,7 @@ c_0faa:
 		dir >>= 1;
 		cur_x = GetX(objNum);
 		cur_y = GetY(objNum);
-		if(C_130F_1199(objNum)) {
+		if(HasThreeStepFrames(objNum)) {
 			frm = (objFrm >> shifts[0]) % 3;
 			dirFram = (objFrm >> shifts[0]) / 3;
 			switch(frm) {
@@ -1408,7 +1423,7 @@ c_0faa:
 }
 
 /*after the party leader moved: take the entrance he stands on (object
- types 0xa3, 0xe3, 0x103, 0xa0: C_08CB_0855; type 0x44: C_08CB_0B8B), only
+ types 0xa3, 0xe3, 0x103, 0xa0: GoThroughEntrance; type 0x44: GoThroughTeleporter), only
  in party mode. Then the sky bar and one minute pass.*/
 /*C_130F_2404*/CheckGatesAndEntrances() {
 	int16 objNum, objType;
@@ -1424,14 +1439,14 @@ c_0faa:
 				if(SoloMember != -1)
 					needPartyMode = 1;
 				else
-					C_08CB_0855(objNum);
+					GoThroughEntrance(objNum);
 				break;
 			}
 			if(objType == 0x44) {
 				if(SoloMember != -1)
 					needPartyMode = 1;
 				else
-					C_08CB_0B8B(objNum);
+					GoThroughTeleporter(objNum);
 				break;
 			}
 		}
@@ -2269,7 +2284,10 @@ c_0faa:
 	return slot;
 }
 
-/*C_130F_40DB*/C_130F_40DB(int16 objNum) {
+/*is objNum of a human type (0x136-0x146)? The tests of 0x13A-0x13C, 0x140,
+ 0x142 and 0x145 after the range add nothing (perhaps meant as the men).
+ NPC_TakeTurn's dance modes give these dancer frames 0-3, others 4-7*/
+/*C_130F_40DB*/IsHumanType(int16 objNum) {
 	int16 objTyp;
 
 	objTyp = GetType(objNum);
@@ -2370,7 +2388,7 @@ c_0faa:
 		case 0x8d:
 		case 0x8e:
 			OrigShapeType[objNum] = ObjShapeType[objNum];
-			if(C_130F_40DB(objNum))
+			if(IsHumanType(objNum))
 				SetType(objNum, 0x149 | (OSI_rand(0, 3) << 10));
 			else
 				SetType(objNum, 0x149 | (OSI_rand(4, 7) << 10));

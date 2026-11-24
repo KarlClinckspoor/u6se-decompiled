@@ -142,7 +142,7 @@ extern DISK_confirm(int16);/*DISK_confirm*/
 /*04D4*/int16 BuiltAreaY = -1;/*AreaY of the area tiles currently built*/
 /*04D6*/int16 BuiltAreaZ = -1;/*MapZ of the area tiles currently built*/
 
-/*where the entrances lead (x, y), by the entrance object's quality (see C_08CB_0855)*/
+/*where the entrances lead (x, y), by the entrance object's quality (see GoThroughEntrance)*/
 /*04D8*/int16 D_04D8[8][2] = {/*object 0x16, quality 1-8*/
 	{0x18C,0x044},{0x258,0x0DF},{0x08A,0x1C9},{0x08B,0x1FD},
 	{0x170,0x150},{0x279,0x1D0},{0x29A,0x2B1},{0x0EA,0x03D}
@@ -167,7 +167,7 @@ extern DISK_confirm(int16);/*DISK_confirm*/
 	{0x0BD,0x044},{0x00D,0x0F4},{0x0B5,0x0E4},{0x0C5,0x0F4},
 	{0x0CD,0x0F4},{0x0ED,0x0F4},{0x014,0x0DA},{0x0B1,0x083}
 };
-/*05C0*/int16 D_05C0[15][2] = {/*C_08CB_0B8B on the surface, by quality*/
+/*05C0*/int16 D_05C0[15][2] = {/*GoThroughTeleporter on the surface, by quality*/
 	{0x19C,0x123},{0x0CE,0x26B},{0x171,0x25C},{0x2B1,0x307},
 	{0x26B,0x25A},{0x067,0x267},{0x216,0x11E},{0x178,0x0AD},
 	{0x0B6,0x1C8},{0x0B8,0x1C9},{0x0BA,0x1C9},{0x0BB,0x1C7},
@@ -481,7 +481,7 @@ static /*C_08CB_0003*/cacheChunk(int16 chunkIdx) {
 
 /*go through the entrance objNum (cave, stairs...): the party moves to the
   place its type and quality give (tables above)*/
-/*C_08CB_0855*/C_08CB_0855(int16 objNum) {
+/*C_08CB_0855*/GoThroughEntrance(int16 objNum) {
 	int16 toLevel1, found, other;
 	int16 qual, type;
 
@@ -562,7 +562,7 @@ static /*C_08CB_0003*/cacheChunk(int16 chunkIdx) {
 
 /*go through objNum (object type 0x44): underground, to the other object
   0x44 of the same quality; on the surface, to the place of table D_05C0*/
-/*C_08CB_0B8B*/C_08CB_0B8B(int16 objNum) {
+/*C_08CB_0B8B*/GoThroughTeleporter(int16 objNum) {
 	int16 type;
 	int16 i, qual;
 
@@ -591,10 +591,11 @@ static /*C_08CB_0003*/cacheChunk(int16 chunkIdx) {
 	MUS_PlayAreaSong();
 }
 
-/*after the party's death: bring the dead party members back to life,
-  heal everybody (they lose a quarter of their experience?) and bring the
-  party to (0x19c, 0x123); a week passes*/
-/*C_08CB_0C73*/C_08CB_0C73() {
+/*after the party's death (Ultima VI's PartyResurrect; the party wakes in
+  Intanya's hut): bring the dead party members back to life, heal everybody
+  (they lose a quarter of their experience?) and bring the party to
+  (0x19c, 0x123); a week passes*/
+/*C_08CB_0C73*/PartyResurrect() {
 	int16 i, flag, clip;
 	int16 memberObj, bodyObj;
 

@@ -116,8 +116,8 @@ extern int16 GetWeight(int16);/*GetWeight*/
 extern int16 GetTypeWeight(int16, int16);/*GetTypeWeight*/
 extern STAT_ComputeWeights(int16);/*STAT_ComputeWeights*/
 extern STAT_RefreshInventory(int16);/*STAT_RefreshInventory*/
-extern int16 C_130F_0070(int16);
-extern int16 C_130F_00CA(int16);
+extern int16 IsThreeTileCreature(int16);
+extern int16 IsTyrannosaurus(int16);
 extern int16 IsOutOfArea(int16);
 extern SubMov(int16, int16);
 extern int16 MaxHP(int16);/*MaxHP*/
@@ -1087,7 +1087,7 @@ int16 QuanType(int16);
 	if(StatusDisplay == 0x92 && OBJ_IsInside(objNum, Party[StatusMember]))
 		StatusDirty = 1;
 	objTyp = GetType(objNum);
-	if(IsNPC(objNum) && (C_130F_00CA(objNum) || C_130F_0070(objNum)))
+	if(IsNPC(objNum) && (IsTyrannosaurus(objNum) || IsThreeTileCreature(objNum)))
 		C_0A5D_0CB1(objNum);
 	/*spill the contents*/
 	for(content = FindInv(objNum); content >= 0; content = NextInv()) {
