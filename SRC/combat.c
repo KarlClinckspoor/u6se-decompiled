@@ -181,15 +181,15 @@ extern int16 TryStraightMove(int16, int16, int16);/*TryStraightMove(npc, dir, ?)
 extern int16 TryMoveTo(int16, int16, int16);/*TryMoveTo(npc, x, y): 0 if not moved*/
 extern WanderRandomly(int16);/*WanderRandomly*/
 extern CheckActiveMember(void);
-extern C_1DBD_0304(void);
-extern C_1DBD_077E(void);
+extern Cutscene3(void);
+extern Cutscene5(void);
 extern int16 IsTreeTile(int16);
-extern int16 C_1DBD_18FD(int16, int16);
+extern int16 IsObjLostAt(int16, int16);
 extern AfterExplosion(int16, int16);
 extern int16 FindTypeAt(int16, int16, int16, int16);
 extern LoadFlintlock(int16, int16);
-extern C_1DBD_4F8E(int16, int16, int16);
-extern C_1DBD_6DD9(int16);
+extern FireSpread(int16, int16, int16);
+extern DismountTurtle(int16);
 extern int16 GetMonsterClass(int16);/*GetMonsterClass*/
 extern MUS_AttackedSong(void);
 extern MUS_CombatEndSong(int16);
@@ -714,7 +714,7 @@ COMBAT_beginAttacked(void);
 	if(isDead && (objType == 0xf9 || objType == 0x118))
 		return 1;
 	if(isDead && objType == 0x133) {
-		C_1DBD_6DD9(objNum);
+		DismountTurtle(objNum);
 		objType = GetType(objNum);
 	}
 	if(IsTyrannosaurus(objNum) || IsThreeTileCreature(objNum))
@@ -1358,7 +1358,7 @@ COMBAT_beginAttacked(void);
 				} else if(typ != 0x25) {
 					DeleteObj(itemObj);
 				} else {
-					if(C_1DBD_18FD(MissileEnd[0], MissileEnd[1]))
+					if(IsObjLostAt(MissileEnd[0], MissileEnd[1]))
 						DeleteObj(itemObj);
 					else
 						MoveObj(itemObj, MissileEnd[0], MissileEnd[1], MapZ);
@@ -1392,7 +1392,7 @@ COMBAT_beginAttacked(void);
 				if(MissileHitObj >= 0) {
 					MoveObj(weap_objNum, MissileEnd[0], MissileEnd[1], MapZ);
 				} else {
-					if(C_1DBD_18FD(MissileEnd[0], MissileEnd[1]))
+					if(IsObjLostAt(MissileEnd[0], MissileEnd[1]))
 						DeleteObj(weap_objNum);
 					else
 						MoveObj(weap_objNum, MissileEnd[0], MissileEnd[1], MapZ);
@@ -1817,7 +1817,7 @@ COMBAT_beginAttacked(void);
 				VisibilityDirty = 1;
 				DisplayTick();
 				if(!(TalkFlags[1] & 4))
-					C_1DBD_0304();
+					Cutscene3();
 				VisibilityDirty = 1;
 			} else if(objType == 0x93) {
 				MUS_PlaySfx(0);
@@ -1834,7 +1834,7 @@ COMBAT_beginAttacked(void);
 				DisplayTick();
 				DeleteObj(objNum);
 				VisibilityDirty = 1;
-				C_1DBD_077E();
+				Cutscene5();
 			} else {
 				DeleteObj(objNum);
 				VisibilityDirty = 1;
@@ -2126,7 +2126,7 @@ COMBAT_beginAttacked(void);
 				__DoHit(att_objNum, opp_objNum, damage);
 			}
 		} else if(weap_typ == 0xd1 && GetType(opp_objNum) == 0x11) {
-			C_1DBD_4F8E(GetX(opp_objNum), GetY(opp_objNum), AddMapObj(0xf2, 0x20, 0, GetX(opp_objNum), GetY(opp_objNum), MapZ));
+			FireSpread(GetX(opp_objNum), GetY(opp_objNum), AddMapObj(0xf2, 0x20, 0, GetX(opp_objNum), GetY(opp_objNum), MapZ));
 			RedrawMapWithObjects(0);
 		} else {
 			__DoHit(att_objNum, opp_objNum, damage);

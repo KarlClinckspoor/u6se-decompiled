@@ -349,7 +349,7 @@ extern union tHandler D_ED10;/*GrDriver*/
 
 /*this module*/
 int16 FindTypeAt(int16, int16, int16, int16);
-void C_1DBD_5069(int16, int16, int16);
+void FireSpreadQ1(int16, int16, int16);
 
 /*the text window under the map, cleared, for a cut scene*/
 #define CUTSCENE_START(song) \
@@ -377,8 +377,9 @@ void C_1DBD_5069(int16, int16, int16);
 	StatusDirty ++; \
 	RefreshStatus();
 
-/*the NPC holding objNum, or the active party member when no NPC holds it*/
-/*C_1DBD_0003*/unsigned char C_1DBD_0003(int16 objNum) {
+/*who uses objNum: the NPC holding it (OBJ_GetHolderNPC), or the active party
+  member when no NPC holds it*/
+/*C_1DBD_0003*/unsigned char GetObjUser(int16 objNum) {
 	int16 holder;
 
 	if((holder = OBJ_GetHolderNPC(objNum)) == -1)
@@ -386,8 +387,9 @@ void C_1DBD_5069(int16, int16, int16);
 	return holder;
 }
 
-/*cut scene 1 (MIDGAME1)*/
-/*C_1DBD_002E*/void C_1DBD_002E() {
+/*cut scene 1 (MIDGAME1): Aiela (NPC 2) joins, Darden (0x17) attacks, the
+  area's eggs hatch, combat begins*/
+/*C_1DBD_002E*/void Cutscene1() {
 	unsigned char text[4];
 
 	AnimateAtPrompt = 0;
@@ -418,8 +420,9 @@ void C_1DBD_5069(int16, int16, int16);
 	MUS_PlayAreaSong();
 }
 
-/*cut scene 2 (MIDGAME2)*/
-/*C_1DBD_01A0*/void C_1DBD_01A0() {
+/*cut scene 2 (MIDGAME2, an object put on the gem stand): waits until 12:00,
+  makes the trap door (0xA0) at (0xC0, 0x1CC, 0), sets NPC 1's flag 1*/
+/*C_1DBD_01A0*/void Cutscene2() {
 	unsigned char text[4];
 
 	IsInConversation = 1;
@@ -439,8 +442,10 @@ void C_1DBD_5069(int16, int16, int16);
 	MUS_PlayAreaSong();
 }
 
-/*cut scene 3 (MIDGAME3)*/
-/*C_1DBD_0304*/void C_1DBD_0304() {
+/*cut scene 3 (MIDGAME3, the control panel 0xDE destroyed: LoseHP):
+  Yunapotli and others die, Johann returns and joins, 24 hours pass, the
+  robosaurs (0x129), argent sergeants (0x12D) and their eggs are removed*/
+/*C_1DBD_0304*/void Cutscene3() {
 	unsigned char text[4];
 	int16 x, y, z;
 	int16 obj2, obj;
@@ -503,8 +508,9 @@ void C_1DBD_5069(int16, int16, int16);
 	MUS_PlayAreaSong();
 }
 
-/*cut scene 4 (MIDGAME4)*/
-/*C_1DBD_05DC*/void C_1DBD_05DC() {
+/*cut scene 4 (MIDGAME4, the drum with all the tribes allied): the party
+  goes to (0xF3, 0xCC, 1), where the rope (0x16) becomes climbable*/
+/*C_1DBD_05DC*/void Cutscene4() {
 	unsigned char text[4];
 	int16 item, obj;
 
@@ -528,7 +534,7 @@ void C_1DBD_5069(int16, int16, int16);
 /*the last cut scene (MIDGAME5): deletes the temporary object blocks (it does
   not save the game) and runs SAVAGE.EXE for the endgame, with the configuration,
   the date and the ending (LA/LT) as arguments*/
-/*C_1DBD_077E*/C_1DBD_077E() {
+/*C_1DBD_077E*/Cutscene5() {
 	unsigned char text[4];
 	char config[4];
 	char day[4], month[4], year[4];
@@ -615,9 +621,9 @@ void C_1DBD_5069(int16, int16, int16);
 	return 0;
 }
 
-/*is tileNum one of the tiles 0x20..0x2f, 0xbe (clay to dig; land next to
-  the water)?*/
-/*C_1DBD_0A29*/C_1DBD_0A29(register int16 tileNum) {
+/*is tileNum a shore tile (0x20..0x2f, 0xbe; LOOK.LZC's "shore", next to the
+   water)? (clay to dig, where a rider gets off the turtle, the raft)*/
+/*C_1DBD_0A29*/IsShoreTile(register int16 tileNum) {
 	return (tileNum >= 0x20 && tileNum <= 0x2f) || tileNum == 0xbe;
 }
 
@@ -644,8 +650,11 @@ void C_1DBD_5069(int16, int16, int16);
 
 /*115A*/int16 D_115A[] = {0x36, 0x37, 0x38, 0x5d, 0x6c, 0x6d, 0x7b, 0x81, 0x82, 0xcc, 0xa};
 
-/*is typeObject one of D_115A's types (what fits in a bag or a pouch)?*/
-/*C_1DBD_0A9C*/C_1DBD_0A9C(int16 typeObject) {
+/*is typeObject one of D_115A's types: what a mortar or grinding stone
+ (0x3B/0x3C) or an empty jar (0x61) can hold (chocolatl, pinde, yopo, corn
+ meal, corn, beans, sulfur, charcoal, potassium nitrate, gunpowder,
+ magnesium ribbon)? (U6's IsContainerType, with another list)*/
+/*C_1DBD_0A9C*/IsIngredientType(int16 typeObject) {
 	int16 i;
 
 	for(i = 0; i < 11; i ++)
@@ -673,11 +682,11 @@ void C_1DBD_5069(int16, int16, int16);
 						return 0;
 					return 1;
 				case 0x3b: case 0x3c:
-					if(C_1DBD_0A9C(itemTyp))
+					if(IsIngredientType(itemTyp))
 						return 1;
 					return 0;
 				case 0x61:
-					if(!C_1DBD_0A9C(itemTyp))
+					if(!IsIngredientType(itemTyp))
 						return 0;
 					inner = FindInv(containerObj);
 					if(inner != -1 && GetType(inner) != itemTyp)
@@ -1127,10 +1136,11 @@ void C_1DBD_5069(int16, int16, int16);
 	return answer;
 }
 
-/*is (x, y) impassable: the map tile and every object there are
- impassable (terrain bit 0x02) with none of the bits 0x10, 0x20, 0x40,
- 0x80? returns 0 when it is, 1 when it is not (U6: IsBlockedAt)*/
-/*C_1DBD_1848*/C_1DBD_1848(int16 x, int16 y) {
+/*can an object be put at (x, y)? 0 when the map tile and every object
+  there are impassable (terrain bit 0x02) with none of the bits 0x10, 0x20,
+  0x40, 0x80, else 1 (Martian Dreams' CanPlaceObjAt; U6's IsBlockedAt, the
+  other way round)*/
+/*C_1DBD_1848*/CanPlaceObjAt(int16 x, int16 y) {
 	int16 flags, obj;
 
 	flags = TerrainType[GetTileAtXYZ(x, y, MapZ)];
@@ -1145,8 +1155,9 @@ void C_1DBD_5069(int16, int16, int16);
 }
 
 /*is (x, y) water or a similar tile (terrain bits 0x01 and 0x02,
- IsLavaTile or IsCliffTile) with no object on it?*/
-/*C_1DBD_18FD*/C_1DBD_18FD(int16 x, int16 y) {
+  IsLavaTile or IsCliffTile) with no object on it? An object dropped, moved
+  or thrown there is lost*/
+/*C_1DBD_18FD*/IsObjLostAt(int16 x, int16 y) {
 	int16 flags, tile;
 
 	flags = TerrainType[tile = GetTileAtXYZ(x, y, MapZ)];
@@ -1191,7 +1202,7 @@ void C_1DBD_5069(int16, int16, int16);
 		CON_putch('\n');
 		target = FindLoc(SelectionX, SelectionY, MapZ);
 		if(SelectionX != -1 && SelectionY != -1 && COMBAT_Missile(actor, &SelectionX, &SelectionY, 8, 0)) {
-			if(C_1DBD_18FD(SelectionX, SelectionY)) {
+			if(IsObjLostAt(SelectionX, SelectionY)) {
 				/*into the water: lost*/
 				if(obj >= 0x100 || obj < 0) {
 					COMBAT_Missile(actor, &SelectionX, &SelectionY, 8, TILE_FRAME(obj));
@@ -1214,7 +1225,7 @@ void C_1DBD_5069(int16, int16, int16);
 			CON_printf(NotPossibleMsg);
 			return;
 		}
-		if(!C_1DBD_1848(SelectionX, SelectionY) && !HasSupportAt(SelectionX, SelectionY)) {
+		if(!CanPlaceObjAt(SelectionX, SelectionY) && !HasSupportAt(SelectionX, SelectionY)) {
 			if(target == -1 || !CanPutInContainer(target, obj)) {
 				CON_printf(NotPossibleMsg);
 				return;
@@ -1596,7 +1607,7 @@ void C_1DBD_5069(int16, int16, int16);
 			SubMov(Party[Active], 5);
 			destX = objX + DirIncrX[dirMoved];
 			destY = objY + DirIncrY[dirMoved];
-			if(C_1DBD_18FD(destX, destY)) {
+			if(IsObjLostAt(destX, destY)) {
 				/*pushed into the water*/
 				if(SelectionObj >= 0x100 || SelectionObj < 0) {
 					DeleteObj(SelectionObj);
@@ -1664,7 +1675,7 @@ void C_1DBD_5069(int16, int16, int16);
 			if(StatusDisplay == 0x92)
 				STAT_DrawInventory();
 			if(!(TalkFlags[1] & 2)) {
-				C_1DBD_01A0();
+				Cutscene2();
 				StatusDirty = 0;
 				MouseMode = 0;
 				return;
@@ -1837,8 +1848,10 @@ void C_1DBD_5069(int16, int16, int16);
 	MouseMode = 0;
 }
 
-/*a check against a characteristic (unused): true when it fails*/
-/*C_1DBD_3275*/C_1DBD_3275(int16 value) {
+/*does a dexterity check fail? (unused; the code of FailsStrCheck. Ultima VI
+  has FailsDexCheck and FailsIntCheck in this order; which of the two
+  unused checks is which cannot be told from the code)*/
+/*C_1DBD_3275*/FailsDexCheck(int16 value) {
 	return OSI_rand(1, 30) < ((45 - value) / 2);
 }
 
@@ -1847,8 +1860,8 @@ void C_1DBD_5069(int16, int16, int16);
 	return OSI_rand(1, 30) < ((45 - strength) / 2);
 }
 
-/*a check against a characteristic (unused): true when it fails*/
-/*C_1DBD_32CF*/C_1DBD_32CF(int16 value) {
+/*does an intelligence check fail? (unused; see FailsDexCheck)*/
+/*C_1DBD_32CF*/FailsIntCheck(int16 value) {
 	return OSI_rand(1, 30) < ((45 - value) / 2);
 }
 
@@ -1981,7 +1994,7 @@ void C_1DBD_5069(int16, int16, int16);
 	int16 ch, targetTyp, x, y;
 	int16 frm, user;
 
-	user = C_1DBD_0003(objNum);
+	user = GetObjUser(objNum);
 	x = GetX(user);
 	y = GetY(user);
 	CON_printf("On ");
@@ -2021,14 +2034,15 @@ void C_1DBD_5069(int16, int16, int16);
 	}
 }
 
-/*use objNum (a tool) on a rock (0xac: a piece flakes off) or on an
- unlit campfire (0xcf: makes charcoal, 0x81)*/
-/*C_1DBD_3866*/void C_1DBD_3866(int16 objNum) {
+/*use the rock hammer (0x1D) or metal hammer (0x77) objNum on a blue boulder
+  (0xac: a blue stone, 0x3a, flakes off unless a strength check fails) or on
+  burnt logs (0xcf frame 0: makes charcoal, 0x81)*/
+/*C_1DBD_3866*/void UseHammer(int16 objNum) {
 	int16 ch, targetTyp, x, y;
 	unsigned char qty;
 	int16 user, item;
 
-	user = C_1DBD_0003(objNum);
+	user = GetObjUser(objNum);
 	CON_printf("On ");
 	if(SelectMode != 0) {
 		DrawSlotCursor(0);
@@ -2232,9 +2246,9 @@ void C_1DBD_5069(int16, int16, int16);
 	return numObject;
 }
 
-/*looks at the eggs (0xe6) within 20 tiles of (x, y), and does nothing
- more (U6: DestroyGargoyleEggs)*/
-/*C_1DBD_3F24*/static void C_1DBD_3F24(int16 x, int16 y) {
+/*Ultima VI's DestroyGargoyleEggs, emptied: looks at the eggs (0xe6) within
+  20 tiles of (x, y), and does nothing more; not called*/
+/*C_1DBD_3F24*/static void DestroyGargoyleEggs(int16 x, int16 y) {
 	int16 egg, content;
 
 	for(egg = SearchArea(x - 20, y - 20, x + 20, y + 20); egg >= 0; egg = NextArea()) {
@@ -2249,7 +2263,7 @@ void C_1DBD_5069(int16, int16, int16);
 	int16 i, j;
 
 	done = 0;
-	actor = C_1DBD_0003(objNum);
+	actor = GetObjUser(objNum);
 	x = GetObjXOrVehicle(actor);
 	y = GetObjYOrVehicle(actor);
 	for(i = 0; i < 3; i ++) {
@@ -2295,8 +2309,10 @@ void C_1DBD_5069(int16, int16, int16);
 /*126B*/signed char NeighbourDX[] = {0, 1, 1, 1, 0, -1, -1, -1};
 /*1273*/signed char NeighbourDY[] = {-1, -1, 0, 1, 1, 1, 0, -1};
 
-/*can the party (Party[0]) move to one of the 8 tiles around (x, y)?*/
-/*C_1DBD_4089*/C_1DBD_4089(int16 x, int16 y, int16 unused) {
+/*can the party (Party[0]) move to one of the 8 tiles around (x, y)? (Ultima
+  VI's CanLeaveVehicleAt without the ship; the vehicle argument is unused;
+  not called)*/
+/*C_1DBD_4089*/CanLeaveVehicleAt(int16 x, int16 y, int16 unused) {
 	int16 i;
 
 	for(i = 0; i < 8; i ++) {
@@ -2366,8 +2382,9 @@ void C_1DBD_5069(int16, int16, int16);
 		STAT_DrawInventory();
 }
 
-/*always 0*/
-/*C_1DBD_428E*/C_1DBD_428E(int16 objNum) {
+/*can objNum not be used from a vehicle? always 0 (Ultima VI's
+  IsNotUsableInVehicle, in the same place of CmdUse)*/
+/*C_1DBD_428E*/IsNotUsableInVehicle(int16 objNum) {
 	return 0;
 }
 
@@ -2403,20 +2420,20 @@ void C_1DBD_5069(int16, int16, int16);
 		STAT_DrawInventory();
 }
 
-/*use the shovel objNum next to a clay tile (C_1DBD_0A29): get clay (0xc0)*/
+/*use the shovel objNum next to a clay tile (IsShoreTile): get clay (0xc0)*/
 /*C_1DBD_4390*/void UseShovel(int16 objNum) {
 	int16 actor, x, y, done;
 	register int16 i, j;
 
 	done = 0;
-	actor = C_1DBD_0003(objNum);
+	actor = GetObjUser(objNum);
 	x = GetObjXOrVehicle(actor);
 	y = GetObjYOrVehicle(actor);
 	for(i = 0; i < 3; i ++) {
 		for(j = 0; j < 3; j ++) {
 			if(i == 1 && j == 1)
 				continue;
-			if(C_1DBD_0A29(GetTileAtXYZ(x + i - 1, y + j - 1, MapZ))) {
+			if(IsShoreTile(GetTileAtXYZ(x + i - 1, y + j - 1, MapZ))) {
 				CON_printf("\nYou get some clay.\n");
 				done = 1;
 				if(AddInvObj(0xc0, INVEN, 1, actor) == -1)
@@ -2437,7 +2454,7 @@ void C_1DBD_5069(int16, int16, int16);
 /*C_1DBD_447A*/void UseClay(register int16 objNum) {
 	register int16 user;
 
-	user = C_1DBD_0003(objNum);
+	user = GetObjUser(objNum);
 	if(OBJ_IsInside(objNum, user)) {
 		if(GetQuan(objNum) > 1)
 			SetQuan(objNum, GetQuan(objNum) - 1);
@@ -2457,11 +2474,12 @@ void C_1DBD_5069(int16, int16, int16);
 		STAT_DrawInventory();
 }
 
-/*use fire (a lit object of the active member) on something: fire a
- soft pot (0x84 -> 0x85), cook corn flour into tortillas (0x5d -> 0x66),
- make charcoal (0xce -> 10 x 0x81), burn the types of IsFlammableType, or set
- off gunpowder (0xcc)*/
-/*C_1DBD_458F*/void C_1DBD_458F() {
+/*use a heat source (a lit object of the active member, lava, a lit brazier
+  0xba, burning logs, an oven 0xad, a fire 0xf2/0xfe, a fire pit 0x101) on
+  something: fire a soft pot (0x84 -> 0x85), cook corn flour into tortillas
+  (0x5d -> 0x66), make charcoal (0xce -> 10 x 0x81), burn the types of
+  IsFlammableType, or set off gunpowder (0xcc)*/
+/*C_1DBD_458F*/void UseHeatSource() {
 	int16 ch, x, y;
 	unsigned char qty;
 	int16 actor, targetTyp;
@@ -2529,7 +2547,7 @@ void C_1DBD_5069(int16, int16, int16);
 	int16 ch, targetTyp, x, y, actor, frm, qty;
 	int16 tx, ty;
 
-	actor = C_1DBD_0003(objNum);
+	actor = GetObjUser(objNum);
 	CON_printf("On ");
 	if(SelectMode != 0) {
 		DrawSlotCursor(0);
@@ -2635,7 +2653,7 @@ void C_1DBD_5069(int16, int16, int16);
  objects of the types of IsFlammableType and the eggs (0xe6); 0x11 and 0xab
  spread the fire (0xf2 of quality q) to the 0x11 around; then the fire
  goes out*/
-/*C_1DBD_4E58*/void C_1DBD_4E58(int16 x, int16 y, int16 fireObj, int16 q) {
+/*C_1DBD_4E58*/void FireBurnAt(int16 x, int16 y, int16 fireObj, int16 q) {
 	int16 found, objTyp, i, item;
 	int16 objNum, j;
 
@@ -2666,21 +2684,23 @@ void C_1DBD_5069(int16, int16, int16);
 	DeleteObj(fireObj);
 }
 
-/*the fire obj (quality 0) at (x, y) burns; then every fire of quality 0
- burns, then the first one of quality 1 (C_1DBD_5069)*/
-/*C_1DBD_4F8E*/void C_1DBD_4F8E(int16 x, int16 y, int16 obj) {
+/*a round of a spreading fire: the fire obj (quality 0) at (x, y) burns;
+  then every fire (0xf2) of quality 0 burns, then the first one of quality
+  1 starts the next round (FireSpreadQ1). (Martian Dreams' FireSpread, which
+  has both in one function)*/
+/*C_1DBD_4F8E*/void FireSpread(int16 x, int16 y, int16 obj) {
 	int16 i;
 
 	VisibilityDirty = 1;
 	DisplayTick();
-	C_1DBD_4E58(x, y, obj, 1);
+	FireBurnAt(x, y, obj, 1);
 	for(i = 0xc00; i > 0xff; i --) {
 		if(GetType(i) == 0xf2 && GetQual(i) == 0)
-			C_1DBD_4E58(GetX(i), GetY(i), i, 1);
+			FireBurnAt(GetX(i), GetY(i), i, 1);
 	}
 	for(i = 0xc00; i > 0xff; i --) {
 		if(GetType(i) == 0xf2 && GetQual(i) == 1) {
-			C_1DBD_5069(GetX(i), GetY(i), i);
+			FireSpreadQ1(GetX(i), GetY(i), i);
 			break;
 		}
 	}
@@ -2688,20 +2708,20 @@ void C_1DBD_5069(int16, int16, int16);
 	DisplayTick();
 }
 
-/*the same for a fire of quality 1*/
-/*C_1DBD_5069*/void C_1DBD_5069(int16 x, int16 y, int16 obj) {
+/*the same round for the fires of quality 1, handing back to FireSpread*/
+/*C_1DBD_5069*/void FireSpreadQ1(int16 x, int16 y, int16 obj) {
 	int16 i;
 
 	VisibilityDirty = 1;
 	DisplayTick();
-	C_1DBD_4E58(x, y, obj, 0);
+	FireBurnAt(x, y, obj, 0);
 	for(i = 0xc00; i > 0xff; i --) {
 		if(GetType(i) == 0xf2 && GetQual(i) == 1)
-			C_1DBD_4E58(GetX(i), GetY(i), i, 0);
+			FireBurnAt(GetX(i), GetY(i), i, 0);
 	}
 	for(i = 0xc00; i > 0xff; i --) {
 		if(GetType(i) == 0xf2 && GetQual(i) == 0) {
-			C_1DBD_4F8E(GetX(i), GetY(i), i);
+			FireSpread(GetX(i), GetY(i), i);
 			break;
 		}
 	}
@@ -2721,7 +2741,7 @@ void C_1DBD_5069(int16, int16, int16);
 	unused = 0;
 	done = 0;
 	isNest = 0;
-	actor = C_1DBD_0003(objNum);
+	actor = GetObjUser(objNum);
 	CON_printf("On ");
 	if(SelectMode != 0) {
 		DrawSlotCursor(0);
@@ -2764,7 +2784,7 @@ void C_1DBD_5069(int16, int16, int16);
 				CON_printf("dinosaur egg\n");
 				done = 1;
 				fire = AddMapObj(0xf2, 0, 0, SelectionX, SelectionY, MapZ);
-				C_1DBD_4F8E(SelectionX, SelectionY, fire);
+				FireSpread(SelectionX, SelectionY, fire);
 				ShowObjects();
 			}
 		}
@@ -2772,7 +2792,7 @@ void C_1DBD_5069(int16, int16, int16);
 			CON_printf("pteranodon nest\n");
 			fire = AddMapObj(0xf2, 0, 0, tx, ty, MapZ);
 			AddMapObj(0xc4c, 0, 0, tx, ty, MapZ);
-			C_1DBD_4F8E(tx, ty, fire);
+			FireSpread(tx, ty, fire);
 			done = 1;
 			if(TestObj(objNum, 0x8b) > 4)
 				TakeObj(objNum, 0x8b, 1);
@@ -2783,7 +2803,7 @@ void C_1DBD_5069(int16, int16, int16);
 		CON_printf("web\n");
 		AddMapObj(0xf2, 0, 0x200, SelectionX, SelectionY, MapZ);
 		fire = AddMapObj(0xf2, 0, 0, SelectionX, SelectionY, MapZ);
-		C_1DBD_4F8E(SelectionX, SelectionY, fire);
+		FireSpread(SelectionX, SelectionY, fire);
 		done = 1;
 	} else {
 		if(SelectionX == -1 || SelectionY == -1) {
@@ -2807,7 +2827,7 @@ void C_1DBD_5069(int16, int16, int16);
 			done = 1;
 			AddMapObj(0xf2, 0, 0x200, SelectionX, SelectionY, MapZ);
 			fire = AddMapObj(0xf2, 0, 0, SelectionX, SelectionY, MapZ);
-			C_1DBD_4F8E(SelectionX, SelectionY, fire);
+			FireSpread(SelectionX, SelectionY, fire);
 			ShowObjects();
 		}
 	}
@@ -2821,8 +2841,9 @@ void C_1DBD_5069(int16, int16, int16);
 		STAT_DrawInventory();
 }
 
-/*the active member (or the one shown) tars cloth strips (0x86 -> 0xbf)*/
-/*C_1DBD_5641*/void C_1DBD_5641() {
+/*use the tar pit (0xe5): the active member (or the one shown) tars cloth
+  strips (0x86 -> 0xbf)*/
+/*C_1DBD_5641*/void UseTarPit() {
 	int16 ch, targetTyp, x, y;
 	int16 actor, n;
 
@@ -2858,7 +2879,7 @@ void C_1DBD_5069(int16, int16, int16);
 	int16 ch, x, y, user;
 	register int16 targetTyp;
 
-	user = C_1DBD_0003(objNum);
+	user = GetObjUser(objNum);
 	CON_printf("On ");
 	if(SelectMode != 0) {
 		DrawSlotCursor(0);
@@ -2909,7 +2930,7 @@ void C_1DBD_5069(int16, int16, int16);
 	register int16 typ;
 
 	done = 0;
-	user = C_1DBD_0003(objNum);
+	user = GetObjUser(objNum);
 	x = GetObjXOrVehicle(user);
 	y = GetObjYOrVehicle(user);
 	if(GetFrame(objNum) == 1) {
@@ -2962,7 +2983,7 @@ void C_1DBD_5069(int16, int16, int16);
 	unsigned char unusedF;
 	register int16 user;
 
-	user = C_1DBD_0003(objNum);
+	user = GetObjUser(objNum);
 	CON_printf("On ");
 	if(SelectMode != 0) {
 		DrawSlotCursor(0);
@@ -3047,7 +3068,7 @@ void C_1DBD_5069(int16, int16, int16);
 	register int16 i, j;
 
 	done = 0;
-	user = C_1DBD_0003(objNum);
+	user = GetObjUser(objNum);
 	x = GetX(user);
 	y = GetY(user);
 	for(i = 0; i < 3; i ++) {
@@ -3078,7 +3099,7 @@ void C_1DBD_5069(int16, int16, int16);
 	int16 targetTyp, user;
 
 	unused = 0;
-	user = C_1DBD_0003(objNum);
+	user = GetObjUser(objNum);
 	CON_printf("On ");
 	if(SelectMode != 0) {
 		DrawSlotCursor(0);
@@ -3239,7 +3260,7 @@ void C_1DBD_5069(int16, int16, int16);
 	register int16 i, j;
 
 	done = 0;
-	user = C_1DBD_0003(objNum);
+	user = GetObjUser(objNum);
 	x = GetObjXOrVehicle(user);
 	y = GetObjYOrVehicle(user);
 	for(i = 0; i < 3; i ++) {
@@ -3300,7 +3321,7 @@ void C_1DBD_5069(int16, int16, int16);
 	register int16 i, j;
 
 	done = 0;
-	user = C_1DBD_0003(objNum);
+	user = GetObjUser(objNum);
 	x = GetX(user);
 	y = GetY(user);
 	for(i = 0; i < 3; i ++) {
@@ -3310,7 +3331,7 @@ void C_1DBD_5069(int16, int16, int16);
 				CON_printf("\nYou place the gem on the stand.\n");
 				STAT_DrawInventory();
 				if(!(TalkFlags[1] & 2))
-					C_1DBD_01A0();
+					Cutscene2();
 				done = 1;
 			}
 		}
@@ -3330,7 +3351,7 @@ void C_1DBD_5069(int16, int16, int16);
 	int16 ch, x, y, user, tile;
 	register int16 targetTyp, frm;
 
-	user = C_1DBD_0003(objNum);
+	user = GetObjUser(objNum);
 	x = GetX(user);
 	y = GetY(user);
 	CON_printf("On ");
@@ -3391,9 +3412,10 @@ void C_1DBD_5069(int16, int16, int16);
 	}
 }
 
-/*use 0x113 objNum: switch it (frame 1 <-> 3); switched to 3 near NPC 2,
- the first time, it starts the first cut scene*/
-/*C_1DBD_6AD8*/void C_1DBD_6AD8(register int16 objNum) {
+/*use the door 0x113 objNum: switch it (frame 1 <-> 3); opened within 2
+  tiles of Aiela (NPC 2) while NPC 1's flag 0 is clear, it starts the first
+  cut scene (Cutscene1)*/
+/*C_1DBD_6AD8*/void ToggleDoor(register int16 objNum) {
 	int16 dx, dy, dz;
 	register int16 frm;
 
@@ -3404,7 +3426,7 @@ void C_1DBD_5069(int16, int16, int16);
 	if(frm == 1) {
 		SetFrame(objNum, 3);
 		if(dx <= 2 && dy <= 2 && dz == 0 && !(TalkFlags[1] & 1))
-			C_1DBD_002E();
+			Cutscene1();
 	} else if(frm == 3) {
 		SetFrame(objNum, 1);
 	}
@@ -3418,7 +3440,7 @@ void C_1DBD_5069(int16, int16, int16);
 
 	done = 0;
 	water = 0;
-	user = C_1DBD_0003(objNum);
+	user = GetObjUser(objNum);
 	x = GetObjXOrVehicle(user);
 	y = GetObjYOrVehicle(user);
 	turtle = EGG_generate(0x12e, MapX, MapY, MapZ);
@@ -3473,9 +3495,10 @@ void C_1DBD_5069(int16, int16, int16);
 	}
 }
 
-/*the party gets on the turtle: npc moves to (x, y), becomes a rider
- (0x133) facing frame, and the map follows*/
-/*C_1DBD_6D95*/void C_1DBD_6D95(int16 npc, int16 x, int16 y, int16 frame, int16 unused) {
+/*npc gets on the turtle: moves to (x, y), becomes a rider (0x133) facing
+  frame, and the map follows (Ultima VI's MountHorse; the last argument is
+  unused)*/
+/*C_1DBD_6D95*/void MountTurtle(int16 npc, int16 x, int16 y, int16 frame, int16 unused) {
 	MoveObj(npc, x, y, MapZ);
 	ObjShapeType[npc] = 0x133 | frame << 10;
 	MapX = x;
@@ -3485,8 +3508,9 @@ void C_1DBD_5069(int16, int16, int16);
 }
 
 /*npc gets off the turtle onto the land next to it (the tiles of
- C_1DBD_0A29); the turtle (0x12e) stays*/
-/*C_1DBD_6DD9*/void C_1DBD_6DD9(int16 npc) {
+  IsShoreTile); a turtle (0x12e) is made where it was (Ultima VI's
+  DismountHorse)*/
+/*C_1DBD_6DD9*/void DismountTurtle(int16 npc) {
 	int16 dirFrm, typ, x, y, dir, tx, ty, turtle, done;
 	register int16 i, j;
 
@@ -3502,7 +3526,7 @@ void C_1DBD_5069(int16, int16, int16);
 				continue;
 			tx = x + i - 1;
 			ty = y + j - 1;
-			if(C_1DBD_0A29(GetTileAtXYZ(tx, ty, MapZ))) {
+			if(IsShoreTile(GetTileAtXYZ(tx, ty, MapZ))) {
 				MoveObj(npc, tx, ty, MapZ);
 				MapX = tx;
 				MapY = ty;
@@ -3542,14 +3566,14 @@ void C_1DBD_5069(int16, int16, int16);
 			py = GetY(actor);
 			if(DELTA(x, px) <= 1 && DELTA(y, py) <= 1 && GetType(actor) != 0x133) {
 				DeleteObj(objNum);
-				C_1DBD_6D95(actor, x, y, frm, 1);
+				MountTurtle(actor, x, y, frm, 1);
 				return;
 			}
 		}
 		CON_printf("\nYou're already on a turtle!\n");
 	} else {
 		DeleteObj(objNum);
-		C_1DBD_6D95(actor, x, y, frm, 1);
+		MountTurtle(actor, x, y, frm, 1);
 	}
 }
 
@@ -3558,7 +3582,7 @@ void C_1DBD_5069(int16, int16, int16);
 	int16 ch, targetTyp, x, y, frm;
 	register int16 user;
 
-	user = C_1DBD_0003(objNum);
+	user = GetObjUser(objNum);
 	x = GetX(user);
 	y = GetY(user);
 	CON_printf("On ");
@@ -3642,7 +3666,7 @@ void C_1DBD_5069(int16, int16, int16);
 	register int16 actor;
 
 	if(GetCoordUse(objNum) != LOCXYZ)
-		actor = C_1DBD_0003(objNum);
+		actor = GetObjUser(objNum);
 	else
 		actor = objNum;
 	if((film = GetQual(objNum)) > 0) {
@@ -3659,7 +3683,7 @@ void C_1DBD_5069(int16, int16, int16);
 /*C_1DBD_739B*/void UseFlashPowder(register int16 objNum) {
 	register int16 user;
 
-	user = C_1DBD_0003(objNum);
+	user = GetObjUser(objNum);
 	if(GetQuan(objNum) == 1)
 		DeleteObj(objNum);
 	else
@@ -3675,7 +3699,7 @@ void C_1DBD_5069(int16, int16, int16);
 	int16 ch, targetTyp, x, y;
 	register int16 newObj, user;
 
-	user = C_1DBD_0003(objNum);
+	user = GetObjUser(objNum);
 	x = GetX(user);
 	y = GetY(user);
 	CON_printf("On ");
@@ -3746,9 +3770,9 @@ void C_1DBD_5069(int16, int16, int16);
 	}
 }
 
-/*the doors of objNum open when Yunapotli (NPC 11) is in the party and
- near*/
-/*C_1DBD_7800*/void C_1DBD_7800(int16 objNum) {
+/*use the doors 0xa1 objNum: they slide open (are deleted) when Yunapotli
+  (NPC 11) is in the party and within 5x4 tiles of the view's centre*/
+/*C_1DBD_7800*/void UseYunapotliDoors(int16 objNum) {
 	int16 opened;
 
 	if((NPCStatus[11] & 0x80) && OBJ_IsOnScreen(11)) {
@@ -3773,20 +3797,21 @@ void C_1DBD_5069(int16, int16, int16);
 		if(!(TalkFlags[1] & 8) && (TalkFlags[0x10] & 0x80) && (TalkFlags[0x11] & 0x80) && (TalkFlags[0x13] & 0x80) &&
 			(TalkFlags[0x14] & 0x80) && (TalkFlags[0x1b] & 0x80) && (TalkFlags[0x1d] & 0x80) && (TalkFlags[0x20] & 0x80) &&
 			(TalkFlags[0x22] & 0x80) && (TalkFlags[0x28] & 0x80) && (TalkFlags[0x30] & 0x80) && (TalkFlags[0x35] & 0x80))
-			C_1DBD_05DC();
+			Cutscene4();
 	} else {
 		CON_printf("You have nothing with which to play the drum.\n");
 	}
 }
 
-/*use objNum on 0x1a: both become a 0x01*/
-/*C_1DBD_78EC*/C_1DBD_78EC(int16 objNum) {
+/*use the jug of plachta (0x3f) objNum on a spear (0x1a): one spear becomes
+  a spear of Shamap (0x01), and the jug is used up*/
+/*C_1DBD_78EC*/UsePlachta(int16 objNum) {
 	int16 ch, targetTyp, x, unused8, unusedA, inside;
 	register int16 actor, y;
 
 	unused8 = 0;
 	unusedA = 0;
-	actor = C_1DBD_0003(objNum);
+	actor = GetObjUser(objNum);
 	CON_printf("On ");
 	if(SelectMode != 0) {
 		DrawSlotCursor(0);
@@ -3834,7 +3859,7 @@ void C_1DBD_5069(int16, int16, int16);
 	unusedE = 0;
 	done = 0;
 	isNest = 0;
-	user = C_1DBD_0003(objNum);
+	user = GetObjUser(objNum);
 	CON_printf("On ");
 	if(SelectMode != 0) {
 		DrawSlotCursor(0);
@@ -3864,7 +3889,7 @@ void C_1DBD_5069(int16, int16, int16);
 					CON_printf("dinosaur egg\n");
 					done = 1;
 					fire = AddMapObj(0xf2, 0, 0, SelectionX, SelectionY, MapZ);
-					C_1DBD_4F8E(SelectionX, SelectionY, fire);
+					FireSpread(SelectionX, SelectionY, fire);
 					ShowObjects();
 				}
 			}
@@ -3872,12 +3897,12 @@ void C_1DBD_5069(int16, int16, int16);
 				CON_printf("pteranodon nest\n");
 				fire = AddMapObj(0xf2, 0, 0, tx, ty, MapZ);
 				AddMapObj(0xc4c, 0, 0, tx, ty, MapZ);
-				C_1DBD_4F8E(tx, ty, fire);
+				FireSpread(tx, ty, fire);
 			}
 		} else if(targetTyp == 0x11) {
 			CON_printf("web\n");
 			fire = AddMapObj(0xf2, 0, 0, SelectionX, SelectionY, MapZ);
-			C_1DBD_4F8E(SelectionX, SelectionY, fire);
+			FireSpread(SelectionX, SelectionY, fire);
 		} else if(IsFlammableType(targetTyp)) {
 			CON_printf("\nYou incinerated the %s.\n", GetObjectString(SelectionObj));
 			DeleteObj(SelectionObj);
@@ -3904,7 +3929,7 @@ void C_1DBD_5069(int16, int16, int16);
 	register int16 targetTyp;
 
 	unused = 0;
-	user = C_1DBD_0003(objNum);
+	user = GetObjUser(objNum);
 	CON_printf("On ");
 	if(SelectMode != 0) {
 		DrawSlotCursor(0);
@@ -4060,7 +4085,7 @@ void C_1DBD_5069(int16, int16, int16);
 			SubMov(Party[Active], 5);
 		} else if(IsLavaTile(tile)) {
 			CON_printf("Lava\n");
-			C_1DBD_458F();
+			UseHeatSource();
 			SubMov(Party[Active], 5);
 		} else if(tile == 0x34) {
 			CON_printf("Yucca plant\n");
@@ -4085,7 +4110,7 @@ void C_1DBD_5069(int16, int16, int16);
 		CON_printf(NotPossibleMsg);
 		return;
 	}
-	if(IN_VEHICLE && C_1DBD_428E(SelectionObj)) {
+	if(IN_VEHICLE && IsNotUsableInVehicle(SelectionObj)) {
 		CON_printf("\n");
 		CON_printf(NotOnShipMsg);
 		EndPagingAtPrompt = 1;
@@ -4113,7 +4138,7 @@ void C_1DBD_5069(int16, int16, int16);
 			UseDrink(SelectionObj);
 			break;
 		case 0x3f:
-			C_1DBD_78EC(SelectionObj);
+			UsePlachta(SelectionObj);
 			break;
 		case 0xbc:
 			if(frm == 1)
@@ -4129,7 +4154,7 @@ void C_1DBD_5069(int16, int16, int16);
 			if(objTyp == 0xba && (frm & 2))
 				CON_printf(NotPossibleMsg);
 			else
-				C_1DBD_458F(SelectionObj);
+				UseHeatSource(SelectionObj);
 			break;
 		case 0x4f: case 0x50: case 0x51: case 0x52:
 			UseSkeleton();
@@ -4146,7 +4171,7 @@ void C_1DBD_5069(int16, int16, int16);
 					CON_printf(NotPossibleMsg);
 					break;
 				case 2:
-					C_1DBD_458F();
+					UseHeatSource();
 					break;
 				case 1:
 					SetFrame(SelectionObj, 2);
@@ -4158,7 +4183,7 @@ void C_1DBD_5069(int16, int16, int16);
 			UseDoor(SelectionObj);
 			break;
 		case 0xa1:
-			C_1DBD_7800(SelectionObj);
+			UseYunapotliDoors(SelectionObj);
 			break;
 		case 0x5d: case 0x66: case 0x67: case 0x68: case 0x69: case 0x6a: case 0x6b: case 0x6c:
 		case 0x6d: case 0x6e: case 0x6f: case 0x71: case 0x72: case 0x78: case 0xc5: case 0xd5: case 0xd6:
@@ -4171,7 +4196,7 @@ void C_1DBD_5069(int16, int16, int16);
 			UseFlashPowder(SelectionObj);
 			break;
 		case 0x113:
-			C_1DBD_6AD8(SelectionObj);
+			ToggleDoor(SelectionObj);
 			break;
 		case 0xc0:
 			UseClay(SelectionObj);
@@ -4224,7 +4249,7 @@ void C_1DBD_5069(int16, int16, int16);
 			PlayDrum();
 			break;
 		case 0xe5:
-			C_1DBD_5641();
+			UseTarPit();
 			break;
 		case 0x88:
 			UseBucket(SelectionObj);
@@ -4242,7 +4267,7 @@ void C_1DBD_5069(int16, int16, int16);
 			UseHeadlessStatue(SelectionObj);
 			break;
 		case 0x1d: case 0x77:
-			C_1DBD_3866(SelectionObj);
+			UseHammer(SelectionObj);
 			break;
 		case 0x6:
 			UseGem(SelectionObj);
@@ -4254,7 +4279,7 @@ void C_1DBD_5069(int16, int16, int16);
 			LoadFlintlock(SelectionObj, Party[StatusMember]);
 			break;
 		case 0xad: case 0xf2: case 0xfe: case 0x101:
-			C_1DBD_458F();
+			UseHeatSource();
 			break;
 		case 0xbf:
 			UseClothStrip(SelectionObj);
@@ -4286,7 +4311,7 @@ void C_1DBD_5069(int16, int16, int16);
 			UseTurtle(SelectionObj);
 			break;
 		case 0x133:
-			C_1DBD_6DD9(SelectionObj);
+			DismountTurtle(SelectionObj);
 			break;
 		case 0x8f:
 			UseMachine(SelectionObj);

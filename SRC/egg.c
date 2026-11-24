@@ -78,7 +78,7 @@ extern DeleteObj(int16);/*DeleteObj*/
 extern int16 QuanType(int16);/*QuanType*/
 extern int16 IsTwoTileCreature(int16);
 extern int16 COMBAT_TryTeleport(int16, int16);/*COMBAT_TryTeleport*/
-extern int16 C_1DBD_18FD(int16, int16);
+extern int16 IsObjLostAt(int16, int16);
 extern MUS_EventJingle();
 extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
 
@@ -280,7 +280,7 @@ extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
 							rx = GetX(egg_objNum) + OSI_rand(0, 6) - 3;
 							ry = GetY(egg_objNum) + OSI_rand(0, 6) - 3;
 							if(
-								!C_1DBD_18FD(rx, ry) &&
+								!IsObjLostAt(rx, ry) &&
 								!(D_B4FA[GetTileAtXYZ(rx, ry, MapZ)] & 2) &&
 								!(D_B4FA[GetTileAtXYZ(rx, ry, MapZ)] & 4)
 							) monster = AddMapObj(objTyp, 0x20, quan, rx, ry, MapZ);

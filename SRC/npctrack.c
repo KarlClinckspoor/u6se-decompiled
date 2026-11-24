@@ -106,7 +106,7 @@ extern STAT_ShowParty(int16);/*STAT_ShowParty*/
 extern MUS_PlayAreaSong();/*MUS_PlayAreaSong*/
 extern DrawSkyBar();/*DrawSkyBar*/
 extern char far MustBePartyModeMsg[];/*MustBePartyModeMsg: "You must be in party mode to enter.\n"*/
-extern int16 C_1DBD_0A29(int16);/*tests a tile (U6 nearest: IsBridgeEndTile)*/
+extern int16 IsShoreTile(int16);/*is the tile a shore tile?*/
 extern int16 GetMonsterClass(int16);/*GetMonsterClass*/
 extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
 extern int16 far MonsterFlags[];
@@ -431,7 +431,7 @@ extern int16 D_EBCA;/*PTH_Found*/
 }
 
 /*is one of the four squares of the raft objNum (its own and those
- west/north of it) a shore tile (C_1DBD_0A29)? (objcmd.c's raft: "Only next
+ west/north of it) a shore tile (IsShoreTile)? (objcmd.c's raft: "Only next
  to land.")*/
 /*C_130F_014E*/IsRaftAtShore(int16 objNum) {
 	int16 x, y;
@@ -441,7 +441,7 @@ extern int16 D_EBCA;/*PTH_Found*/
 	y = GetY(objNum);
 	for(i = 0; i < 2; i ++) {
 		for(j = 0; j < 2; j ++) {
-			if(C_1DBD_0A29(GetTileAtXYZ(x - i, y - j, MapZ)))
+			if(IsShoreTile(GetTileAtXYZ(x - i, y - j, MapZ)))
 				return 1;
 		}
 	}
@@ -449,7 +449,7 @@ extern int16 D_EBCA;/*PTH_Found*/
 }
 
 /*can the raft objNum (a 2x2 body) move by (delta_x, delta_y)? 0 if one of
- its squares is on a shore tile (C_1DBD_0A29) and so is the square it would
+ its squares is on a shore tile (IsShoreTile) and so is the square it would
  move to (CanMoveTo's boat case; Martian Dreams' BargeCanMove)*/
 /*C_130F_01C6*/RaftCanMove(int16 objNum, int16 delta_x, int16 delta_y) {
 	int16 x, y;
@@ -460,8 +460,8 @@ extern int16 D_EBCA;/*PTH_Found*/
 	for(i = 0; i < 2; i ++) {
 		for(j = 0; j < 2; j ++) {
 			if(
-				C_1DBD_0A29(GetTileAtXYZ(x - i, y - j, MapZ)) &&
-				C_1DBD_0A29(GetTileAtXYZ(x + delta_x - i, y + delta_y - j, MapZ))
+				IsShoreTile(GetTileAtXYZ(x - i, y - j, MapZ)) &&
+				IsShoreTile(GetTileAtXYZ(x + delta_x - i, y + delta_y - j, MapZ))
 			) return 0;
 		}
 	}
