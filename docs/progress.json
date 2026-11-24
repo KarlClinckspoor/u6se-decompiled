@@ -1,26 +1,26 @@
 {
  "GAME": {
-  "matched": 440,
+  "matched": 527,
   "attempt": 0,
-  "open": 87,
+  "open": 0,
   "aside": 0,
   "total": 527,
-  "percent": 83.5
+  "percent": 100.0
  },
  "SAVAGE": {
-  "matched": 186,
+  "matched": 224,
   "attempt": 0,
-  "open": 38,
+  "open": 0,
   "aside": 0,
   "total": 224,
-  "percent": 83.0
+  "percent": 100.0
  },
  "all": {
-  "matched": 626,
+  "matched": 751,
   "attempt": 0,
-  "open": 125,
+  "open": 0,
   "aside": 0,
   "total": 751,
-  "percent": 83.4
+  "percent": 100.0
  }
 }
