@@ -70,7 +70,7 @@ selection cursor does that. The party-index argument is ignored: `TALK_initTalk`
 
 | Check | Message |
 |---|---|
-| Target is player-controlled (a party member, `NPCStatus & 0x80`) and not within the 11x9 tiles around the party (`C_0A5D_0613`: \|dx\| ≤ 5, \|dy\| ≤ 4, no level check) | "No response." |
+| Target is player-controlled (a party member, `NPCStatus & 0x80`) and not within the 11x9 tiles around the party (`OBJ_IsOnScreen` C_0A5D_0613: \|dx\| ≤ 5, \|dy\| ≤ 4, no level check) | "No response." |
 | Solo mode with a member other than party slot 0 (`SoloMember != -1 && SoloMember != 0`), unless the target is NPC 0x19 | "Not in solo mode!" |
 | Target dead (`0x10`) or asleep (`0x04`), or its AI mode is 0x9b, 0x13 or 7 | "No response." |
 | `IsArmageddon` set (a U6 leftover: only ever cleared, in `GAME_Restore`) | "No response." |
@@ -335,7 +335,7 @@ overwrites it.
 | 0x95 | `DrunkCounter` + 1 (see below). |
 | 0x96 | Creates a permanent object 0xC94 (type 0x94, the drum type that `PlayDrum` handles, frame 3) at (0x215, 0x1C5, 0). |
 | 0xAF | Moves NPC 0x19 to (0x3E5, 0x153, 0); NPC 0xB3 becomes neutral and motionless (mode 0). |
-| 0xDE | Deletes the object of type 0xA1 (the doors that `C_1DBD_7800` opens) at (0x92, 0x89) on the current level. |
+| 0xDE | Deletes the object of type 0xA1 (the doors that `UseYunapotliDoors` C_1DBD_7800 opens) at (0x92, 0x89) on the current level. |
 
 Creature placement for events 1-5: each attempt picks a square on the edge of the view:
 either x = party x + (−5..+5) and y = party y ± 4, or x = party x ± 4 and y = party y +
@@ -424,9 +424,9 @@ touches:
 | Flag | Written by | Read by |
 |---|---|---|
 | any NPC, flag 0 (met) | scripts; cut scene 1 sets it for NPC 0x17 | `TALK_talkTo`, `ShowPortrait` (name or description) |
-| NPC 1, flag 0 | cut scene 1 | `C_1DBD_6AD8` (cut scene 1 runs once) |
+| NPC 1, flag 0 | cut scene 1 | `ToggleDoor` C_1DBD_6AD8 (cut scene 1 runs once) |
 | NPC 1, flag 1 | cut scene 2 | `UseGem` C_1DBD_6732, `CmdMove` C_1DBD_26E8 (cut scene 2 runs once) |
-| NPC 1, flag 2 | cut scene 3 | `LoseHP` C_1810_289B (cut scene 3 runs once); the trap door (`C_08CB_0855`); earth tremors (`DisplayTick` C_0359_0CD4); level 2 light (`PassTime`); objects of type 0x0B stop giving light (`visible.c`) |
+| NPC 1, flag 2 | cut scene 3 | `LoseHP` C_1810_289B (cut scene 3 runs once); the trap door (`GoThroughEntrance` C_08CB_0855); earth tremors (`DisplayTick` C_0359_0CD4); level 2 light (`PassTime`); objects of type 0x0B stop giving light (`visible.c`) |
 | NPC 1, flag 3 | cut scene 4 | `PlayDrum` C_1DBD_785B (cut scene 4 runs once); `EGG_hatches` C_2667_04F7: eggs make only one creature of type 0x143 |
 | NPC 1, flag 6 | nothing in the engine | `GameLoop`: enables the debug keys |
 | NPC 1, flag 7 | cut scene 1, set during its `EGG_hatchArea` and cleared after | nothing |
@@ -456,29 +456,29 @@ runs, `IsInConversation` is set, so deaths it causes print no "killed" message.
 
 | # | Function | Trigger | Song | Pictures |
 |---|---|---|---|---|
-| 1 | C_1DBD_002E | Using an object of type 0x113 at frame 1 (it switches to frame 3) when it is at most 2 tiles east and 2 tiles south of NPC 2 on the same level, and NPC 1's flag 0 is clear (`C_1DBD_6AD8` C_1DBD_6AD8). The offsets are signed with no absolute value, so any distance to the west or north also passes. | 0x0E | 3, NPC 2's portrait first |
-| 2 | C_1DBD_01A0 | Putting an object on a gem stand (type 0x42) while NPC 1's flag 1 is clear: using a gem (type 6) next to the stand (`UseGem`), or moving any inventory object onto the stand (`CmdMove`; the code does not check the object's type there). | 0x0F | 3 |
-| 3 | C_1DBD_0304 | Destroying an object of type 0xDE (its quantity runs out) while NPC 1's flag 2 is clear (`LoseHP`). | 0x10 | 4, NPC 5's portrait first |
-| 4 | C_1DBD_05DC | Using a drum (type 0x94) while NPC 1's flag 3 is clear and flag 7 is set on all eleven NPCs 0x10, 0x11, 0x13, 0x14, 0x1B, 0x1D, 0x20, 0x22, 0x28, 0x30, 0x35 (`PlayDrum`). | 0x11 | 3 |
-| 5 | C_1DBD_077E | Destroying an object of type 0x93 (`LoseHP`). No flag check. | 0x0C | 3 |
+| 1 | `Cutscene1` C_1DBD_002E | Using an object of type 0x113 at frame 1 (it switches to frame 3) when it is at most 2 tiles east and 2 tiles south of NPC 2 on the same level, and NPC 1's flag 0 is clear (`ToggleDoor` C_1DBD_6AD8). The offsets are signed with no absolute value, so any distance to the west or north also passes. | 0x0E | 3, NPC 2's portrait first |
+| 2 | `Cutscene2` C_1DBD_01A0 | Putting an object on a gem stand (type 0x42) while NPC 1's flag 1 is clear: using a gem (type 6) next to the stand (`UseGem`), or moving any inventory object onto the stand (`CmdMove`; the code does not check the object's type there). | 0x0F | 3 |
+| 3 | `Cutscene3` C_1DBD_0304 | Destroying an object of type 0xDE (its quantity runs out) while NPC 1's flag 2 is clear (`LoseHP`). | 0x10 | 4, NPC 5's portrait first |
+| 4 | `Cutscene4` C_1DBD_05DC | Using a drum (type 0x94) while NPC 1's flag 3 is clear and flag 7 is set on all eleven NPCs 0x10, 0x11, 0x13, 0x14, 0x1B, 0x1D, 0x20, 0x22, 0x28, 0x30, 0x35 (`PlayDrum`). | 0x11 | 3 |
+| 5 | `Cutscene5` C_1DBD_077E | Destroying an object of type 0x93 (`LoseHP`). No flag check. | 0x0C | 3 |
 
 `PlayDrum` means to require an object of type 0x5B ("You have nothing with which to play
 the drum."), but it tests `if(FindInvType(...))`, and `FindInvType` returns −1 when there
 is none, which counts as true. In practice the drum works without it.
 
-**Cut scene 1** (C_1DBD_002E): NPC 2's wait flag is cleared and NPC 2 joins the party. NPC
+**Cut scene 1** (`Cutscene1` C_1DBD_002E): NPC 2's wait flag is cleared and NPC 2 joins the party. NPC
 0x17 is moved to (0x73, 0xA8) on the current level, its wait flag cleared, its flag 0 set,
 its AI mode set to 8 (assault). Flag 7 of NPC 0x10 is set. The eggs of the area hatch
 (`EGG_hatchArea`, with NPC 1's flag 7 set during it). NPC 1's flag 0 is set and **combat
 begins** (`COMBAT_begin`).
 
-**Cut scene 2** (C_1DBD_01A0): if the minutes are not 0, time passes to the next full hour
+**Cut scene 2** (`Cutscene2` C_1DBD_01A0): if the minutes are not 0, time passes to the next full hour
 and then hour by hour to 12:00 (at exactly hh:00 no time passes). A permanent object 0x4A0
 (type 0xA0, frame 1) is created at (0xC0, 0x1CC, 0); going through a type-0xA0 entrance
-takes the party to (0x9D, 0x89) on level 3 (`C_08CB_0855`). NPC 1's flag 1 is set; tile
+takes the party to (0x9D, 0x89) on level 3 (`GoThroughEntrance` C_08CB_0855). NPC 1's flag 1 is set; tile
 0x20A's animation frame is set to tile 0x11C.
 
-**Cut scene 3** (C_1DBD_0304), after the explosion of the type-0xDE object (an explosion of
+**Cut scene 3** (`Cutscene3` C_1DBD_0304), after the explosion of the type-0xDE object (an explosion of
 type 0x106 that does 1-30 damage to every non-stackable object in it; every object of type
 0x100 becomes type 0xDF):
 
@@ -501,18 +501,18 @@ The world after flag 2 of NPC 1 (cut scene 3):
   mechanism supporting the trap door fails just as you and your companions leave the
   stairwell, sealing the entrance to the underground city." and deletes the type-0xA0
   entrance at (0xC0, 0x1CC). The message is printed every time the party uses a 0x103
-  entrance, even when the entrance is already gone (`C_08CB_0855`).
+  entrance, even when the entrance is already gone (`GoThroughEntrance` C_08CB_0855).
 - On level 3, each display tick shakes the screen with chance 1 / (⌊max(\|dx\|, \|dy\|) / 4⌋
   + 2), where dx, dy are the party's distance from (0x9D, 0x89) (`DisplayTick`).
 - Level 2's ambient light drops from 2 to 0 (`PassTime`).
 - Objects of type 0x0B give no light (`visible.c`).
 
-**Cut scene 4** (C_1DBD_05DC): NPC 1's flag 3 is set. The party is teleported to (0xF3,
+**Cut scene 4** (`Cutscene4` C_1DBD_05DC): NPC 1's flag 3 is set. The party is teleported to (0xF3,
 0xCC) on level 1. An object of type 0x16 on that square is set to frame 1 (a rope that can
 be climbed). If the member in the status area carries an object of type 0x15, its tile is
 animated (frame 0x10C).
 
-**The last cut scene** (C_1DBD_077E): after the pictures it builds four arguments and runs
+**The last cut scene** (`Cutscene5` C_1DBD_077E): after the pictures it builds four arguments and runs
 `SAVAGE.EXE` (which plays the endgame), in an endless `execl` loop:
 
 | Argument | Built from | Example |
@@ -542,19 +542,19 @@ party: NPC 4 wakes, its flag 4 is set, it joins the party and talks.
 **The statue** (`UseStatueHead` / `UseHeadlessStatue`): the head (type 0xBE) and the
 headless statue (type 0xF7) next to each other: both are deleted, NPC 0x0B appears there
 and joins the party, and its flag 6 is set. The doors of type 0xA1 open only when NPC 0x0B
-is in the party and in the 11x9 tiles around it (`C_1DBD_7800`): "Yunapotli closes its eyes
+is in the party and in the 11x9 tiles around it (`UseYunapotliDoors` C_1DBD_7800): "Yunapotli closes its eyes
 and appears to concentrate...".
 
 ### Death: waking in Intanya's hut
 
-When the Avatar (NPC 1) is dead, `CheckActiveMember` (C_130F_4943) calls `C_2701_0556`:
+When the Avatar (NPC 1) is dead, `CheckActiveMember` (C_130F_4943) calls `PartyUnconscious` C_2701_0556:
 
 1. Prints "Overcome by your wounds, you fall unconscious.....". With music, plays song 11
    to its end (up to 100 waits), then queues the area song (1 on the surface, 2 on levels
    1-2, 3 on level 3). (It returns at once if `Active` is 0x10; why is not clear.)
-2. Prints "....You awaken in Intanya's hut, feeling restored." and calls `C_08CB_0C73`.
+2. Prints "....You awaken in Intanya's hut, feeling restored." and calls `PartyResurrect` C_08CB_0C73.
 
-`C_08CB_0C73`:
+`PartyResurrect` C_08CB_0C73:
 
 - Every player-controlled actor (0-0xBF) that is dead is revived from its dead body (type
   0xF9 with its number as quality): the Avatar directly (`OBJ_ReviveFromBody`), the others
@@ -605,7 +605,7 @@ offset 0x18F1 + 1) must.
   what the engine does.
 - `GiveObj`, `TakeObj` and `TestObj` are in other modules; their exact rules (stacking,
   failure cases) are not covered here.
-- The `Active == 0x10` early return in `C_2701_0556` has no clear purpose.
+- The `Active == 0x10` early return in `PartyUnconscious` C_2701_0556 has no clear purpose.
 
 ## Time, rest, character stats and levels
 
@@ -641,10 +641,10 @@ per-call effects listed below.
 | The party leader (or the raft) takes a step. A blocked step costs nothing. | 1 | `PartyAdvance` C_130F_24C3 → `CheckGatesAndEntrances` C_130F_2404 |
 | Combat is broken off | 1 | `COMBAT_breakOff` C_1810_023B |
 | Resting, for each hour asked | 3 × 20 | `REST_Command` C_29D8_050B |
-| Cut scene 2 (MIDGAME2) | up to the next 12:00, but nothing passes if `Time_M` is exactly 0 (the wait sits inside `if(Time_M)`) | C_1DBD_01A0 |
-| Cut scene 3 (MIDGAME3) | 24 × 60 | C_1DBD_0304 |
+| Cut scene 2 (MIDGAME2) | up to the next 12:00, but nothing passes if `Time_M` is exactly 0 (the wait sits inside `if(Time_M)`) | `Cutscene2` C_1DBD_01A0 |
+| Cut scene 3 (MIDGAME3) | 24 × 60 | `Cutscene3` C_1DBD_0304 |
 | Debug key (ALT-2-x, only with story flag `TalkFlags[1] & 0x40`) | 60 | `GameLoop` C_0359_1A65 |
-| The party is "overcome by its wounds" and wakes in Intanya's hut | `Date_D += 7` (wrapping at 28 into the next month and year). This is set directly, **without** `PassTime`: the hour does not change, no schedules update and no status effects tick. | C_08CB_0C73 |
+| The party is "overcome by its wounds" and wakes in Intanya's hut | `Date_D += 7` (wrapping at 28 into the next month and year). This is set directly, **without** `PassTime`: the hour does not change, no schedules update and no status effects tick. | `PartyResurrect` C_08CB_0C73 |
 
 The other `PassTime(0)` callers (loading a game, teleports, entrances, lighting a
 torch, the Light spell, picking up a lit torch) only refresh the state.
@@ -845,7 +845,7 @@ Poison can kill. It is cured by:
 - the heal spell: 1d10 HP and cure (`SPELL_Heal` C_11FF_04AC);
 - the script ops `OP_CURE` and `OP_HEAL` (full HP only) (talkdr.c);
 - revival (`SPELL_ReviveNPC` C_11FF_00B0);
-- waking after the party's defeat (C_08CB_0C73).
+- waking after the party's defeat (`PartyResurrect` C_08CB_0C73).
 
 When an actor wakes from non-scheduled sleep it gets its own shape back. A wakened
 creature of type 0x126 rebuilds its extra parts (removes the 0x118 two squares
@@ -929,7 +929,7 @@ torches and schedules all run during the rest.
 
 **Waking.** Shapes come back, bedrolls are removed, and every member's movement
 points are set to its DEX. On the surface, between 5:00 and 11:59, the dawn song
-plays if music is on and the sound card is not type 3 (`C_2701_023F`).
+plays if music is on and the sound card is not type 3 (`MUS_MorningSong` C_2701_023F).
 
 ### Experience and levels
 
@@ -1040,7 +1040,7 @@ Some actors cannot be hurt (`IsInvulnerable` C_1810_000D). `LoseHP` keeps them a
 | Revival (`SPELL_ReviveNPC`) | to max, cured, alignment good |
 
 **Defeat.** If NPC 1 (the Avatar) is dead, "Overcome by your wounds..." plays
-(`CheckActiveMember` C_130F_4943 → C_2701_0556), then C_08CB_0C73 runs. It revives
+(`CheckActiveMember` C_130F_4943 → `PartyUnconscious` C_2701_0556), then `PartyResurrect` C_08CB_0C73 runs. It revives
 dead party members. Every surviving member then:
 
 - is woken;
@@ -1228,20 +1228,20 @@ own leader. The controlled member (in party mode the first one that is not aslee
 paralysed, dead or dragged under; in solo mode the solo member) gets mode 2 (command).
 `CombatOutcome` is reset (only in `COMBAT_begin`). The two functions differ only in the
 music: `COMBAT_begin` plays jingle 6, `COMBAT_beginAttacked` jingle 7; both then queue
-song 8 (`C_2701_04D7`, `C_2701_02D6`).
+song 8 (`MUS_CombatSong` C_2701_04D7, `MUS_AttackedSong` C_2701_02D6).
 
 Combat ends:
 
 - with the same command again ("Break off combat!");
 - when the party boards a vehicle (`Board` C_130F_21CB), takes an entrance (map.c), or a
   game is restored (`GAME_Restore` C_05D0_03A2);
-- when the party is knocked out (`C_08CB_0C73` clears `InCombat`).
+- when the party is knocked out (`PartyResurrect` C_08CB_0C73 clears `InCombat`).
 
 There is no automatic end when the enemies are gone. On leaving (`COMBAT_breakOff`
 C_1810_023B): dead members get mode 0 (motionless); the others that are not charmed
 follow the leader again (party mode) or stand still (solo mode); the controlled member
 gets mode 2; the music plays jingle 11 if a party member died during the fight, jingle 12
-if a hostile actor died, else fades back to the area song (`C_2701_0355`); one minute
+if a hostile actor died, else fades back to the area song (`MUS_CombatEndSong` C_2701_0355); one minute
 passes (`PassTime(1)`).
 
 While in combat (each rule cites its function):
@@ -1253,7 +1253,7 @@ While in combat (each rule cites its function):
 | Party members out of combat pay 2 movement points less for everything (minimum 1); in combat they pay full price | `SubMov` C_130F_1DCC |
 | The "wild" effect (ObjStatus 0x80) lasts only while in combat; out of combat it is cleared every minute | `PassTime` C_0359_11B6 |
 | The Motazz invocation works only in combat | spell.c |
-| Each turn, while `CombatOutcome` is ±1, it is doubled and the music queues song 9 (party loss) or 10 (enemy killed) | `GameLoop`, `C_2701_045E` |
+| Each turn, while `CombatOutcome` is ±1, it is doubled and the music queues song 9 (party loss) or 10 (enemy killed) | `GameLoop`, `MUS_CombatOutcomeSong` C_2701_045E |
 
 ### Combat modes of party members
 
@@ -1428,10 +1428,10 @@ The "to-hit stat" column only matters if the to-hit test is restored (see above)
 
 - **Bow, blowgun, rifle**: one arrow, dart or bullet is used (a stack loses 1; the last one
   is deleted). The ammunition must be carried, not readied, anywhere in the attacker's
-  inventory, containers included (`C_0A5D_080A`).
+  inventory, containers included (`FindInvOfType` C_0A5D_080A).
 - **Atlatl**: uses a spear. If the spear object is a stack of more than one, one is
   removed and is lost. If it is a single object, it flies and lands on the impact tile,
-  or is lost if that tile is water, lava or a pit with nothing on it (`C_1DBD_18FD`).
+  or is lost if that tile is water, lava or a pit with nothing on it (`IsObjLostAt` C_1DBD_18FD).
 - **Flintlock**: each shot unloads it (frame back to 0). Loading takes one gunpowder
   (0xCC) from the holder's inventory and sets frame 1 ("Flintlock loaded.", or "Flintlock
   already loaded.", "You don't have any gunpowder."); it is done with Use, or by an AI
@@ -1472,12 +1472,12 @@ never attack.
 
 | Kind (npctrack.c) | Types | Facing from frame |
 |---|---|---|
-| one tile (`C_130F_0136`) | 0x11A, 0x123, 0x124, 0x12B, 0x12D, 0x12E, 0x133-0x146, 0x150 and up | (normal range) |
-| two tiles (`C_130F_0002`) | 0x11B, 0x12C, 0x147, 0x14A-0x14F | frame/4 |
-| 0x120 *pteranodon* (`C_130F_004D`) | 0x120 | frame/6 |
-| three tiles (`C_130F_0070`) | 0x11C, 0x121, 0x129, 0x12F, 0x131 | frame/6 for 0x121, else frame/4 |
-| 0x128 *gorilla* (`C_130F_00A7`) | 0x128 | frame/8 |
-| 0x126 *tyrannosaurus* (`C_130F_00CA`) | 0x126 | frame/6 |
+| one tile (`IsSingleTileCreature` C_130F_0136) | 0x11A, 0x123, 0x124, 0x12B, 0x12D, 0x12E, 0x133-0x146, 0x150 and up | (normal range) |
+| two tiles (`IsTwoTileCreature` C_130F_0002) | 0x11B, 0x12C, 0x147, 0x14A-0x14F | frame/4 |
+| 0x120 *pteranodon* (`IsPteranodon` C_130F_004D) | 0x120 | frame/6 |
+| three tiles (`IsThreeTileCreature` C_130F_0070) | 0x11C, 0x121, 0x129, 0x12F, 0x131 | frame/6 for 0x121, else frame/4 |
+| 0x128 *gorilla* (`IsGorilla` C_130F_00A7) | 0x128 | frame/8 |
+| 0x126 *tyrannosaurus* (`IsTyrannosaurus` C_130F_00CA) | 0x126 | frame/6 |
 
 A part of a multi-tile creature holds its owner's number in its quality; attacking a part
 attacks the owner (`COMBAT_GetTargetAt` C_1810_0D5B, `COMBAT_getHead` C_1810_3329).
@@ -1493,7 +1493,7 @@ All in `__TryHit` (C_1810_337D), applied when the attack lands:
 | *spear of Shamap* (1) | an object | normal hit |
 | (any of the above) | | the spear of Shamap then becomes an ordinary spear (type 0x1A, quantity 1) |
 | *blowgun* (0x20) | an actor | one time in 2, poisoned and no damage (unless protected or invulnerable); otherwise a normal hit |
-| lit torch (0xD1) | web (0x11) | the web catches fire (fire object 0xF2, `C_1DBD_4F8E`) |
+| lit torch (0xD1) | web (0x11) | the web catches fire (fire object 0xF2, `FireSpread` C_1DBD_4F8E) |
 | *black staff* (0x15) | Myrmidex (0x143/0x148) | range 7, damage 40, flies as a missile |
 
 ### Armour
@@ -1582,9 +1582,9 @@ Destroyed objects with effects:
 | Type | Effect when destroyed |
 |---|---|
 | 0x7F (*bamboo plant*) | replaced by 0x80 (*bamboo pole*) |
-| 0x107 | parts 0x108, 0x109, 0x10A removed, rubble objects placed, and the actors in a 2x5 area north of it are crushed (`C_1810_219F`): each is pushed to a free neighbouring tile and takes 2d10, or loses all its hit points if there is no room. |
+| 0x107 | parts 0x108, 0x109, 0x10A removed, rubble objects placed, and the actors in a 2x5 area north of it are crushed (`TreeFallCrush` C_1810_219F): each is pushed to a free neighbouring tile and takes 2d10, or loses all its hit points if there is no room. |
 | 0xDE | explosion (tile 0x106): every actor in the blast takes 1d30; all objects of type 0x100 get tile 0xDF; cut scene 3 plays unless TalkFlags[1] bit 2 is set |
-| 0x93 | three double explosions, then the last cut scene (the end of the game, `C_1DBD_077E`) |
+| 0x93 | three double explosions, then the last cut scene (the end of the game, `Cutscene5` C_1DBD_077E) |
 | others | deleted |
 
 ### Death
@@ -1607,7 +1607,7 @@ When an actor's hit points reach 0 (`COMBAT_Kill` C_1810_25AD):
 - If the Avatar (object 1) is dead, the party is knocked out ("Overcome by your wounds, you
   fall unconscious....."), and wakes in Intanya's hut: dead members are revived, everyone
   healed to Max HP, cured, made good, and every member's XP is multiplied by 3/4
-  (`CheckActiveMember` C_130F_4943, `C_2701_0556`, `C_08CB_0C73`).
+  (`CheckActiveMember` C_130F_4943, `PartyUnconscious` C_2701_0556, `PartyResurrect` C_08CB_0C73).
 
 There is no unconscious state between "hurt" and "dead" for single actors; "unconscious"
 in the code is the body shape used both for sleep and death.
@@ -1623,7 +1623,7 @@ monster classes with flag 0x800 or 0x1000 leave no body and vanish. The big crea
 (0x126 and the three-tile kind) leave a body made of several objects, with blood (0xF8)
 on some tiles when dead. Classes with flag 0x2000 bleed: a blood object 0xF8 (frame 0-2)
 is left on the tile (actors 0x10 and up, not the big creatures). Flag 0x1000 also redraws
-the map with the fade effect when within 5 tiles (`C_0359_0D58(1)`). A dead 0x133 (member
+the map with the fade effect when within 5 tiles (`RedrawMapWithObjects(1)` C_0359_0D58). A dead 0x133 (member
 on the turtle) first gets off the turtle.
 
 ### Experience
@@ -1761,7 +1761,7 @@ Bits 0x0002, 0x0080 and 0x8000 are set in no class.
   inventory (`PassTime`, `Detonate` C_1DBD_3C68). Dropping a lit grenade (or an activated
   device) explodes it where it lands (`CmdDrop` C_1DBD_1960). Fired as a weapon, lit or not, it explodes at the
   impact tile.
-- **Grenade blast** (`C_1810_1941`): sound 6; the blast reaches the 3x3 square around the
+- **Grenade blast** (`GrenadeBlast` C_1810_1941): sound 6; the blast reaches the 3x3 square around the
   centre (trails that walls stop, `Explosion` C_276B_0E85); every actor reached takes
   1d20 (no experience). Then, in the 3x3 square (`AfterExplosion` C_1DBD_3D25): unlit
   grenades lying there are lit and explode (chain reaction), boulders (0xA7) are pushed
@@ -1769,7 +1769,7 @@ Bits 0x0002, 0x0080 and 0x8000 are set in no class.
   gunpowder (0xCC) also makes a grenade blast, and its holder takes 1d30 (`UseFire`
   C_1DBD_7AB6).
 - **Device** (0xF0, activated 0xF1): same fuse logic ("Device activated."). Its blast
-  (`C_1810_19C1`, sounds 0x12 and 0x1D) hurts only Myrmidex (types 0x143/0x148) in the 3x3
+  (`DeviceBlast` C_1810_19C1, sounds 0x12 and 0x1D) hurts only Myrmidex (types 0x143/0x148) in the 3x3
   square, 1d35 each, then the same `AfterExplosion`.
 - When fired as a weapon the object at the impact tile also takes the weapon's normal hit
   (`__DoHit` with damage 15 for grenades, 3 for devices), after the blast, if it is still
@@ -1779,19 +1779,19 @@ Bits 0x0002, 0x0080 and 0x8000 are set in no class.
   member, the one with the most hostile (evil or chaotic) living actors in the 3x3 square
   around it, the centre counting twice; ties are broken at random. For grenades a square
   that holds the thrower or a good living actor is skipped; for devices only Myrmidex
-  count and allies are not checked (`C_1810_4561`).
+  count and allies are not checked (`COMBAT_PickBlastTarget` C_1810_4561).
 
 ### Boulders
 
 A boulder (type 0xA7) is a 2x2 object whose position is its bottom right corner. In this
 code only explosions push boulders (and a pushed boulder pushes the boulder it lands on)
-(`AfterExplosion`, `C_1810_14EA`, `C_1810_1101`):
+(`AfterExplosion`, `PushBoulder` C_1810_14EA, `BoulderLandsAt` C_1810_1101):
 
 - A boulder with quality 1 is stuck: sound 0x1C, no move.
 - It moves one tile away from the blast on each axis where the blast is beside it. It
   does not move east or south onto certain tiles (`TileClass3`/`TileClass2`, DS 102E/1008),
   and is blocked by the tiles 0x90-0x92, 0x95, 0x98-0xA9, 0xAC-0xB6, 0xBA-0xC5, trees, and
-  the objects 0x96, 0x97, 0x104-0x10A (`C_1810_0FE6`, `C_1810_103F`).
+  the objects 0x96, 0x97, 0x104-0x10A (`IsBoulderStopTile` C_1810_0FE6, `BoulderBlockedAt` C_1810_103F).
 - While any of its four tiles is in `TileClass1` (DS 0F80, 68 tile numbers, apparently
   slopes or pits) it keeps rolling south-east; when blocked it tries the eight
   neighbouring places.
@@ -1804,9 +1804,9 @@ code only explosions push boulders (and a pushed boulder pushes the boulder it l
 - If after a move there is an object 0x96 two tiles south, the boulder becomes stuck and
   the objects 0x96, 0x97, 0xC3 (two) and 0x98 around it, and an egg (0xE6) under the
   boulder, are deleted (a puzzle: the boulder plugs something). A boulder with a tile 0x0C
-  or 0x0F under it becomes stuck and permanent (`C_1810_13B1`, `C_1810_1327`).
+  or 0x0F under it becomes stuck and permanent (`BoulderMoveTo` C_1810_13B1, `BoulderInWater` C_1810_1327).
 
-This is a summary of `C_1810_14EA`; the exact order of its attempts, and the precise role
+This is a summary of `PushBoulder` C_1810_14EA; the exact order of its attempts, and the precise role
 of the three tile classes, are more involved than stated here.
 
 ### Segmented creatures (vines)
@@ -1827,7 +1827,7 @@ message "Tangle vine killed!" but no code prints it.
   0x124, quality = the tip) behind it. A tip does not grow further east or west when it is
   already more than 5 tiles from the core on that side, nor further north or south when
   more than 4 tiles from it.
-- **Damage** (`C_1810_22F0`): hitting the core does not hurt it; instead every tip in actor
+- **Damage** (`OrchidLoseHP` C_1810_22F0): hitting the core does not hurt it; instead every tip in actor
   slots 0x10-0xFF (all type-0x11A actors, not only this core's) takes half the damage.
   Hitting a vine segment does the full damage to its tip. A tip that takes damage >= its
   hit points dies, and the segments it grew are removed, back to the core; the core's tip
@@ -1880,7 +1880,7 @@ On a tie in distance the one whose class has the higher `MonsterDamage` wins.
 `__PickWeapon` (C_1810_4277): the readied weapon with the highest damage whose range
 reaches the opponent; else the natural attack. It does not check ammunition, so an
 attacker out of arrows can keep choosing its bow and waste its turns. The ranged chooser
-(`C_1810_4968`) takes readied weapons of range 3 or more: the longest range until one
+(`COMBAT_PickRangedWeapon` C_1810_4968) takes readied weapons of range 3 or more: the longest range until one
 reaches the opponent, then the highest damage among those that do.
 
 #### The modes
