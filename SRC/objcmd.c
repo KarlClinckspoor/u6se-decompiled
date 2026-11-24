@@ -25,7 +25,6 @@ struct tClipInfo/*size:9*/ {
 
 /*OSI*/
 extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
-#define OSI_rand OSI_rand
 /*main*/
 extern BuildConfigString(char *);
 /*gameloop*/
@@ -125,7 +124,6 @@ extern PushBoulder(int16, int16, int16);/*pushes the boulder obj away from (x, y
 extern GrenadeBlast(int16, int16);/*a grenade explodes at (x, y)*/
 extern DeviceBlast(int16, int16);/*a device explodes at (x, y)*/
 extern int16 MaxHP(int16);/*MaxHP*/
-#define MaxHP MaxHP
 extern COMBAT_Kill(int16);
 /*egg*/
 extern EGG_hatchArea(void);
@@ -224,31 +222,8 @@ extern int16 D_B66A, D_B66C;/*Selection.x, Selection.y*/
 extern int16 D_C17C[];/*Link*/
 extern union tHandler D_ED10;/*GrDriver*/
 
-#define DirIncrX DirIncrX
-#define DirIncrY DirIncrY
-#define MouseOn MouseOn
-#define StatusDisplay StatusDisplay
 #define Amount D_54F0
 #define TileFlag2 D_7640
-#define AnimateAtPrompt AnimateAtPrompt
-#define EndPagingAtPrompt EndPagingAtPrompt
-#define GetsAborted GetsAborted
-#define StatusMember StatusMember
-#define CurClip CurClip
-#define StatusDirty StatusDirty
-#define IsInConversation IsInConversation
-#define ScreenFade ScreenFade
-#define ColorPaper ColorPaper
-#define Time_M Time_M
-#define Time_H Time_H
-#define Date_D Date_D
-#define Date_M Date_M
-#define Date_Y Date_Y
-#define Active Active
-#define AmbientLight AmbientLight
-#define MapX MapX
-#define MapY MapY
-#define MapZ MapZ
 #define ObjStatus D_329C
 #define NPCFlag D_4602
 #define NPCMode D_4706
@@ -264,29 +239,15 @@ extern union tHandler D_ED10;/*GrDriver*/
 #define OrigShapeType D_B53E
 #define TextWindows D_B644
 #define Link D_C17C
-#define DirNames DirNames
-#define SelectRange SelectRange
-#define LastNumberPlural LastNumberPlural
-#define DirOriginX DirOriginX
-#define DirOriginY DirOriginY
-#define AdvanceBlocked AdvanceBlocked
-#define VisibilityDirty VisibilityDirty
 #define AdvanceDir D_B5E6
 #define TypeWeight D_763C
 #define InvenSize D_E648
-#define MouseMode MouseMode
-#define DrunkCounter DrunkCounter
-#define SoloMember SoloMember
-#define KegFuse KegFuse
-#define KegObject KegObject
 #define InvenOwner D_E64A
 #define Party_2Handed D_E64C
 #define Equipment D_E658
 #define WeightEquip D_E668
 #define WeightInven D_E66A
 #define STREN D_53E8
-#define SelectMode SelectMode
-#define LocPartOffset LocPartOffset
 #define TerrainType D_B4FA
 #define SelectionIsDark D_B6B8
 #define PointerX D_B5E8

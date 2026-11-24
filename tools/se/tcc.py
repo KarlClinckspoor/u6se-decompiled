@@ -38,7 +38,8 @@ def has_inline_asm(path):
 
 
 def dosbox():
-    return shutil.which('dosbox-x') or shutil.which('dosbox') or 'dosbox'
+    import dos                                  # one lookup: SE_DOSBOX, the PATH, gamedata/DOSBOX
+    return dos.dosbox()
 
 
 def compile_files(files, flags=DEFAULT_FLAGS, out=None, tools=None, includes=(), quiet=False, masm=False, per_file=True):

@@ -187,9 +187,6 @@ extern union tHandler D_ED10;/*GrDriver*/
 extern int16 D_ED14, D_ED16, D_ED1A, D_ED1C;/*DirtyRect: left, top, right, bottom*/
 extern int16 D_ED18;/*width - 1 of the shaken rectangle*/
 
-#define MapX MapX
-#define MapY MapY
-#define MapZ MapZ
 #define TileFlag D_6DF0
 #define BaseTile D_6EF4
 #define TerrainType D_B4FA

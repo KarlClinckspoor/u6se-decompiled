@@ -208,34 +208,7 @@ extern int16 D_E656;/*NPC_2Handed*/
 extern struct tGr far *D_ED0C;/*GrInfo*/
 extern union tHandler D_ED10;/*GrDriver*/
 
-#define DirIncrX DirIncrX
-#define DirIncrY DirIncrY
-#define GrAdapter GrAdapter
-#define MouseOn MouseOn
-#define StatusDirty StatusDirty
-#define IdleAnimTick IdleAnimTick
-#define MapAnimEnabled MapAnimEnabled
-#define ObjBlkTmpPending ObjBlkTmpPending
-#define MoveAppliesTerrain MoveAppliesTerrain
-#define PartyListTop PartyListTop
-#define InvenScroll InvenScroll
-#define IsInConversation IsInConversation
-#define AdvanceBlocked AdvanceBlocked
-#define BuiltAreaX BuiltAreaX
-#define BuiltAreaY BuiltAreaY
-#define BuiltAreaZ BuiltAreaZ
-#define ScreenFade ScreenFade
-#define ColorRed ColorRed
-#define ColorPaper ColorPaper
 #define ColorText D_24E6
-#define Active Active
-#define MapX MapX
-#define MapY MapY
-#define MapZ MapZ
-#define InCombat InCombat
-#define DefaultCommand DefaultCommand
-#define DiskFullChoice DiskFullChoice
-#define TextIdle TextIdle
 #define ObjStatus D_329C
 #define Mouse D_3E9C
 #define NPCMode D_4706
@@ -277,48 +250,6 @@ extern union tHandler D_ED10;/*GrDriver*/
 #define GrInfo D_ED0C
 #define GrDriver D_ED10
 
-#define MOUSE_POINTER MOUSE_POINTER
-#define MOUSE_SERVE MOUSE_SERVE
-#define MOUSE_SHOW MOUSE_SHOW
-#define MOUSE_HIDE MOUSE_HIDE
-#define MOUSE_IN_AREA MOUSE_IN_AREA
-#define OSI_open OSI_open
-#define OSI_close OSI_close
-#define OSI_create OSI_create
-#define OSI_read OSI_read
-#define OSI_write OSI_write
-#define KBD_GetKey KBD_GetKey
-#define PaletteAnimation PaletteAnimation
-#define DrawMapWindow DrawMapWindow
-#define DisplayTick DisplayTick
-#define PassTime PassTime
-#define RefreshStatus RefreshStatus
-#define MAP_LoadChunkIndexes MAP_LoadChunkIndexes
-#define MAP_InitChunkCache MAP_InitChunkCache
-#define MAP_LoadAround MAP_LoadAround
-#define VIS_UpdateView VIS_UpdateView
-#define OBJ_MakeDirFrame OBJ_MakeDirFrame
-#define MoveObj MoveObj
-#define QuanType QuanType
-#define OBJ_DeleteTmpBlocks OBJ_DeleteTmpBlocks
-#define LoadNewRegions LoadNewRegions
-#define OBJ_CommitBlocks OBJ_CommitBlocks
-#define OBJ_InitLists OBJ_InitLists
-#define OBJ_RelinkNPCs OBJ_RelinkNPCs
-#define STAT_refreshComMode STAT_refreshComMode
-#define STAT_RefreshInventory STAT_RefreshInventory
-#define STAT_PickInvenSlot STAT_PickInvenSlot
-#define STAT_PickEquipSlot STAT_PickEquipSlot
-#define STAT_Ready STAT_Ready
-#define STAT_Unready STAT_Unready
-#define TALK_talkTo TALK_talkTo
-#define InitNPCTracker InitNPCTracker
-#define COMBAT_TileDistance COMBAT_TileDistance
-#define COMBAT_breakOff COMBAT_breakOff
-#define COMBAT_GetTargetAt COMBAT_GetTargetAt
-#define IsContainerType IsContainerType
-#define MUS_PlayAreaSong MUS_PlayAreaSong
-#define DISK_confirm DISK_confirm
 
 #define GR_SET_COLOR(c)              (GrDriver.iii.ofs = 0x06, (*GrDriver.f)(c))
 #define GR_PUT_PIXEL(x,y)            (GrDriver.iii.ofs = 0x09, (*GrDriver.f)(x,y))

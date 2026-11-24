@@ -255,7 +255,6 @@ extern union tHandler D_ED10;/*GrDriver*/
 #define GR_SHUTDOWN()                (D_ED10.iii.ofs = 0x03, (*D_ED10.f)())
 #define GR_PUT_TILE_SCREEN(tile,x,y) (D_ED10.iii.ofs = 0x2d, (*D_ED10.f)(tile,x,y))
 
-#define Active Active
 #define PartySize D_9CF6
 #define Party D_4EDA
 #define Names D_5104
@@ -273,10 +272,6 @@ extern union tHandler D_ED10;/*GrDriver*/
 #define TalkKeyword D_E66C
 #define TalkNpcName D_E6B8
 #define TalkAnswered D_E6EA
-#define CurClip CurClip
-#define StatusMember StatusMember
-#define StatusDisplay StatusDisplay
-#define PromptCh PromptCh
 
 #define IN_VEHICLE (Active == PartySize)
 #define IsParalyzed(i)   (NPCStatus[i] & 0x02)

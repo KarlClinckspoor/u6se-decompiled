@@ -110,24 +110,7 @@ extern union tHandler D_ED10;/*GrDriver*/
 /*Savage Empire's library*/
 extern int16 cdecl soundCard;
 
-#define MouseOn MouseOn
-#define StatusDirty StatusDirty
-#define IdleAnimTick IdleAnimTick
-#define SelectMode SelectMode
-#define AnimateAtPrompt AnimateAtPrompt
-#define StatusMember StatusMember
-#define StatusDisplay StatusDisplay
-#define CurClip CurClip
-#define ScreenFade ScreenFade
 #define ColorText D_24E6
-#define NextSleep NextSleep
-#define Time_H Time_H
-#define Active Active
-#define MapX MapX
-#define MapY MapY
-#define MapZ MapZ
-#define InCombat InCombat
-#define SoloMember SoloMember
 #define ObjStatus D_329C
 #define MovePts D_44FA
 #define DEXTE D_4606
@@ -147,31 +130,6 @@ extern int16 cdecl soundCard;
 #define Link D_C17C
 #define GrDriver D_ED10
 
-#define PaletteAnimation PaletteAnimation
-#define DrawMapWindow DrawMapWindow
-#define DisplayTick DisplayTick
-#define PassTime PassTime
-#define CON_mouseOffAt CON_mouseOffAt
-#define CON_mouseOn CON_mouseOn
-#define CON_getch CON_getch
-#define CON_gets CON_gets
-#define CON_setClip CON_setClip
-#define CON_gotoxy CON_gotoxy
-#define CON_printf CON_printf
-#define MAP_LoadAround MAP_LoadAround
-#define VIS_UpdateView VIS_UpdateView
-#define OBJ_FindTypeAt OBJ_FindTypeAt
-#define AddMapObj AddMapObj
-#define DeleteObj DeleteObj
-#define OBJ_IsInside OBJ_IsInside
-#define TakeObj TakeObj
-#define ShowObjects ShowObjects
-#define STAT_DrawInventory STAT_DrawInventory
-#define TALK_GetNpcName TALK_GetNpcName
-#define UpdateMoveFrame UpdateMoveFrame
-#define TryMoveTo TryMoveTo
-#define MaxHP MaxHP
-#define MOUSE_SERVE MOUSE_SERVE
 
 #define GR_PUT_TILE_SCREEN(tile,x,y) (GrDriver.iii.ofs = 0x2d, (*GrDriver.f)(tile,x,y))
 

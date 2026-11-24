@@ -98,17 +98,7 @@ extern int16 D_E668;/*WeightEquip*/
 extern int16 D_E66A;/*WeightInven*/
 extern union tHandler D_ED10;/*GrDriver: entry point of the graphic driver (ofs = function number)*/
 
-#define StatusMember StatusMember
-#define StatusDisplay StatusDisplay
-#define CurClip CurClip
-#define ColorRed ColorRed
-#define ColorGreen ColorGreen
-#define ColorBlue ColorBlue
-#define ColorPaper ColorPaper
 #define ColorText D_24E6
-#define Active Active
-#define MapX MapX
-#define MapY MapY
 #define ObjStatus D_329C
 #define DEXTE D_4606
 #define Party D_4EDA
@@ -145,21 +135,6 @@ extern union tHandler D_ED10;/*GrDriver: entry point of the graphic driver (ofs 
 #define WeightInven D_E66A
 #define GrDriver D_ED10
 
-#define CON_mouseOffAt CON_mouseOffAt
-#define CON_mouseOn CON_mouseOn
-#define DrawInvObject DrawInvObject
-#define DrawSlotTile DrawSlotTile
-#define CON_setClip CON_setClip
-#define CON_gotoxy CON_gotoxy
-#define CON_printf CON_printf
-#define FindInv FindInv
-#define NextInv NextInv
-#define DeleteObj DeleteObj
-#define OBJ_IsInside OBJ_IsInside
-#define QuanType QuanType
-#define GetObjectString GetObjectString
-#define MaxHP MaxHP
-#define IsContainerType IsContainerType
 
 #define GR_SET_COLOR(c)              (GrDriver.iii.ofs = 0x06, (*GrDriver.f)(c))
 #define GR_FILL_RECT(x0,y0,x1,y1)    (GrDriver.iii.ofs = 0x12, (*GrDriver.f)(x0,y0,x1,y1))

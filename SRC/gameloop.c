@@ -245,50 +245,7 @@ extern int16 D_EADE;
 extern struct tGr far *D_ED0C;/*GrInfo*/
 extern union tHandler D_ED10;/*GrDriver*/
 
-#define MouseOn MouseOn
-#define DirIncrX DirIncrX
-#define DirIncrY DirIncrY
-#define SelectMode SelectMode
-#define AimX AimX
-#define AimY AimY
-#define SelectRange SelectRange
-#define FreeAimMode FreeAimMode
-#define SlotCursorCol SlotCursorCol
-#define SlotCursorRow SlotCursorRow
-#define HelpOn HelpOn
-#define LastAttackTarget LastAttackTarget
-#define StatusMember StatusMember
-#define MouseMode MouseMode
-#define StatusDisplay StatusDisplay
-#define PendingCommand PendingCommand
-#define AllowMouseMov AllowMouseMov
-#define AllowNPCTeleport AllowNPCTeleport
-#define VisibilityDirty VisibilityDirty
-#define ScreenFade ScreenFade
 #define ColorBlack D_24E8
-#define NextSleep NextSleep
-#define Time_M Time_M
-#define Time_H Time_H
-#define Date_D Date_D
-#define Date_M Date_M
-#define Date_Y Date_Y
-#define Active Active
-#define AmbientLight AmbientLight
-#define MapX MapX
-#define MapY MapY
-#define MapZ MapZ
-#define SpellFx SpellFx
-#define HourlyUnused HourlyUnused
-#define CaughtFish CaughtFish
-#define DrunkCounter DrunkCounter
-#define MustRingBell MustRingBell
-#define SoundFlag SoundFlag
-#define KegFuse KegFuse
-#define KegObject KegObject
-#define InCombat InCombat
-#define SoloMember SoloMember
-#define SavedNPCMode SavedNPCMode
-#define DiskFullChoice DiskFullChoice
 #define Screen D_3268
 #define AnimFrameMask D_3276
 #define ObjStatus D_329C
@@ -323,33 +280,7 @@ extern union tHandler D_ED10;/*GrDriver*/
 #define Tile_11x11 D_C08A
 #define GrInfo D_ED0C
 
-#define OSI_rand OSI_rand
-#define MOUSE_SERVE MOUSE_SERVE
-#define MOUSE_DRAW MOUSE_DRAW
-#define MOUSE_SAVE_BG MOUSE_SAVE_BG
-#define MOUSE_IN_AREA MOUSE_IN_AREA
-#define CON_UpdateMousePointer CON_UpdateMousePointer
-#define GAME_Restore GAME_Restore
-#define GAME_Save GAME_Save
-#define DrawSlotCursor DrawSlotCursor
-#define CON_getch CON_getch
-#define CON_gets CON_gets
-#define CON_printf CON_printf
-#define NextLoc NextLoc
-#define FindLoc FindLoc
-#define OBJ_FindTypeAt OBJ_FindTypeAt
-#define FindInv FindInv
-#define NextInv NextInv
-#define FindInvType FindInvType
-#define AddMapObj AddMapObj
-#define DeleteObj DeleteObj
-#define MoveObj MoveObj
-#define ShowObjects ShowObjects
-#define GetObjectString GetObjectString
-#define TALK_GetCharName TALK_GetCharName
-#define LoseHP LoseHP
 #define GetDex GetStr
-#define GetMonsterClass GetMonsterClass
 
 #define GetType(i) (ObjShapeType[i] & 0x3ff)
 #define GetFrame(i) (ObjShapeType[i] >> 10)

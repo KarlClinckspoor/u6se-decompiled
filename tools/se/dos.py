@@ -7,7 +7,10 @@ TOOLS = os.environ.get('SE_DOSTOOLS') or os.path.join(ROOT, 'tools')
 
 
 def dosbox():
-    return os.environ.get('SE_DOSBOX') or shutil.which('dosbox-x') or shutil.which('dosbox') or 'dosbox'
+    """SE_DOSBOX, else DOSBox-X or DOSBox on the PATH, else the GOG release's DOSBox (gamedata/DOSBOX)."""
+    gog = os.path.join(ROOT, 'gamedata', 'DOSBOX', 'DOSBox.exe')
+    return (os.environ.get('SE_DOSBOX') or shutil.which('dosbox-x') or shutil.which('dosbox')
+            or (gog if os.path.exists(gog) else 'dosbox'))
 
 
 def crlf(src, dst):

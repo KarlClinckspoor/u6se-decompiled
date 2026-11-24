@@ -124,20 +124,6 @@ extern int16 MaxHP(int16);/*MaxHP*/
 extern int16 IsContainerType(int16);/*IsContainerType*/
 extern DISK_confirm(int16);/*DISK_confirm*/
 
-#define DirIncrX DirIncrX
-#define DirIncrY DirIncrY
-#define StatusDirty StatusDirty
-#define MapAnimEnabled MapAnimEnabled
-#define StatusMember StatusMember
-#define StatusDisplay StatusDisplay
-#define MapCoordMask MapCoordMask
-#define ViewX ViewX
-#define ViewY ViewY
-#define VisibilityDirty VisibilityDirty
-#define MapX MapX
-#define MapY MapY
-#define MapZ MapZ
-#define DiskFullChoice DiskFullChoice
 #define ObjStatus D_329C
 #define AreaFlags D_3EBA
 #define NPCFlag D_4602
@@ -175,23 +161,6 @@ extern DISK_confirm(int16);/*DISK_confirm*/
 #define WeightEquip D_E668
 #define WeightInven D_E66A
 
-#define OSI_open OSI_open
-#define OSI_close OSI_close
-#define OSI_create OSI_create
-#define OSI_delete OSI_delete
-#define OSI_read OSI_read
-#define OSI_write OSI_write
-#define OSI_rename OSI_rename
-#define OSI_rand OSI_rand
-#define ApplyTerrainEffects ApplyTerrainEffects
-#define CON_printf CON_printf
-#define GetWeight GetWeight
-#define GetTypeWeight GetTypeWeight
-#define STAT_ComputeWeights STAT_ComputeWeights
-#define STAT_RefreshInventory STAT_RefreshInventory
-#define MaxHP MaxHP
-#define IsContainerType IsContainerType
-#define DISK_confirm DISK_confirm
 
 /*this module*/
 int16 OBJ_GetCreatureParts(int16, int16 *, int16 *);
