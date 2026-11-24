@@ -7,3 +7,6 @@ tools/tcpp101/
 tools/masm300/
 *.OBJ
 *.obj
+# what the GOG DOSBox (the fallback of tools/se/dos.py) writes with -noconsole
+stdout.txt
+stderr.txt
