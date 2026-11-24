@@ -217,9 +217,10 @@ else 0 or 1 at random*/
 	}
 }
 
-/*on the surface between 5 and 11 o'clock: plays the dawn song (4), waits for
-it to reach its marker, then queues song 1*/
-/*C_2701_023F*/C_2701_023F() {
+/*the morning song (rest.c, after resting): on the surface between 5 and 11
+o'clock plays the dawn song (4), waits for it to reach its marker, then
+queues song 1*/
+/*C_2701_023F*/MUS_MorningSong() {
 	int16 i = 0;
 
 	if(!MusicAdapter)
@@ -240,8 +241,9 @@ it to reach its marker, then queues song 1*/
 	}
 }
 
-/*plays jingle 7, waits for it, then queues song 8*/
-/*C_2701_02D6*/C_2701_02D6() {
+/*combat begins with the party attacked (COMBAT_beginAttacked): plays jingle 7,
+waits for it, then queues song 8*/
+/*C_2701_02D6*/MUS_AttackedSong() {
 	int16 i = 0;
 
 	if(MusicAdapter) {
@@ -260,10 +262,10 @@ it to reach its marker, then queues song 1*/
 	}
 }
 
-/*end of a battle(?): <how> < 0 plays jingle 11, > 0 jingle 12, waits for it
+/*end of a battle (combat.c, with CombatOutcome): <how> < 0 plays jingle 11, > 0 jingle 12, waits for it
 and queues the area song (3 on level 3, 2 underground, else 0 or 1);
 <how> 0 fades to the area song*/
-/*C_2701_0355*/C_2701_0355(int16 how) {
+/*C_2701_0355*/MUS_CombatEndSong(int16 how) {
 	int16 jingle;
 	int16 song;
 	int16 i = 0;
@@ -302,8 +304,9 @@ and queues the area song (3 on level 3, 2 underground, else 0 or 1);
 	}
 }
 
-/*doubles CombatOutcome; while song 8 plays, queues song 9 or 10 by its sign*/
-/*C_2701_045E*/C_2701_045E() {
+/*(gameloop.c, in combat) doubles CombatOutcome; while song 8 plays, queues
+song 9 or 10 by its sign*/
+/*C_2701_045E*/MUS_CombatOutcomeSong() {
 	CombatOutcome *= 2;
 	if(MusicAdapter && musicMarker - 1 == 8) {
 		if(CombatOutcome < 0)
@@ -313,14 +316,16 @@ and queues the area song (3 on level 3, 2 underground, else 0 or 1);
 	}
 }
 
-/*out of combat, while one of the songs 0-4 plays: queues song 5*/
-/*C_2701_04A7*/C_2701_04A7() {
+/*an event jingle (egg.c, "You hear something to the ..."): out of combat,
+while one of the songs 0-4 plays, queues song 5*/
+/*C_2701_04A7*/MUS_EventJingle() {
 	if(MusicAdapter && InCombat != 1 && musicMarker - 1 <= 4)
 		SetNextSong(D_ECBC[5], 4);
 }
 
-/*plays jingle 6, waits for it, then queues song 8*/
-/*C_2701_04D7*/C_2701_04D7() {
+/*combat begins (COMBAT_begin): plays jingle 6, waits for it, then queues
+song 8*/
+/*C_2701_04D7*/MUS_CombatSong() {
 	int16 i = 0;
 
 	if(MusicAdapter) {
@@ -341,7 +346,7 @@ and queues the area song (3 on level 3, 2 underground, else 0 or 1);
 
 /*the party is knocked out: "Overcome by your wounds...", song 11, then the
 party awakens in Intanya's hut (C_08CB_0C73)*/
-/*C_2701_0556*/C_2701_0556() {
+/*C_2701_0556*/PartyUnconscious() {
 	int16 song;
 	int16 i = 0;
 
@@ -383,8 +388,9 @@ party awakens in Intanya's hut (C_08CB_0C73)*/
 		PlaySound(&(MUS_Sfx[sfx]), 0, 0x7f, 0x3f, 0, 2);
 }
 
-/*stops the sound effects; with the sound off, the music too*/
-/*C_2701_0684*/C_2701_0684() {
+/*stops the sound effects; with the sound off, the music too (Martian
+Dreams' MUS_StopSfx)*/
+/*C_2701_0684*/MUS_StopSfx() {
 	if(soundCard) {
 		StopAllSounds();
 		if(!SoundFlag)

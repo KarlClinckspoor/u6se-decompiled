@@ -121,7 +121,7 @@ extern int16 MaxHP(int16);/*MaxHP*/
 extern EGG_hatchArea();/*EGG_hatchArea*/
 extern MUS_PlayAreaSong();/*MUS_PlayAreaSong?*/
 extern MUS_PlaySfx(int16);/*MUS_PlaySfx?*/
-extern C_2701_0684();
+extern MUS_StopSfx();
 extern DrawSkyBar();/*DrawSkyBar*/
 extern DISK_confirm(int16);/*DISK_confirm*/
 
@@ -493,7 +493,7 @@ static /*C_08CB_0003*/cacheChunk(int16 chunkIdx) {
 	MapX = GetX(objNum);
 	MapY = GetY(objNum);
 	PartyEnter((type == 0xe3)?0:2);
-	C_2701_0684();
+	MUS_StopSfx();
 	if(type == 0x14) {
 		found = FindInvType(D_4EDA[StatusMember], 0x15, -1);
 		if(found >= 0) {

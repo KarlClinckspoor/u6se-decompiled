@@ -153,9 +153,9 @@ extern CmdUse();/*CmdUse*/
 extern int16 GetMonsterClass(int16);/*GetMonsterClass*/
 extern MUS_PlaySong(int16);
 extern MUS_PlayAreaSong();/*MUS_PlayAreaSong?*/
-extern C_2701_045E();
+extern MUS_CombatOutcomeSong();
 extern MUS_PlaySfx(int16);/*MUS_PlaySfx?*/
-extern C_2701_0684();
+extern MUS_StopSfx();
 extern ShakeScreen(int16, int16);/*ShakeScreen*/
 extern DrawSkyBar();/*DrawSkyBar*/
 extern PeerMap();/*PeerMap*/
@@ -1455,7 +1455,7 @@ Exits on <ALT+X>/<CTRL+Q>/<CTRL+E> confirmed (ch == 0x12D).*/
 				if(SoundFlag) {
 					SoundFlag = 0;
 					MUS_PlaySong(-1);
-					C_2701_0684();
+					MUS_StopSfx();
 					CON_printf(SoundOffMsg);
 				} else {
 					SoundFlag = 1;
@@ -1618,7 +1618,7 @@ Exits on <ALT+X>/<CTRL+Q>/<CTRL+E> confirmed (ch == 0x12D).*/
 			/*NPCs and the rest of the world take their turn*/
 			RunNPCTurns();
 			if(InCombat && (CombatOutcome == 1 || CombatOutcome == -1))
-				C_2701_045E();
+				MUS_CombatOutcomeSong();
 			if(ch != 0x80)
 				PromptFlag = 1;
 			if(PromptFlag) {

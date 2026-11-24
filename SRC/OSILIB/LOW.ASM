@@ -43,10 +43,9 @@ DSegEnd
 
 CSegStart	SEG_2AF5_TEXT
 
-;is_AL_Letter
-;param AL
-;ret DL
-C_0008	PROC NEAR
+;drive letter in AL (either case) to drive number in DL (0 = A:);
+;CF set when AL is not a letter (AL is upper-cased)
+letterToDrive	PROC NEAR	;C_0008 (2AF5:0008)
 	CMP	AL,'a'
 	JL	C_0012
 	CMP	AL,'z'
@@ -65,14 +64,14 @@ C_0012:
 C_0021:	;--
 	STC
 	RET
-C_0008	ENDP
+letterToDrive	ENDP
 
 ;select drive?
 ProcStart	OSI_selectDrive	;2AF5:001B
 	MOV	D_2B4C,0
 	;--
 	MOV	AX,[BP+06]
-	CALL	C_0008
+	CALL	letterToDrive
 	JB	C_005B
 	MOV	D_2B42,DL
 	;--
@@ -163,13 +162,15 @@ ProcStart	OSI_lowInit	;2AFC:000A
 	INT	21h
 	POP	DS
 	;--
-	CALL	C_002E
-	CALL	C_00D0
-	CALL	C_005E	;check computer speed
+	CALL	initTextWindows
+	CALL	clearSpareVars
+	CALL	measureCpuSpeed
 ProcEnd	OSI_lowInit
 
-;initialize some unused feature[text clipping]?
-C_002E	PROC NEAR
+;set up 4 records of 8 bytes at D_2B4E, each {0,0,39,24,0,0,0Fh,0}: probably
+;text-mode windows (40x25, color 0Fh) with D_2B8A pointing at the current one
+;and D_2B76 its number; nothing else in GAME.EXE reads them
+initTextWindows	PROC NEAR	;C_002E (2AFC:002E)
 	MOV	SI,OFFSET DGROUP:D_2B4E
 	MOV	D_2B8A,SI
 	;--
@@ -193,10 +194,11 @@ C_003A:
 	MOV	D_2B76,AX
 	;--
 	RET
-C_002E	ENDP
+initTextWindows	ENDP
 
-;check computer speed
-C_005E	PROC NEAR
+;measure the computer's speed: count loop iterations during one timer tick
+;(int 1Ch), CpuSpeed = count * 18 / 750; also store the memory size (int 12h)
+measureCpuSpeed	PROC NEAR	;C_005E (2AFC:005E)
 	MOV	CpuSpeed,0
 	MOV	D_2B4A,0
 	;-- push vector 0x1c
@@ -244,7 +246,7 @@ C_008F:	;--
 	MOV	D_2B48,AX
 	;--
 	RET
-C_005E	ENDP
+measureCpuSpeed	ENDP
 ;----------------------------------------
 ;new int 1Ch [determine computer speed]
 INT_00BE:
@@ -263,13 +265,14 @@ INT_00BE:
 	POP	DS
 	IRET
 ;----------------------------------------
-C_00D0	PROC NEAR
+;clear the words D_2B94, D_2B96, D_2B98 (nothing else in GAME.EXE uses them)
+clearSpareVars	PROC NEAR	;C_00D0 (2AFC:00D0)
 	XOR	AX,AX
 	MOV	D_2B94,AX
 	MOV	D_2B96,AX
 	MOV	D_2B98,AX
 	RET
-C_00D0	ENDP
+clearSpareVars	ENDP
 ;----------------------------------------
 ;a callback?
 OSI_nullCallback	PROC FAR	;C_2AFC_00E4
@@ -314,8 +317,9 @@ C_00F4:
 	INT	21h
 	JMP	$
 ;----------------------------------------
-;get file size?
-C_2AFC_0114	PROC FAR
+;size of the file DS:DX in DX:AX (open, seek to the end, close); CF set on error
+;(the loader routines from here to the end are not called by GAME.EXE)
+LOAD_size	PROC FAR	;2AFC:0114
 	MOV	AL,2
 	MOV	AH,3Dh
 	INT	21h
@@ -336,9 +340,11 @@ C_2AFC_0114	PROC FAR
 	POP	AX
 C_012A:
 	RET
-C_2AFC_0114	ENDP
+LOAD_size	ENDP
 ;----------------------------------------
-C_2AFC_0133	PROC FAR
+;read the file DS:DX into AX:0000, BX bytes (0 = 64K); returns the number of
+;bytes read in AX, CF set on error
+LOAD_toSeg	PROC FAR	;2AFC:0133
 	PUSH	DS
 	PUSH	AX
 	PUSH	BX
@@ -355,7 +361,7 @@ C_2AFC_0133	PROC FAR
 	DEC	CX
 C_0141:
 	PUSH	CX
-	CALL	C_0166
+	CALL	LOAD_read
 	POP	CX
 	JB	C_015C
 	CMP	AX,CX
@@ -365,7 +371,7 @@ C_0141:
 	PUSH	CX
 	MOV	DX,CX
 	MOV	CX,1
-	CALL	C_0166
+	CALL	LOAD_read
 	POP	AX
 C_015B:
 	CLC
@@ -379,20 +385,21 @@ C_015C:
 	POP	DS
 	RET
 ;----
-C_0166	PROC NEAR
+;DOS read (int 21h AH=3Fh), keeping BX
+LOAD_read	PROC NEAR	;C_0166 (2AFC:0166)
 	PUSH	BX
 	MOV	AH,3Fh	;read file
 	INT	21h
 	POP	BX
 	RET
-C_0166	ENDP
+LOAD_read	ENDP
 ;----
 C_016D:
 	POP	BX
 	POP	BX
 	POP	DS
 	RET
-C_2AFC_0133	ENDP
+LOAD_toSeg	ENDP
 ;----------------------------------------
 EVEN
 ;----------------------------------------
@@ -647,8 +654,11 @@ L18:	MOV	stack_count,CX
 L23:	JMP	L1
 decompress	ENDP
 
-;load & inflate?
-C_2AFC_03F0	PROC FAR
+;open the LZW compressed file DS:DX, allocate its memory and the input buffer
+;(my_alloc) and decompress it; BX = the data's segment, AX = its size, CF set
+;on error; a failed allocation ends the program ("Out of Memory...", C_00F4)
+;(as LZW_loadFile in U.EXE's SRC_U/OSILIB/LZW.ASM)
+LZW_loadFile	PROC FAR	;2AFC:03F0
 	MOV	output_segment,0
 	MOV	pDest,0
 	MOV	input_segment,0
@@ -733,10 +743,11 @@ C_048E:
 C_0497:
 	MOV	BX,pDest
 	RET
-C_2AFC_03F0	ENDP
+LZW_loadFile	ENDP
 ;----------------------------------------
-;is file name in list?
-C_049C	PROC NEAR
+;CF set when the file name DS:DX (any case) is in CompressedFileList (main.c,
+;which is empty)
+LOAD_isZFile	PROC NEAR	;C_049C (2AFC:049C)
 	PUSH	BX
 	PUSH	SI
 	PUSH	DI
@@ -777,16 +788,18 @@ C_04D5:
 	POP	SI
 	POP	BX
 	RET
-C_049C	ENDP
+LOAD_isZFile	ENDP
 ;----------------------------------------
-;..uncalled load function..
-C_2AFC_04E1	PROC FAR
-	CALL	C_049C	;is file name in list?
+;load the file DS:DX into memory it allocates: LZW_loadFile when LOAD_isZFile,
+;else LOAD_size + LOAD_toSeg; BX = segment, AX = size, CF set on error (not
+;called by GAME.EXE)
+LOAD_file	PROC FAR	;2AFC:04E1
+	CALL	LOAD_isZFile
 	JNB	C_04E3
-	JMP	C_2AFC_03F0	;load & inflate?
+	JMP	LZW_loadFile
 C_04E3:	;--
 	PUSH	DX
-	CALL	C_2AFC_0114	;get file size?
+	CALL	LOAD_size
 	JB	C_052C
 	PUSH	AX
 	OR	AX,AX
@@ -809,7 +822,7 @@ C_0501:
 	POP	DX
 	PUSH	BX
 	PUSH	AX
-	CALL	C_2AFC_0133
+	CALL	LOAD_toSeg
 	POP	BX
 	POP	CX
 	JNB	C_0521
@@ -836,7 +849,7 @@ C_052D:
 	MOV	BX,1
 	STC
 	RET
-C_2AFC_04E1	ENDP
+LOAD_file	ENDP
 
 CSegEnd	SEG_2AFC_TEXT
 

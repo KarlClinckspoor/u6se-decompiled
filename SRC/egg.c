@@ -79,7 +79,7 @@ extern int16 QuanType(int16);/*QuanType*/
 extern int16 C_130F_0002(int16);
 extern int16 COMBAT_TryTeleport(int16, int16);/*COMBAT_TryTeleport*/
 extern int16 C_1DBD_18FD(int16, int16);
-extern C_2701_04A7();
+extern MUS_EventJingle();
 extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
 
 #define GetType(i) (D_9CFA[i] & 0x3ff)
@@ -313,7 +313,7 @@ extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
 				x = GetX(egg_objNum) - MapX;
 				y = GetY(egg_objNum) - MapY;
 				dir = MkDirection((x << 4) + DirOriginX, (y << 4) + DirOriginY);
-				C_2701_04A7();
+				MUS_EventJingle();
 				CON_printf(HearSomethingMsg, DirNames[dir]);
 				PromptFlag = 1;
 				EnemyWarningGiven = 1;

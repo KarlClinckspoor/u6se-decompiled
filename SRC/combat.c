@@ -191,9 +191,9 @@ extern LoadFlintlock(int16, int16);
 extern C_1DBD_4F8E(int16, int16, int16);
 extern C_1DBD_6DD9(int16);
 extern int16 GetMonsterClass(int16);/*GetMonsterClass*/
-extern C_2701_02D6(void);
-extern C_2701_0355(int16);
-extern C_2701_04D7(void);
+extern MUS_AttackedSong(void);
+extern MUS_CombatEndSong(int16);
+extern MUS_CombatSong(void);
 extern MUS_PlaySfx(int16);/*MUS_PlaySfx*/
 extern int16 Missiles(int16, int16, int16, int16 *, int16 *, int16, int16, int16);/*Missiles*/
 extern int16 far *Explosion(int16, int16, int16);/*Explosion(x, y, tile): list of the objects hit, -1 terminated*/
@@ -399,7 +399,7 @@ COMBAT_beginAttacked(void);
 /*object firing the current missile (-1: none); lets Missiles() find
   the object hit at the impact tile (MissileHitObj)*/
 /*0DE2*/int16 MissileShooter = -1;
-/*how the current combat goes, for the music at its end (C_2701_0355):
+/*how the current combat goes, for the music at its end (MUS_CombatEndSong):
   -1 a party member died, 1 an enemy died, 0 nothing yet*/
 /*0DE4*/int16 CombatOutcome = 0;
 
@@ -539,7 +539,7 @@ COMBAT_beginAttacked(void);
 	GR_PUT_TILE_SCREEN(0x177, 64, 0);
 	GR_PUT_TILE_SCREEN(0x178, 80, 0);
 	CON_mouseOn(mouseSave);
-	C_2701_04D7();
+	MUS_CombatSong();
 }
 
 /*leave combat mode: party members follow again (or stay put in solo
@@ -574,7 +574,7 @@ COMBAT_beginAttacked(void);
 	GR_PUT_TILE_SCREEN(0x173, 64, 0);
 	GR_PUT_TILE_SCREEN(0x174, 80, 0);
 	CON_mouseOn(mouseSave);
-	C_2701_0355(CombatOutcome);
+	MUS_CombatEndSong(CombatOutcome);
 	CombatOutcome = 0;
 	PassTime(1);
 	if(StatusDisplay == 0x92) {
@@ -3055,5 +3055,5 @@ COMBAT_beginAttacked(void);
 	GR_PUT_TILE_SCREEN(0x177, 64, 0);
 	GR_PUT_TILE_SCREEN(0x178, 80, 0);
 	CON_mouseOn(mouseSave);
-	C_2701_02D6();
+	MUS_AttackedSong();
 }

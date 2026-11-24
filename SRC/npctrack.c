@@ -97,7 +97,7 @@ extern SetActive(int16);/*SetActive(partyIdx)*/
 extern SetPartyMode();/*SetPartyMode*/
 extern NextArea();/*NextArea*/
 extern int16 SearchArea(int16, int16, int16, int16);/*SearchArea(x1, y1, x2, y2)*/
-extern C_2701_0556();/*the Avatar died (U6: PartyDeath)*/
+extern PartyUnconscious();/*the Avatar is knocked out (U6: PartyDeath)*/
 extern TALK_talkTo(int16, int16, int16);/*TALK_talkTo(partyId, objNum, showName)*/
 extern PassTime(int16);/*PassTime(minutes)*/
 extern C_08CB_0855(int16);/*goes through the entrance objNum (cave, stairs...)*/
@@ -2505,7 +2505,7 @@ c_0faa:
 
 /*check who the player controls:
  - in a vehicle, actor 0 (the vehicle) is kept healthy;
- - the Avatar (object 1) dead -> C_2701_0556;
+ - the Avatar (object 1) dead -> PartyUnconscious;
  - if the active member is asleep/paralyzed/dead/dragged under/charmed,
    control goes to the next able member (in solo mode: back to party mode);
  - out of combat, control goes back to the Avatar as soon as he is able
@@ -2522,7 +2522,7 @@ c_0faa:
 		SetAlignment(0, 0x40/*GOOD*/);
 	}
 	if(IsDead(1))
-		C_2701_0556();
+		PartyUnconscious();
 	if(SoloMember >= 0) {
 		if(IsIncapacitated(Party[Active]) || IsDraggedUnder(Party[Active]) || IsCharmed(Party[Active]))
 			SetPartyMode();

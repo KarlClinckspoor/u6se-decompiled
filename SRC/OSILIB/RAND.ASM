@@ -7,7 +7,8 @@ DSegEnd
 
 CSegStart	SEG_2B57_TEXT
 	
-C_2B57_0002	PROC FAR
+;one step of the generator: seed (D_2BE4:D_2BE2) *= 65539; AX = the high word
+randStep	PROC FAR	;2B57:0002
 	MOV	CX,D_2BE2
 	MOV	BX,CX
 	MOV	AX,D_2BE4
@@ -19,14 +20,14 @@ C_2B57_0002	PROC FAR
 	MOV	D_2BE2,CX
 	MOV	D_2BE4,AX
 	RET
-C_2B57_0002	ENDP
+randStep	ENDP
 
 PUBLIC OSI_rand
 OSI_rand	PROC FAR	;2B57:001F
 	PUSH	BP
 	MOV	BP,SP
 	;--
-	CALL	C_2B57_0002
+	CALL	randStep
 	;--
 	MOV	BX,[BP+06]
 	MOV	CX,[BP+08]

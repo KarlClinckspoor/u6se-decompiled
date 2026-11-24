@@ -14,7 +14,7 @@
  * bedroll (object 0xF6) while the time passes (20 minutes per step); a long
  * enough rest lets the members who have the experience for it go up a
  * level through a dream (REST_LevelUp). At the end, in the morning, the
- * dawn song plays (C_2701_023F).
+ * dawn song plays (MUS_MorningSong).
  */
 #include "se.h"
 
@@ -60,7 +60,7 @@ extern int16 MaxHP(int16);/*MaxHP*/
 extern SetTypeUnconscious(int16);/*puts an NPC to sleep (U6: SetTypeUnconscious?)*/
 extern int16 COMBAT_canSee(int16, int16);/*(U6: COMBAT_canSee)*/
 extern ShowPortrait(int16);
-extern C_2701_023F();/*plays the morning song*/
+extern MUS_MorningSong();/*plays the morning song*/
 extern ClearMapWindow(int16);
 extern char far NotOnShipMsg[];/*NotOnShipMsg*/
 extern char far NotInSoloMsg[];/*NotInSoloMsg*/
@@ -530,5 +530,5 @@ static /*C_29D8_0081*/TryEat(int16 partyNum) {
 	DisplayTick();
 	CON_mouseOn(mouseState);
 	if(SoundFlag && soundCard != 3)
-		C_2701_023F();
+		MUS_MorningSong();
 }
