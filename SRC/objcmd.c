@@ -378,7 +378,7 @@ void FireSpreadQ1(int16, int16, int16);
 	RefreshStatus();
 
 /*who uses objNum: the NPC holding it (OBJ_GetHolderNPC), or the active party
-  member when no NPC holds it*/
+ member when no NPC holds it*/
 /*C_1DBD_0003*/unsigned char GetObjUser(int16 objNum) {
 	int16 holder;
 
@@ -388,7 +388,7 @@ void FireSpreadQ1(int16, int16, int16);
 }
 
 /*cut scene 1 (MIDGAME1): Aiela (NPC 2) joins, Darden (0x17) attacks, the
-  area's eggs hatch, combat begins*/
+ area's eggs hatch, combat begins*/
 /*C_1DBD_002E*/void Cutscene1() {
 	unsigned char text[4];
 
@@ -421,7 +421,7 @@ void FireSpreadQ1(int16, int16, int16);
 }
 
 /*cut scene 2 (MIDGAME2, an object put on the gem stand): waits until 12:00,
-  makes the trap door (0xA0) at (0xC0, 0x1CC, 0), sets NPC 1's flag 1*/
+ makes the trap door (0xA0) at (0xC0, 0x1CC, 0), sets NPC 1's flag 1*/
 /*C_1DBD_01A0*/void Cutscene2() {
 	unsigned char text[4];
 
@@ -443,8 +443,8 @@ void FireSpreadQ1(int16, int16, int16);
 }
 
 /*cut scene 3 (MIDGAME3, the control panel 0xDE destroyed: LoseHP):
-  Yunapotli and others die, Johann returns and joins, 24 hours pass, the
-  robosaurs (0x129), argent sergeants (0x12D) and their eggs are removed*/
+ Yunapotli and others die, Johann returns and joins, 24 hours pass, the
+ robosaurs (0x129), argent sergeants (0x12D) and their eggs are removed*/
 /*C_1DBD_0304*/void Cutscene3() {
 	unsigned char text[4];
 	int16 x, y, z;
@@ -509,7 +509,7 @@ void FireSpreadQ1(int16, int16, int16);
 }
 
 /*cut scene 4 (MIDGAME4, the drum with all the tribes allied): the party
-  goes to (0xF3, 0xCC, 1), where the rope (0x16) becomes climbable*/
+ goes to (0xF3, 0xCC, 1), where the rope (0x16) becomes climbable*/
 /*C_1DBD_05DC*/void Cutscene4() {
 	unsigned char text[4];
 	int16 item, obj;
@@ -622,7 +622,7 @@ void FireSpreadQ1(int16, int16, int16);
 }
 
 /*is tileNum a shore tile (0x20..0x2f, 0xbe; LOOK.LZC's "shore", next to the
-   water)? (clay to dig, where a rider gets off the turtle, the raft)*/
+ water)? (clay to dig, where a rider gets off the turtle, the raft)*/
 /*C_1DBD_0A29*/IsShoreTile(register int16 tileNum) {
 	return (tileNum >= 0x20 && tileNum <= 0x2f) || tileNum == 0xbe;
 }
@@ -1137,9 +1137,9 @@ void FireSpreadQ1(int16, int16, int16);
 }
 
 /*can an object be put at (x, y)? 0 when the map tile and every object
-  there are impassable (terrain bit 0x02) with none of the bits 0x10, 0x20,
-  0x40, 0x80, else 1 (Martian Dreams' CanPlaceObjAt; U6's IsBlockedAt, the
-  other way round)*/
+ there are impassable (terrain bit 0x02) with none of the bits 0x10, 0x20,
+ 0x40, 0x80, else 1 (Martian Dreams' CanPlaceObjAt; U6's IsBlockedAt, the
+ other way round)*/
 /*C_1DBD_1848*/CanPlaceObjAt(int16 x, int16 y) {
 	int16 flags, obj;
 
@@ -1155,8 +1155,8 @@ void FireSpreadQ1(int16, int16, int16);
 }
 
 /*is (x, y) water or a similar tile (terrain bits 0x01 and 0x02,
-  IsLavaTile or IsCliffTile) with no object on it? An object dropped, moved
-  or thrown there is lost*/
+ IsLavaTile or IsCliffTile) with no object on it? An object dropped, moved
+ or thrown there is lost*/
 /*C_1DBD_18FD*/IsObjLostAt(int16 x, int16 y) {
 	int16 flags, tile;
 
@@ -1849,8 +1849,8 @@ void FireSpreadQ1(int16, int16, int16);
 }
 
 /*does a dexterity check fail? (unused; the code of FailsStrCheck. Ultima VI
-  has FailsDexCheck and FailsIntCheck in this order; which of the two
-  unused checks is which cannot be told from the code)*/
+ has FailsDexCheck and FailsIntCheck in this order; which of the two
+ unused checks is which cannot be told from the code)*/
 /*C_1DBD_3275*/FailsDexCheck(int16 value) {
 	return OSI_rand(1, 30) < ((45 - value) / 2);
 }
@@ -2035,8 +2035,8 @@ void FireSpreadQ1(int16, int16, int16);
 }
 
 /*use the rock hammer (0x1D) or metal hammer (0x77) objNum on a blue boulder
-  (0xac: a blue stone, 0x3a, flakes off unless a strength check fails) or on
-  burnt logs (0xcf frame 0: makes charcoal, 0x81)*/
+ (0xac: a blue stone, 0x3a, flakes off unless a strength check fails) or on
+ burnt logs (0xcf frame 0: makes charcoal, 0x81)*/
 /*C_1DBD_3866*/void UseHammer(int16 objNum) {
 	int16 ch, targetTyp, x, y;
 	unsigned char qty;
@@ -2247,7 +2247,7 @@ void FireSpreadQ1(int16, int16, int16);
 }
 
 /*Ultima VI's DestroyGargoyleEggs, emptied: looks at the eggs (0xe6) within
-  20 tiles of (x, y), and does nothing more; not called*/
+ 20 tiles of (x, y), and does nothing more; not called*/
 /*C_1DBD_3F24*/static void DestroyGargoyleEggs(int16 x, int16 y) {
 	int16 egg, content;
 
@@ -2310,8 +2310,8 @@ void FireSpreadQ1(int16, int16, int16);
 /*1273*/signed char NeighbourDY[] = {-1, -1, 0, 1, 1, 1, 0, -1};
 
 /*can the party (Party[0]) move to one of the 8 tiles around (x, y)? (Ultima
-  VI's CanLeaveVehicleAt without the ship; the vehicle argument is unused;
-  not called)*/
+ VI's CanLeaveVehicleAt without the ship; the vehicle argument is unused;
+ not called)*/
 /*C_1DBD_4089*/CanLeaveVehicleAt(int16 x, int16 y, int16 unused) {
 	int16 i;
 
@@ -2383,7 +2383,7 @@ void FireSpreadQ1(int16, int16, int16);
 }
 
 /*can objNum not be used from a vehicle? always 0 (Ultima VI's
-  IsNotUsableInVehicle, in the same place of CmdUse)*/
+ IsNotUsableInVehicle, in the same place of CmdUse)*/
 /*C_1DBD_428E*/IsNotUsableInVehicle(int16 objNum) {
 	return 0;
 }
@@ -2475,10 +2475,10 @@ void FireSpreadQ1(int16, int16, int16);
 }
 
 /*use a heat source (a lit object of the active member, lava, a lit brazier
-  0xba, burning logs, an oven 0xad, a fire 0xf2/0xfe, a fire pit 0x101) on
-  something: fire a soft pot (0x84 -> 0x85), cook corn flour into tortillas
-  (0x5d -> 0x66), make charcoal (0xce -> 10 x 0x81), burn the types of
-  IsFlammableType, or set off gunpowder (0xcc)*/
+ 0xba, burning logs, an oven 0xad, a fire 0xf2/0xfe, a fire pit 0x101) on
+ something: fire a soft pot (0x84 -> 0x85), cook corn flour into tortillas
+ (0x5d -> 0x66), make charcoal (0xce -> 10 x 0x81), burn the types of
+ IsFlammableType, or set off gunpowder (0xcc)*/
 /*C_1DBD_458F*/void UseHeatSource() {
 	int16 ch, x, y;
 	unsigned char qty;
@@ -2685,9 +2685,9 @@ void FireSpreadQ1(int16, int16, int16);
 }
 
 /*a round of a spreading fire: the fire obj (quality 0) at (x, y) burns;
-  then every fire (0xf2) of quality 0 burns, then the first one of quality
-  1 starts the next round (FireSpreadQ1). (Martian Dreams' FireSpread, which
-  has both in one function)*/
+ then every fire (0xf2) of quality 0 burns, then the first one of quality
+ 1 starts the next round (FireSpreadQ1). (Martian Dreams' FireSpread, which
+ has both in one function)*/
 /*C_1DBD_4F8E*/void FireSpread(int16 x, int16 y, int16 obj) {
 	int16 i;
 
@@ -2842,7 +2842,7 @@ void FireSpreadQ1(int16, int16, int16);
 }
 
 /*use the tar pit (0xe5): the active member (or the one shown) tars cloth
-  strips (0x86 -> 0xbf)*/
+ strips (0x86 -> 0xbf)*/
 /*C_1DBD_5641*/void UseTarPit() {
 	int16 ch, targetTyp, x, y;
 	int16 actor, n;
@@ -3413,8 +3413,8 @@ void FireSpreadQ1(int16, int16, int16);
 }
 
 /*use the door 0x113 objNum: switch it (frame 1 <-> 3); opened within 2
-  tiles of Aiela (NPC 2) while NPC 1's flag 0 is clear, it starts the first
-  cut scene (Cutscene1)*/
+ tiles of Aiela (NPC 2) while NPC 1's flag 0 is clear, it starts the first
+ cut scene (Cutscene1)*/
 /*C_1DBD_6AD8*/void ToggleDoor(register int16 objNum) {
 	int16 dx, dy, dz;
 	register int16 frm;
@@ -3496,8 +3496,8 @@ void FireSpreadQ1(int16, int16, int16);
 }
 
 /*npc gets on the turtle: moves to (x, y), becomes a rider (0x133) facing
-  frame, and the map follows (Ultima VI's MountHorse; the last argument is
-  unused)*/
+ frame, and the map follows (Ultima VI's MountHorse; the last argument is
+ unused)*/
 /*C_1DBD_6D95*/void MountTurtle(int16 npc, int16 x, int16 y, int16 frame, int16 unused) {
 	MoveObj(npc, x, y, MapZ);
 	ObjShapeType[npc] = 0x133 | frame << 10;
@@ -3508,8 +3508,8 @@ void FireSpreadQ1(int16, int16, int16);
 }
 
 /*npc gets off the turtle onto the land next to it (the tiles of
-  IsShoreTile); a turtle (0x12e) is made where it was (Ultima VI's
-  DismountHorse)*/
+ IsShoreTile); a turtle (0x12e) is made where it was (Ultima VI's
+ DismountHorse)*/
 /*C_1DBD_6DD9*/void DismountTurtle(int16 npc) {
 	int16 dirFrm, typ, x, y, dir, tx, ty, turtle, done;
 	register int16 i, j;
@@ -3771,7 +3771,7 @@ void FireSpreadQ1(int16, int16, int16);
 }
 
 /*use the doors 0xa1 objNum: they slide open (are deleted) when Yunapotli
-  (NPC 11) is in the party and within 5x4 tiles of the view's centre*/
+ (NPC 11) is in the party and within 5x4 tiles of the view's centre*/
 /*C_1DBD_7800*/void UseYunapotliDoors(int16 objNum) {
 	int16 opened;
 
@@ -3804,7 +3804,7 @@ void FireSpreadQ1(int16, int16, int16);
 }
 
 /*use the jug of plachta (0x3f) objNum on a spear (0x1a): one spear becomes
-  a spear of Shamap (0x01), and the jug is used up*/
+ a spear of Shamap (0x01), and the jug is used up*/
 /*C_1DBD_78EC*/UsePlachta(int16 objNum) {
 	int16 ch, targetTyp, x, unused8, unusedA, inside;
 	register int16 actor, y;

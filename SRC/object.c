@@ -543,8 +543,8 @@ int16 QuanType(int16);
 }
 
 /*is objNum within 5 tiles horizontally and 4 vertically of the party (on
-   screen)? (Martian Dreams' OBJ_IsOnScreen, without its cases for double
-   tiles)*/
+  screen)? (Martian Dreams' OBJ_IsOnScreen, without its cases for double
+  tiles)*/
 /*C_0A5D_0613*/OBJ_IsOnScreen(int16 objNum) {
 	register int16 x, y;
 
@@ -618,8 +618,8 @@ int16 QuanType(int16);
 }
 
 /*an object of type objTyp, not equipped, somewhere inside the map object
-   objNum (at any depth); -1 if none (Martian Dreams' FindInvOfType, without
-   its cursor and type 0 wildcard; used for ammunition and gunpowder)*/
+  objNum (at any depth); -1 if none (Martian Dreams' FindInvOfType, without
+  its cursor and type 0 wildcard; used for ammunition and gunpowder)*/
 /*C_0A5D_080A*/FindInvOfType(int16 objNum, int16 objTyp) {
 	int16 unused;
 	register int16 obj, holder;
@@ -778,7 +778,7 @@ int16 QuanType(int16);
 }
 
 /*delete the other parts of the creature objNum made of several objects
-   (the dinosaurs): the objects of its part types whose quality is objNum*/
+  (the dinosaurs): the objects of its part types whose quality is objNum*/
 /*C_0A5D_0CB1*/OBJ_DeleteCreatureParts(int16 objNum) {
 	register int16 i, typ;
 	int16 objTyp, type0, type1, type2, maxCount, count;
@@ -1122,7 +1122,7 @@ int16 QuanType(int16);
 }
 
 /*make objNum (again) an object of an inventory: status, owner, shape and
-   amount (marks the equipment view dirty); not called*/
+  amount (marks the equipment view dirty); not called*/
 /*C_0A5D_16BE*/OBJ_SetInvObj(register int16 objNum, int16 shapeType, int16 status, int16 amount, int16 owner) {
 	if(objNum < 0)
 		return;

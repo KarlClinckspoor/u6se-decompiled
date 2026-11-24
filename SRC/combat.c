@@ -955,8 +955,8 @@ COMBAT_beginAttacked(void);
 };
 
 /*is the tile a cliff (TileClass1: the tiles LOOK.LZC calls "cliff", a few
-   "rock outcropping")? A boulder on one rolls on to the south-east; a thrown
-   object landing on one is lost; gray in the peer map*/
+  "rock outcropping")? A boulder on one rolls on to the south-east; a thrown
+  object landing on one is lost; gray in the peer map*/
 /*C_1810_0F71*/IsCliffTile(int16 tile) {
 	int16 i;
 
@@ -967,7 +967,7 @@ COMBAT_beginAttacked(void);
 }
 
 /*is the tile in TileClass2 (cliff and outcrop tiles)? A rolling boulder
-   does not enter one moving south; a boulder pushed north onto one rolls on*/
+  does not enter one moving south; a boulder pushed north onto one rolls on*/
 /*C_1810_0F98*/IsCliffEdgeS(int16 tile) {
 	int16 i;
 
@@ -978,7 +978,7 @@ COMBAT_beginAttacked(void);
 }
 
 /*is the tile in TileClass3 (cliff and outcrop tiles)? A rolling boulder
-   does not enter one moving east; a boulder pushed west onto one rolls on*/
+  does not enter one moving east; a boulder pushed west onto one rolls on*/
 /*C_1810_0FBF*/IsCliffEdgeE(int16 tile) {
 	int16 i;
 
@@ -989,7 +989,7 @@ COMBAT_beginAttacked(void);
 }
 
 /*does the terrain tile stop a pushed boulder (0x90-0xC5: walls, rocks,
-   stepping stones, trees; or IsTreeTile)?*/
+  stepping stones, trees; or IsTreeTile)?*/
 /*C_1810_0FE6*/IsBoulderStopTile(int16 tile) {
 	if(
 		tile == 0x90 || tile == 0x91 || tile == 0x92 || tile == 0x95 ||
@@ -1002,8 +1002,8 @@ COMBAT_beginAttacked(void);
 }
 
 /*is the 2x2 square whose bottom right corner is (x,y) blocked for a
-   boulder (0xA7), by the terrain or by fallen trees and waterfalls (objects
-   0x104-0x10A, 0x96, 0x97)?*/
+  boulder (0xA7), by the terrain or by fallen trees and waterfalls (objects
+  0x104-0x10A, 0x96, 0x97)?*/
 /*C_1810_103F*/BoulderBlockedAt(int16 x, int16 y) {
 	int16 obj, j;
 	int16 i, objType;
@@ -1095,7 +1095,7 @@ COMBAT_beginAttacked(void);
 }
 
 /*does a boulder fall in water? if a tile of its 2x2 square is water (0x0C
-   or 0x0F), it stops being temporary (returns 1)*/
+  or 0x0F), it stops being temporary (returns 1)*/
 /*C_1810_1327*/BoulderInWater(int16 objNum) {
 	int16 x, y, tile;
 	int16 i, j;
@@ -1115,9 +1115,9 @@ COMBAT_beginAttacked(void);
 }
 
 /*move a boulder (quality 1: stuck) to (x,y), unless the place is blocked
-   (and force is not 1); a boulder that lands above a waterfall (0x96) plugs
-   it: it gets stuck and removes the objects 0x96/0x97/0xC3/0x98 around (and
-   otherObj)*/
+  (and force is not 1); a boulder that lands above a waterfall (0x96) plugs
+  it: it gets stuck and removes the objects 0x96/0x97/0xC3/0x98 around (and
+  otherObj)*/
 /*C_1810_13B1*/BoulderMoveTo(int16 obj, int16 x, int16 y, int16 mode, int16 force, int16 otherObj) {
 	if(!((GetQual(obj) == 1 || BoulderBlockedAt(x, y)) && force != 1)) {
 		if(BoulderLandsAt(x, y, obj, mode) == 1 || force == 1) {
@@ -1147,7 +1147,7 @@ COMBAT_beginAttacked(void);
 }
 
 /*push the boulder obj away from (px,py), the pusher's position (a blast:
-   objcmd.c's AfterExplosion); it rolls on over cliffs; 0 if it is stuck*/
+  objcmd.c's AfterExplosion); it rolls on over cliffs; 0 if it is stuck*/
 /*C_1810_14EA*/PushBoulder(int16 px, int16 py, int16 obj) {
 	int16 dy, dx, done, dirs, pushN, pushW, inPit, i, j, moved, otherObj;
 	int16 x, y;
@@ -1251,7 +1251,7 @@ COMBAT_beginAttacked(void);
 }
 
 /*a grenade (object 0x89/0x8A) explodes at (x,y): hurts every actor around
-   (1d20), then AfterExplosion*/
+  (1d20), then AfterExplosion*/
 /*C_1810_1941*/GrenadeBlast(int16 x, int16 y) {
 	int16 far *list;
 
@@ -1265,7 +1265,7 @@ COMBAT_beginAttacked(void);
 }
 
 /*a device (object 0xF0/0xF1) explodes at (x,y): hurts only the Myrmidex
-   (types 0x143/0x148) around (1d35), then AfterExplosion*/
+  (types 0x143/0x148) around (1d35), then AfterExplosion*/
 /*C_1810_19C1*/DeviceBlast(int16 x, int16 y) {
 	int16 far *list;
 	int16 objType;
@@ -1567,9 +1567,9 @@ COMBAT_beginAttacked(void);
 };
 
 /*damage to the carnivorous orchid, a creature made of segments (core 0x124,
-   an NPC, and tips 0x11A): the core passes half the damage to every tip; a
-   tip that dies removes the vine segments that follow it; when the last one
-   is gone the orchid dies. returns 10 (experience) when it dies (LoseHP)*/
+  an NPC, and tips 0x11A): the core passes half the damage to every tip; a
+  tip that dies removes the vine segments that follow it; when the last one
+  is gone the orchid dies. returns 10 (experience) when it dies (LoseHP)*/
 /*C_1810_22F0*/OrchidLoseHP(int16 objNum, int16 damage) {
 	int16 objType, i, x, y, obj, dir;
 	int16 head;
@@ -2510,10 +2510,10 @@ COMBAT_beginAttacked(void);
 }
 
 /*where an NPC throws an explosive: the tile in the 11x9 area around the
-   active party member with the most enemies in the 3x3 square around it
-   (the centre counts twice); with notAllies 0 (a grenade) the square must
-   not hold the thrower or a party ally, with 1 (a device) only the types
-   0x143/0x148 (Myrmidex) count. returns an object at the centre, -1 if none*/
+  active party member with the most enemies in the 3x3 square around it
+  (the centre counts twice); with notAllies 0 (a grenade) the square must
+  not hold the thrower or a party ally, with 1 (a device) only the types
+  0x143/0x148 (Myrmidex) count. returns an object at the centre, -1 if none*/
 /*C_1810_4561*/COMBAT_PickBlastTarget(int16 objNum, int16 notAllies) {
 	int16 i, j, x, y, px, py, tx, ty, best, center, leader, bestCount, dx, dy, bad;
 	int16 obj, count;
@@ -2616,8 +2616,8 @@ COMBAT_beginAttacked(void);
 }
 
 /*choose a ranged weapon (range 3 or more) for an NPC that keeps its
-   distance: the longest range until one reaches the opponent, then the
-   best damage; -1 if none (Martian Dreams' COMBAT_PickRangedWeapon)*/
+  distance: the longest range until one reaches the opponent, then the
+  best damage; -1 if none (Martian Dreams' COMBAT_PickRangedWeapon)*/
 /*C_1810_4968*/COMBAT_PickRangedWeapon(int16 att_objNum, int16 opp_objNum) {
 	int16 opp_x, opp_y, att_x, att_y, ret, dmg, max_dmg, itemTyp, range, wrange, oppTyp;
 	int16 maxRange, i;
