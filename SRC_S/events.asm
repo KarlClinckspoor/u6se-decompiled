@@ -1,8 +1,8 @@
 ;----------------------------------------
 ;SAVAGE.EXE segment 07D9: events: the timer tick (int 8) handler and its callbacks,
 ;the keyboard (Escape, Alt-X, Ctrl-Alt-Del), the mouse, and a queue of input events
-;(16 bytes each). A library module (Origin's, pascal); SAVAGE.EXE uses only C_07D9_07A7
-;and the Escape flag _C_07D9_0021.
+;(16 bytes each). A library module (Origin's, pascal); SAVAGE.EXE uses only EvtCheckAltX
+;(OSILIB/MOUSEVT.ASM) and the Escape flag _C_07D9_0021 (title.c).
 ;(the relocations show that TASM wrote these fixups in another order than MASM:)
 ;TASM fixup order: 026D 0276 0251 0588 04FA 086C 089C 08C8 0825
 ;----------------------------------------
@@ -84,9 +84,9 @@ EXTRN keyDown:BYTE	;the keyboard: a byte per scan code, 1 while the key is down
 EVENTS_TEXT	SEGMENT PUBLIC WORD 'CODE'
 	ASSUME CS:EVENTS_TEXT,DS:DGROUP
 
-PUBLIC _C_07D9_0021,C_07D9_07A7
+PUBLIC _C_07D9_0021,EvtCheckAltX
 ;(the far pointers start as DGROUP:0000: their segment word is relocated)
-cv_0002	dw 0	;07D9:0002 called by C_07D9_07A7 after Alt-X
+cv_0002	dw 0	;07D9:0002 called by EvtCheckAltX after Alt-X
 cv_0004	dw DGROUP
 cv_0006	dw 0	;07D9:0006 the previous timer handler
 cv_0008	dw DGROUP
@@ -110,13 +110,13 @@ cv_0026	dw 0	;07D9:0026
 cv_0028	dw 0	;07D9:0028 1: installed
 
 ;the default callback: does nothing
-	PUBLIC	C_07D9_002A
-C_07D9_002A	PROC FAR	;07D9:002A
+	PUBLIC	EvtNoCallback
+EvtNoCallback	PROC FAR	;07D9:002A
 	RET	;002A
-C_07D9_002A	ENDP
+EvtNoCallback	ENDP
 
 ;(near) D_2066 = the time of day in seconds (int 21h function 2Ch)
-C_07D9_002B	PROC NEAR	;07D9:002B
+EvtReadClock	PROC NEAR	;07D9:002B
 	MOV	AX,2C21h	;002B
 	INT	21h	;002E
 	XOR	AH,AH	;0030
@@ -142,12 +142,12 @@ L_005C:
 	LOOP	L_005C	;0064
 L_0066:
 	RET	;0066
-C_07D9_002B	ENDP
+EvtReadClock	ENDP
 
-;installs: (pascal) C_07D9_0067(int nEvents, void far *init, int n): calls init (2: give up),
+;installs: (pascal) EvtInstall(int nEvents, void far *init, int n): calls init (2: give up),
 ;allocates a queue of nEvents events, installs the timer handler (int 8) and the keyboard
 ;handler; returns 1
-C_07D9_0067	PROC FAR	;07D9:0067
+EvtInstall	PROC FAR	;07D9:0067
 	PUSH	BP	;0067
 	MOV	BP,SP	;0068
 	PUSH	DS	;006A
@@ -156,8 +156,8 @@ C_07D9_0067	PROC FAR	;07D9:0067
 	PUSH	ES	;006D
 	PUSHF	;006E
 	PUSH	CS	;006F
-	CALL	NEAR PTR C_07D9_01A7	;0070
-	CALL	C_07D9_002B	;0073
+	CALL	NEAR PTR EvtUninstall	;0070
+	CALL	EvtReadClock	;0073
 	LES	DI,[BP+8]	;0076
 	MOV	AX,ES	;0079
 	OR	AX,DI	;007B
@@ -206,11 +206,11 @@ L_00C8:
 	MOV	CS:cv_0024,AX	;00F9
 	MOV	WORD PTR CS:cv_0026,5	;00FD
 	MOV	BYTE PTR D_20A4+19h,AL	;0104
-	MOV	WORD PTR CS:cv_0016,OFFSET C_07D9_002A	;0107
+	MOV	WORD PTR CS:cv_0016,OFFSET EvtNoCallback	;0107
 	MOV	WORD PTR CS:cv_0018,EVENTS_TEXT	;010E
-	MOV	WORD PTR CS:cv_0012,OFFSET C_07D9_002A	;0115
+	MOV	WORD PTR CS:cv_0012,OFFSET EvtNoCallback	;0115
 	MOV	WORD PTR CS:cv_0014,EVENTS_TEXT	;011C
-	MOV	WORD PTR CS:cv_0006,OFFSET C_07D9_0587	;0123
+	MOV	WORD PTR CS:cv_0006,OFFSET EvtIret	;0123
 	MOV	WORD PTR CS:cv_0008,EVENTS_TEXT	;012A
 	INC	AX	;0131
 	MOV	CS:cv_001C,AX	;0132
@@ -225,12 +225,12 @@ L_00C8:
 	PUSH	WORD PTR D_20A4+9	;0151
 	PUSH	WORD PTR [BP+6]	;0155
 	PUSH	CS	;0158
-	CALL	NEAR PTR C_07D9_0209	;0159
+	CALL	NEAR PTR EvtMouseInit	;0159
 L_015C:
 	MOV	AX,1	;015C
 	PUSH	AX	;015F
 	PUSH	CS	;0160
-	CALL	NEAR PTR C_07D9_01CB	;0161
+	CALL	NEAR PTR EvtSetRate	;0161
 	PUSH	CS	;0164
 	MOV	AX,0Ah	;0165
 	PUSH	AX	;0168
@@ -238,7 +238,7 @@ L_015C:
 	PUSH	AX	;016B
 	MOV	AX,EVENTS_TEXT	;016C
 	PUSH	AX	;016F
-	MOV	AX,OFFSET C_07D9_0502	;0170
+	MOV	AX,OFFSET EvtTimerHandler	;0170
 	PUSH	AX	;0173
 	MOV	AX,8	;0174
 	PUSH	AX	;0177
@@ -249,7 +249,7 @@ L_015C:
 	CALL	_KeyboardInstall	;0182
 	MOV	AX,EVENTS_TEXT	;0187
 	PUSH	AX	;018A
-	MOV	AX,OFFSET C_07D9_05F5	;018B
+	MOV	AX,OFFSET EvtKeyCallback	;018B
 	PUSH	AX	;018E
 	CALL	_KeyboardSetCallback	;018F
 	ADD	SP,4	;0194
@@ -263,10 +263,10 @@ L_019E:
 	POP	DS	;01A2
 	POP	BP	;01A3
 	RET	8	;01A4
-C_07D9_0067	ENDP
+EvtInstall	ENDP
 
 ;uninstalls: frees the queue, restores the timer and keyboard handlers
-C_07D9_01A7	PROC FAR	;07D9:01A7
+EvtUninstall	PROC FAR	;07D9:01A7
 	CMP	WORD PTR CS:cv_0028,1	;01A7
 	JNZ	L_01CA	;01AD
 	MOV	AX,D_209A	;01AF
@@ -278,10 +278,10 @@ C_07D9_01A7	PROC FAR	;07D9:01A7
 	MOV	WORD PTR CS:cv_0028,0	;01C3
 L_01CA:
 	RET	;01CA
-C_07D9_01A7	ENDP
+EvtUninstall	ENDP
 
 ;(pascal) sets the rate of the timer callback (from D_2458 when it is set)
-C_07D9_01CB	PROC FAR	;07D9:01CB
+EvtSetRate	PROC FAR	;07D9:01CB
 	PUSH	BP	;01CB
 	MOV	BP,SP	;01CC
 	CMP	WORD PTR _timerRate,0	;01CE
@@ -309,10 +309,10 @@ L_01EB:
 L_0205:
 	POP	BP	;0205
 	RET	2	;0206
-C_07D9_01CB	ENDP
+EvtSetRate	ENDP
 
-;(pascal) C_07D9_0209(void far *p, int n): allocates the mouse (from p) and initialises it
-C_07D9_0209	PROC FAR	;07D9:0209
+;(pascal) EvtMouseInit(void far *p, int n): allocates the mouse (from p) and initialises it
+EvtMouseInit	PROC FAR	;07D9:0209
 	PUSH	BP	;0209
 	MOV	BP,SP	;020A
 	MOV	AX,[BP+8]	;020C
@@ -358,10 +358,10 @@ L_0244:
 L_0271:
 	POP	BP	;0271
 	RET	6	;0272
-C_07D9_0209	ENDP
+EvtMouseInit	ENDP
 
 ;frees the mouse pointer shapes, the mouse off
-C_07D9_0275	PROC FAR	;07D9:0275
+EvtMouseFree	PROC FAR	;07D9:0275
 	CALL	MOUSE_hide	;0275
 	PUSH	WORD PTR D_20A4+11h	;027A
 	PUSH	WORD PTR D_20A4+0Fh	;027E
@@ -370,12 +370,12 @@ C_07D9_0275	PROC FAR	;07D9:0275
 	MOV	BX,D_20A2	;028A
 	MOV	BYTE PTR [BX+19h],0	;028E
 	RET	;0292
-C_07D9_0275	ENDP
+EvtMouseFree	ENDP
 
-cv_0293	db 0	;07D9:0293 nonzero while C_07D9_0294 runs
+cv_0293	db 0	;07D9:0293 nonzero while EvtQueue runs
 
 ;queues an event: AX type, CX, DX (16 bytes: type, cx, dx, ticks (long), buttons, mouse x, y)
-C_07D9_0294	PROC FAR	;07D9:0294
+EvtQueue	PROC FAR	;07D9:0294
 	PUSHF	;0294
 	PUSH	AX	;0295
 	PUSH	BX	;0296
@@ -511,23 +511,23 @@ L_03C6:
 	POP	AX	;03CB
 	POPF	;03CC
 	RET	;03CD
-C_07D9_0294	ENDP
+EvtQueue	ENDP
 
-;calls C_07D9_05DC twice (AX 8888h, 0F0Fh)
-C_07D9_03CE	PROC FAR	;07D9:03CE
+;calls EvtDebugStub twice (AX 8888h, 0F0Fh)
+EvtDebugMark	PROC FAR	;07D9:03CE
 	PUSH	AX	;03CE
 	MOV	AX,8888h	;03CF
 	PUSH	CS	;03D2
-	CALL	NEAR PTR C_07D9_05DC	;03D3
+	CALL	NEAR PTR EvtDebugStub	;03D3
 	MOV	AX,0F0Fh	;03D6
 	PUSH	CS	;03D9
-	CALL	NEAR PTR C_07D9_05DC	;03DA
+	CALL	NEAR PTR EvtDebugStub	;03DA
 	POP	AX	;03DD
 	RET	;03DE
-C_07D9_03CE	ENDP
+EvtDebugMark	ENDP
 
 ;reads the mouse (int 33h function 3), queues button changes and motion; returns 1 when it changed
-C_07D9_03DF	PROC FAR	;07D9:03DF
+EvtPollMouse	PROC FAR	;07D9:03DF
 	MOV	BYTE PTR D_20C6,0	;03DF
 	MOV	BX,D_20A2	;03E4
 	CMP	BYTE PTR [BX+19h],0	;03E8
@@ -575,7 +575,7 @@ L_0435:
 	SHR	AL,1	;0443
 	ADC	AL,1	;0445
 	PUSH	CS	;0447
-	CALL	NEAR PTR C_07D9_0294	;0448
+	CALL	NEAR PTR EvtQueue	;0448
 	POP	AX	;044B
 L_044C:
 	INC	CX	;044C
@@ -588,7 +588,7 @@ L_044C:
 	SHR	AL,1	;0458
 	ADC	AL,1	;045A
 	PUSH	CS	;045C
-	CALL	NEAR PTR C_07D9_0294	;045D
+	CALL	NEAR PTR EvtQueue	;045D
 	POP	AX	;0460
 L_0461:
 	INC	CX	;0461
@@ -601,7 +601,7 @@ L_0461:
 	SHR	AL,1	;046E
 	ADC	AL,1	;0470
 	PUSH	CS	;0472
-	CALL	NEAR PTR C_07D9_0294	;0473
+	CALL	NEAR PTR EvtQueue	;0473
 L_0476:
 	CMP	BYTE PTR CS:cv_0023,1	;0476
 	JNZ	L_04AD	;047C
@@ -663,10 +663,10 @@ L_04FE:
 	MOV	AX,1	;04FE
 L_0501:
 	RET	;0501
-C_07D9_03DF	ENDP
+EvtPollMouse	ENDP
 
 ;the timer (int 8) handler: calls the previous one, counts the ticks, calls the callbacks
-C_07D9_0502	PROC FAR	;07D9:0502
+EvtTimerHandler	PROC FAR	;07D9:0502
 	PUSHF	;0502
 	PUSHF	;0503
 	CALL	DWORD PTR CS:cv_0006	;0504
@@ -690,7 +690,7 @@ C_07D9_0502	PROC FAR	;07D9:0502
 	CMP	BYTE PTR CS:cv_0023,1	;0533
 	JZ	L_055C	;0539
 	PUSH	CS	;053B
-	CALL	NEAR PTR C_07D9_03DF	;053C
+	CALL	NEAR PTR EvtPollMouse	;053C
 	CALL	DWORD PTR CS:cv_0012	;053F
 	DEC	WORD PTR CS:cv_0024	;0544
 	JNS	L_055C	;0549
@@ -718,18 +718,18 @@ L_055C:
 L_0581:
 	POPF	;0581
 	JMP	DWORD PTR CS:cv_000A	;0582
-C_07D9_0502	ENDP
+EvtTimerHandler	ENDP
 
 ;iret: the "previous" timer handler until one is installed
-C_07D9_0587	PROC FAR	;07D9:0587
+EvtIret	PROC FAR	;07D9:0587
 	IRET	;0587
-C_07D9_0587	ENDP
+EvtIret	ENDP
 
 cv_0588	dw 0	;07D9:0588
 cv_058A	dw DGROUP
 
 ;the keyboard callback: Alt-X sets cv_0020, Ctrl-Alt-Del reboots, Escape sets _C_07D9_0021
-C_07D9_058C	PROC FAR	;07D9:058C
+EvtCheckKeys	PROC FAR	;07D9:058C
 	PUSH	ES	;058C
 	PUSH	DI	;058D
 	PUSH	AX	;058E
@@ -761,15 +761,15 @@ L_05D8:
 	POP	DI	;05D9
 	POP	ES	;05DA
 	RET	;05DB
-C_07D9_058C	ENDP
+EvtCheckKeys	ENDP
 
 ;does nothing
-C_07D9_05DC	PROC FAR	;07D9:05DC
+EvtDebugStub	PROC FAR	;07D9:05DC
 	RET	;05DC
-C_07D9_05DC	ENDP
+EvtDebugStub	ENDP
 
 ;fills the first 640 words of A000h with AX
-C_07D9_05DD	PROC FAR	;07D9:05DD
+EvtFillScreen	PROC FAR	;07D9:05DD
 	PUSHF	;05DD
 	PUSH	ES	;05DE
 	PUSH	DI	;05DF
@@ -787,10 +787,10 @@ C_07D9_05DD	PROC FAR	;07D9:05DD
 	POP	ES	;05F2
 	POPF	;05F3
 	RET	;05F4
-C_07D9_05DD	ENDP
+EvtFillScreen	ENDP
 
 ;the key callback (AL = scan code): queues key events (and repeats of a held key)
-C_07D9_05F5	PROC FAR	;07D9:05F5
+EvtKeyCallback	PROC FAR	;07D9:05F5
 	PUSH	DS	;05F5
 	PUSH	AX	;05F6
 	PUSH	BX	;05F7
@@ -849,26 +849,26 @@ L_0686:
 	PUSH	AX	;068E
 	MOV	AX,8888h	;068F
 	PUSH	CS	;0692
-	CALL	NEAR PTR C_07D9_05DC	;0693
+	CALL	NEAR PTR EvtDebugStub	;0693
 	MOV	AX,0F0Fh	;0696
 	PUSH	CS	;0699
-	CALL	NEAR PTR C_07D9_05DC	;069A
+	CALL	NEAR PTR EvtDebugStub	;069A
 	POP	AX	;069D
 	PUSH	CS	;069E
-	CALL	NEAR PTR C_07D9_0294	;069F
+	CALL	NEAR PTR EvtQueue	;069F
 L_06A2:
 	PUSH	CS	;06A2
-	CALL	NEAR PTR C_07D9_058C	;06A3
+	CALL	NEAR PTR EvtCheckKeys	;06A3
 	POP	DX	;06A6
 	POP	CX	;06A7
 	POP	BX	;06A8
 	POP	AX	;06A9
 	POP	DS	;06AA
 	RET	;06AB
-C_07D9_05F5	ENDP
+EvtKeyCallback	ENDP
 
 ;empties the queue
-C_07D9_06AC	PROC FAR	;07D9:06AC
+EvtFlush	PROC FAR	;07D9:06AC
 	PUSHF	;06AC
 	CLI	;06AD
 	MOV	AX,D_209A	;06AE
@@ -879,10 +879,10 @@ C_07D9_06AC	PROC FAR	;07D9:06AC
 	MOV	D_2094,AX	;06C0
 	POPF	;06C3
 	RET	;06C4
-C_07D9_06AC	ENDP
+EvtFlush	ENDP
 
 ;queues an event for each key held down (but Ctrl and Alt)
-C_07D9_06C5	PROC FAR	;07D9:06C5
+EvtQueueHeldKeys	PROC FAR	;07D9:06C5
 	PUSH	SI	;06C5
 	PUSH	DI	;06C6
 	PUSHF	;06C7
@@ -902,7 +902,7 @@ L_06D8:
 	JZ	L_06EF	;06E5
 	MOV	AL,3	;06E7
 	PUSH	CS	;06E9
-	CALL	NEAR PTR C_07D9_0294	;06EA
+	CALL	NEAR PTR EvtQueue	;06EA
 	XOR	AL,AL	;06ED
 L_06EF:
 	LOOP	L_06D8	;06EF
@@ -910,10 +910,10 @@ L_06EF:
 	POP	DI	;06F2
 	POP	SI	;06F3
 	RET	;06F4
-C_07D9_06C5	ENDP
+EvtQueueHeldKeys	ENDP
 
 ;finds the first queued event of type AL: SI (AX 0: none)
-C_07D9_06F5	PROC FAR	;07D9:06F5
+EvtFind	PROC FAR	;07D9:06F5
 	PUSH	BX	;06F5
 	MOV	BL,CS:cv_0023	;06F6
 	MOV	BYTE PTR CS:cv_0023,1	;06FB
@@ -937,10 +937,10 @@ L_0722:
 	MOV	CS:cv_0023,BL	;0722
 	POP	BX	;0727
 	RET	;0728
-C_07D9_06F5	ENDP
+EvtFind	ENDP
 
-;(pascal) C_07D9_0729(event *e, int type): copies the first event of that type
-C_07D9_0729	PROC FAR	;07D9:0729
+;(pascal) EvtPeek(event *e, int type): copies the first event of that type
+EvtPeek	PROC FAR	;07D9:0729
 	PUSH	BP	;0729
 	MOV	BP,SP	;072A
 	PUSH	SI	;072C
@@ -948,7 +948,7 @@ C_07D9_0729	PROC FAR	;07D9:0729
 	PUSH	ES	;072E
 	MOV	AX,[BP+6]	;072F
 	PUSH	CS	;0732
-	CALL	NEAR PTR C_07D9_06F5	;0733
+	CALL	NEAR PTR EvtFind	;0733
 	OR	AX,AX	;0736
 	JZ	L_0744	;0738
 	PUSH	DS	;073A
@@ -962,10 +962,10 @@ L_0744:
 	POP	SI	;0746
 	POP	BP	;0747
 	RET	4	;0748
-C_07D9_0729	ENDP
+EvtPeek	ENDP
 
-;(pascal) C_07D9_074B(event *e, int type): takes the first event of that type out of the queue
-C_07D9_074B	PROC FAR	;07D9:074B
+;(pascal) EvtTake(event *e, int type): takes the first event of that type out of the queue
+EvtTake	PROC FAR	;07D9:074B
 	PUSH	BP	;074B
 	MOV	BP,SP	;074C
 	PUSH	SI	;074E
@@ -973,7 +973,7 @@ C_07D9_074B	PROC FAR	;07D9:074B
 	PUSH	ES	;0750
 	MOV	AX,[BP+6]	;0751
 	PUSH	CS	;0754
-	CALL	NEAR PTR C_07D9_06F5	;0755
+	CALL	NEAR PTR EvtFind	;0755
 	OR	AX,AX	;0758
 	JZ	L_076E	;075A
 	MOV	WORD PTR [SI],0FFFFh	;075C
@@ -990,10 +990,10 @@ L_076E:
 	POP	SI	;0770
 	POP	BP	;0771
 	RET	4	;0772
-C_07D9_074B	ENDP
+EvtTake	ENDP
 
 ;(pascal) removes all the events of a type
-C_07D9_0775	PROC FAR	;07D9:0775
+EvtDiscard	PROC FAR	;07D9:0775
 	PUSH	BP	;0775
 	MOV	BP,SP	;0776
 	PUSH	SI	;0778
@@ -1002,7 +1002,7 @@ C_07D9_0775	PROC FAR	;07D9:0775
 L_077B:
 	MOV	AX,[BP+6]	;077B
 	PUSH	CS	;077E
-	CALL	NEAR PTR C_07D9_06F5	;077F
+	CALL	NEAR PTR EvtFind	;077F
 	OR	AX,AX	;0782
 	JZ	L_078C	;0784
 	MOV	WORD PTR [SI],0FFFFh	;0786
@@ -1013,10 +1013,10 @@ L_078C:
 	POP	SI	;078E
 	POP	BP	;078F
 	RET	2	;0790
-C_07D9_0775	ENDP
+EvtDiscard	ENDP
 
 ;(pascal) whether an event of a type is queued
-C_07D9_0793	PROC FAR	;07D9:0793
+EvtPending	PROC FAR	;07D9:0793
 	PUSH	BP	;0793
 	MOV	BP,SP	;0794
 	PUSH	DS	;0796
@@ -1024,16 +1024,16 @@ C_07D9_0793	PROC FAR	;07D9:0793
 	PUSH	DI	;0798
 	MOV	AX,[BP+6]	;0799
 	PUSH	CS	;079C
-	CALL	NEAR PTR C_07D9_06F5	;079D
+	CALL	NEAR PTR EvtFind	;079D
 	POP	DI	;07A0
 	POP	SI	;07A1
 	POP	DS	;07A2
 	POP	BP	;07A3
 	RET	2	;07A4
-C_07D9_0793	ENDP
+EvtPending	ENDP
 
 ;after Alt-X: calls cv_0002, and when it returns 0, uninstalls and exits
-C_07D9_07A7	PROC FAR	;07D9:07A7
+EvtCheckAltX	PROC FAR	;07D9:07A7
 	CMP	BYTE PTR CS:cv_0020,0	;07A7
 	JZ	L_07C7	;07AD
 	CALL	DWORD PTR CS:cv_0002	;07AF
@@ -1045,36 +1045,36 @@ C_07D9_07A7	PROC FAR	;07D9:07A7
 L_07C7:
 	MOV	BYTE PTR CS:cv_0020,0	;07C7
 	RET	;07CD
-C_07D9_07A7	ENDP
+EvtCheckAltX	ENDP
 
-;(pascal) C_07D9_07CE(int arg, int what): Alt-X check, empties the queue, queues
-;keys held (1), the mouse (2), calls the callbacks (4, 8), then C_0869_000E(arg)
-C_07D9_07CE	PROC FAR	;07D9:07CE
+;(pascal) EvtUpdate(int arg, int what): Alt-X check, empties the queue, queues
+;keys held (1), the mouse (2), calls the callbacks (4, 8), then EVT_get(arg)
+EvtUpdate	PROC FAR	;07D9:07CE
 	PUSH	BP	;07CE
 	MOV	BP,SP	;07CF
 	PUSH	SI	;07D1
 	PUSH	DI	;07D2
 	PUSH	DS	;07D3
 	PUSH	CS	;07D4
-	CALL	NEAR PTR C_07D9_07A7	;07D5
+	CALL	NEAR PTR EvtCheckAltX	;07D5
 	PUSH	CS	;07D8
-	CALL	NEAR PTR C_07D9_06AC	;07D9
+	CALL	NEAR PTR EvtFlush	;07D9
 	TEST	WORD PTR [BP+6],1	;07DC
 	JZ	L_07E7	;07E1
 	PUSH	CS	;07E3
-	CALL	NEAR PTR C_07D9_06C5	;07E4
+	CALL	NEAR PTR EvtQueueHeldKeys	;07E4
 L_07E7:
 	TEST	WORD PTR [BP+6],2	;07E7
 	JZ	L_0808	;07EC
 	PUSH	CS	;07EE
-	CALL	NEAR PTR C_07D9_03DF	;07EF
+	CALL	NEAR PTR EvtPollMouse	;07EF
 	CMP	BYTE PTR D_20C6,1	;07F2
 	JNZ	L_0808	;07F7
 	MOV	AX,0Dh	;07F9
 	MOV	CX,D_20BE	;07FC
 	MOV	DX,D_20C4	;0800
 	PUSH	CS	;0804
-	CALL	NEAR PTR C_07D9_0294	;0805
+	CALL	NEAR PTR EvtQueue	;0805
 L_0808:
 	TEST	WORD PTR [BP+6],4	;0808
 	JZ	L_0814	;080D
@@ -1092,10 +1092,10 @@ L_0820:
 	POP	SI	;082B
 	POP	BP	;082C
 	RET	4	;082D
-C_07D9_07CE	ENDP
+EvtUpdate	ENDP
 
 ;(pascal) puts the mouse at (x, y) (int 33h function 4)
-C_07D9_0830	PROC FAR	;07D9:0830
+EvtSetMousePos	PROC FAR	;07D9:0830
 	PUSH	BP	;0830
 	MOV	BP,SP	;0831
 	PUSH	DS	;0833
@@ -1116,10 +1116,10 @@ L_0854:
 	POP	DS	;0854
 	POP	BP	;0855
 	RET	4	;0856
-C_07D9_0830	ENDP
+EvtSetMousePos	ENDP
 
 ;(pascal) sets the tick callback cv_0012 (0: none)
-C_07D9_0859	PROC FAR	;07D9:0859
+EvtSetTickCallback	PROC FAR	;07D9:0859
 	PUSH	BP	;0859
 	MOV	BP,SP	;085A
 	PUSH	SI	;085C
@@ -1127,7 +1127,7 @@ C_07D9_0859	PROC FAR	;07D9:0859
 	MOV	AX,[BP+6]	;085E
 	OR	AX,[BP+8]	;0861
 	JNZ	L_0870	;0864
-	MOV	WORD PTR [BP+6],OFFSET C_07D9_002A	;0866
+	MOV	WORD PTR [BP+6],OFFSET EvtNoCallback	;0866
 	MOV	WORD PTR [BP+8],EVENTS_TEXT	;086B
 L_0870:
 	PUSH	ES	;0870
@@ -1143,10 +1143,10 @@ L_0870:
 	POP	SI	;0884
 	POP	BP	;0885
 	RET	4	;0886
-C_07D9_0859	ENDP
+EvtSetTickCallback	ENDP
 
 ;(pascal) sets the Alt-X callback cv_0002 (0: none)
-C_07D9_0889	PROC FAR	;07D9:0889
+EvtSetAltXCallback	PROC FAR	;07D9:0889
 	PUSH	BP	;0889
 	MOV	BP,SP	;088A
 	PUSH	SI	;088C
@@ -1154,7 +1154,7 @@ C_07D9_0889	PROC FAR	;07D9:0889
 	MOV	AX,[BP+6]	;088E
 	OR	AX,[BP+8]	;0891
 	JNZ	L_08A0	;0894
-	MOV	WORD PTR [BP+6],OFFSET C_07D9_002A	;0896
+	MOV	WORD PTR [BP+6],OFFSET EvtNoCallback	;0896
 	MOV	WORD PTR [BP+8],EVENTS_TEXT	;089B
 L_08A0:
 	PUSH	ES	;08A0
@@ -1168,16 +1168,16 @@ L_08A0:
 	POP	SI	;08B2
 	POP	BP	;08B3
 	RET	4	;08B4
-C_07D9_0889	ENDP
+EvtSetAltXCallback	ENDP
 
 ;(pascal) sets the periodic callback cv_0016 (0: none)
-C_07D9_08B7	PROC FAR	;07D9:08B7
+EvtSetPeriodicCallback	PROC FAR	;07D9:08B7
 	PUSH	BP	;08B7
 	MOV	BP,SP	;08B8
 	MOV	AX,[BP+6]	;08BA
 	OR	AX,[BP+8]	;08BD
 	JNZ	L_08CC	;08C0
-	MOV	WORD PTR [BP+6],OFFSET C_07D9_002A	;08C2
+	MOV	WORD PTR [BP+6],OFFSET EvtNoCallback	;08C2
 	MOV	WORD PTR [BP+8],EVENTS_TEXT	;08C7
 L_08CC:
 	PUSH	ES	;08CC
@@ -1191,10 +1191,10 @@ L_08CC:
 	POP	ES	;08DE
 	POP	BP	;08DF
 	RET	4	;08E0
-C_07D9_08B7	ENDP
+EvtSetPeriodicCallback	ENDP
 
-;(pascal) C_07D9_08E3(int *xy): the mouse position (int 33h function 3)
-C_07D9_08E3	PROC FAR	;07D9:08E3
+;(pascal) EvtGetMousePos(int *xy): the mouse position (int 33h function 3)
+EvtGetMousePos	PROC FAR	;07D9:08E3
 	PUSH	BP	;08E3
 	MOV	BP,SP	;08E4
 	PUSH	DS	;08E6
@@ -1216,7 +1216,7 @@ L_0909:
 	POP	DS	;0909
 	POP	BP	;090A
 	RET	2	;090B
-C_07D9_08E3	ENDP
+EvtGetMousePos	ENDP
 
 EVENTS_TEXT	ENDS
 

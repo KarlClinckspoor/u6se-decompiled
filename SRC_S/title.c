@@ -94,7 +94,8 @@ extern int kbhit(void);
 	(*D_2BC6)(surf, 0xa0, y, D_3540[12], 0);
 }
 
-/*C_0636_0051*/void C_0636_0051(struct tSurface *surf, struct tSurface *screen) {
+/*draws the background and the ten letters of the title, then fades them in*/
+/*C_0636_0051*/void TitleFadeIn(struct tSurface *surf, struct tSurface *screen) {
 	int i;
 
 	DrawBackground(surf, 0x18);
@@ -103,8 +104,8 @@ extern int kbhit(void);
 	FADE_in(surf, screen);
 }
 
-/*the letters of the title change*/
-/*C_0636_00AC*/void C_0636_00AC(struct tSurface *surf, struct tSurface *screen, int speed) {
+/*the letters of the title change (until the music marker, or a key)*/
+/*C_0636_00AC*/void LettersChange(struct tSurface *surf, struct tSurface *screen, int speed) {
 	int from;
 	int count;
 	int t;
@@ -151,8 +152,10 @@ extern int kbhit(void);
 	} while((D_353E && soundCard != 3) || count <= 30);
 }
 
-/*the sun sets*/
-/*C_0636_0255*/void C_0636_0255(struct tSurface *surf, struct tSurface *screen, int speed) {
+/*the sun: the tenth shape goes through the 20 frames of D_1E3E ('p'/'q'
+  start and stop a sound) with the nine letters at their last frame; then
+  waits for music marker 2*/
+/*C_0636_0255*/void PlaySunFrames(struct tSurface *surf, struct tSurface *screen, int speed) {
 	int i;
 	int t;
 	int f;
@@ -210,7 +213,7 @@ extern int kbhit(void);
 }
 
 /*draws the mountains in front of the sun at x, y*/
-/*C_0636_0564*/void C_0636_0564(struct tSurface *surf, int x, int y) {
+/*C_0636_0564*/void DrawMountains(struct tSurface *surf, int x, int y) {
 	int r[4];
 
 	(*D_2B6A)(surf, 0xa2, x, D_3540[0], 2, 0, y, 0, r);
@@ -220,7 +223,7 @@ extern int kbhit(void);
 }
 
 /*the letters fly apart*/
-/*C_0636_05FA*/void C_0636_05FA(struct tSurface *surf, struct tSurface *screen, int speed) {
+/*C_0636_05FA*/void LettersFlyApart(struct tSurface *surf, struct tSurface *screen, int speed) {
 	int x;
 	int y;
 	int t;
@@ -250,7 +253,7 @@ extern int kbhit(void);
 }
 
 /*the mountains rise and the sun sets; returns where the mountains are*/
-/*C_0636_0764*/C_0636_0764(struct tSurface *surf, struct tSurface *screen, int speed) {
+/*C_0636_0764*/MountainsRise(struct tSurface *surf, struct tSurface *screen, int speed) {
 	int unused;
 	int y;
 	int sunY;
@@ -288,11 +291,11 @@ extern int kbhit(void);
 				if(r[3] < sunY)
 					behind = 1;
 				if(!behind) {
-					C_0636_0564(surf, x, y);
+					DrawMountains(surf, x, y);
 					(*D_2BC6)(surf, 0xa0, sunY, D_3540[12], 0);
 				} else {
 					(*D_2BC6)(surf, 0xa0, sunY, D_3540[12], 0);
-					C_0636_0564(surf, x, y);
+					DrawMountains(surf, x, y);
 				}
 				Show(surf, screen);
 			}
@@ -303,13 +306,13 @@ extern int kbhit(void);
 			return;
 	}
 	(*D_2BC6)(surf, 0, 0, D_3540[0], 0);
-	C_0636_0564(surf, x, y);
+	DrawMountains(surf, x, y);
 	Show(surf, screen);
 	return x;
 }
 
 /*sparkles over the mountains*/
-/*C_0636_0920*/void C_0636_0920(struct tSurface *surf, struct tSurface *screen, int x) {
+/*C_0636_0920*/void TitleSparkles(struct tSurface *surf, struct tSurface *screen, int x) {
 	int j;
 	int nFree;
 	int done;
@@ -347,7 +350,7 @@ extern int kbhit(void);
 		}
 		(*D_2BC6)(surf, 0, 0, D_3540[0], 0);
 		nFree = DrawSprites(surf, 5);
-		C_0636_0564(surf, x, 0x100);
+		DrawMountains(surf, x, 0x100);
 		Show(surf, screen);
 		count++;
 		if(done == 1 && nFree == 5)
@@ -381,7 +384,7 @@ all:
 		}
 		(*D_2BC6)(surf, 0, 0, D_3540[0], 0);
 		nFree = DrawSprites(surf, 0x1e);
-		C_0636_0564(surf, x, 0x100);
+		DrawMountains(surf, x, 0x100);
 		Show(surf, screen);
 		if(kbhit())
 			C_07D9_0021 = 0xff;
@@ -395,7 +398,7 @@ all:
 }
 
 /*the number of frames between two pictures, from the speed of the computer*/
-/*C_0636_0C29*/C_0636_0C29() {
+/*C_0636_0C29*/TitleSpeed() {
 	return 2 - DrvCalibrate() / 8 < 1 ? 1 : 2 - DrvCalibrate() / 8;
 }
 
@@ -410,7 +413,7 @@ all:
 	struct tSurface save;
 	int i;
 
-	speed = C_0636_0C29();
+	speed = TitleSpeed();
 	save = *screen;
 	screen->x0 = 0x18;
 	screen->y0 = 0x97;
@@ -425,18 +428,18 @@ all:
 	C_07D9_0021 = 0;
 	if(music)
 		PlaySong(music);
-	C_0636_0051(surf, screen);
+	TitleFadeIn(surf, screen);
 	if(C_07D9_0021 == 0xff)
 		goto end;
-	C_0636_00AC(surf, screen, speed);
+	LettersChange(surf, screen, speed);
 	if(C_07D9_0021 == 0xff)
 		goto end;
-	C_0636_0255(surf, screen, speed);
+	PlaySunFrames(surf, screen, speed);
 	if(C_07D9_0021 == 0xff)
 		goto end;
-	C_0636_05FA(surf, screen, speed);
+	LettersFlyApart(surf, screen, speed);
 	if(C_07D9_0021 != 0xff) {
-		i = C_0636_0764(surf, screen, speed);
+		i = MountainsRise(surf, screen, speed);
 		if(D_353E && (soundCard == 2 || soundCard == 1)) {
 			while(musicMarker < 3) {
 				if(kbhit())
@@ -446,7 +449,7 @@ all:
 			}
 		}
 		if(C_07D9_0021 != 0xff)
-			C_0636_0920(surf, screen, i);
+			TitleSparkles(surf, screen, i);
 	}
 end:
 	C_07D9_0021 = 0;

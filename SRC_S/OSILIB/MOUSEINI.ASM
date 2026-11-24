@@ -10,7 +10,7 @@ EXTRN D_20A2:WORD	;struct tMouse *: the mouse
 DSegEnd
 
 EXTRN _SetTimerRate:FAR	;cdecl (int): sets D_2458
-EXTRN C_07D9_002A:FAR	;(07D9) the default onMove: does nothing
+EXTRN EvtNoCallback:FAR	;(07D9) the default onMove: does nothing
 EXTRN MOUSE_saveBG:FAR	;MOUSE_saveBG
 EXTRN _VID_initPort:FAR	;VID_initPort
 EXTRN MOUSE_serve:FAR	;MOUSE_serve
@@ -39,8 +39,8 @@ FProc	MOUSE_init	;086E:0006
 	MOV	[BX].posX,AX
 	MOV	[BX].posY,AX
 	MOV	[BX].installed,AL
-	MOV	WORD PTR [BX].onMove,OFFSET C_07D9_002A
-	MOV	WORD PTR [BX].onMove+2,SEG C_07D9_002A
+	MOV	WORD PTR [BX].onMove,OFFSET EvtNoCallback
+	MOV	WORD PTR [BX].onMove+2,SEG EvtNoCallback
 	MOV	CX,BX
 	MOV	D_20A2,BX
 	INT	33h	;AX 0: reset, get the number of buttons

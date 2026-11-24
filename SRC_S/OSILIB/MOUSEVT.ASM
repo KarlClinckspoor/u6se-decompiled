@@ -11,7 +11,7 @@ EXTRN D_209A:WORD	;the queue's first entry
 EXTRN D_209C:WORD	;its last entry
 DSegEnd
 
-EXTRN C_07D9_07A7:FAR	;(07D9) update the queue
+EXTRN EvtCheckAltX:FAR	;(07D9) after Alt-X: the Alt-X callback, maybe the exit
 
 CSegStart	MOUSEVT_TEXT
 
@@ -24,7 +24,7 @@ FProc	EVT_get	;0869:000E
 	PUSH	SI
 	PUSH	DI
 C_0014:
-	CALL	C_07D9_07A7
+	CALL	EvtCheckAltX
 	PUSH	DS
 	POP	ES
 	MOV	AX,D_2064
