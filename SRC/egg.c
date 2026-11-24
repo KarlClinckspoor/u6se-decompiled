@@ -68,8 +68,8 @@ extern int16 FindInv(int16);/*FindInv*/
 extern int16 NextInv(void);/*NextInv*/
 extern int16 NextArea(void);/*NextArea*/
 extern int16 SearchArea(int16, int16, int16, int16);/*SearchArea*/
-extern C_0A5D_0D5B(int16, int16 *, int16 *);/*the parts of a multi-tile type*/
-extern int16 C_0A5D_0DEF(int16);/*multi-tile type?*/
+extern OBJ_GetCreatureParts(int16, int16 *, int16 *);/*the parts of a multi-tile type*/
+extern int16 OBJ_PartHeadType(int16);/*head type of a creature made of several objects, 0 if none*/
 extern int16 AddObj(int16, struct coord, int16, int16, int16);/*AddObj*/
 extern int16 AddMapObj(int16, int16, int16, int16, int16, int16);/*AddMapObj*/
 extern int16 AddInvObj(int16, int16, int16, int16);/*AddInvObj*/
@@ -182,9 +182,9 @@ extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
 		D_9CFA[objNum] = GetType(objNum) + (1 << 10);
 	} else if(objType == 0x128) {
 		D_9CFA[objNum] = GetType(objNum) + (3 << 10);
-	} else if(C_0A5D_0DEF(objType)) {
+	} else if(OBJ_PartHeadType(objType)) {
 		/*multi-tile creature*/
-		C_0A5D_0D5B(objType, D_EC72, D_EC78);
+		OBJ_GetCreatureParts(objType, D_EC72, D_EC78);
 		D_9CFA[objNum] = GetType(objNum) + (((1 << D_EC72[0]) - 1) << 10);
 		for(i = 1; i < 3 && D_EC78[i] != -1; i ++) {
 			for(j = 0; j < 4; j ++) {

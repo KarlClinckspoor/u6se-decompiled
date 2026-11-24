@@ -68,7 +68,7 @@ extern cdecl CON_printf(char far *, ...);/*CON_printf*/
 extern VIS_UpdateView();/*VIS_UpdateView*/
 extern int16 NextLoc();/*NextLoc*/
 extern int16 FindLoc(int16, int16, int16);/*FindLoc(x, y, z)*/
-extern int16 C_0A5D_0DEF(int16);/*multi-tile type?*/
+extern int16 OBJ_PartHeadType(int16);/*head type of a creature made of several objects, 0 if none*/
 extern DeleteObj(int16);/*DeleteObj*/
 extern int16 OBJ_ReviveFromBody(int16);/*OBJ_ReviveFromBody*/
 extern int16 OBJ_IsInside(int16, int16);/*OBJ_IsInside(objNum, container)*/
@@ -429,7 +429,7 @@ extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
 	for(p = SPELL_ListNearbyNPCs(); *p >= 0; p ++) {
 		if(*p >= 0x100 || *p < 0)
 			continue;
-		if(C_0A5D_0DEF(GetType(*p)))
+		if(OBJ_PartHeadType(GetType(*p)))
 			continue;
 		switch(spell) {
 			case 0x22:

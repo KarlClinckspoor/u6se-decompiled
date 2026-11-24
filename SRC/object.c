@@ -92,7 +92,7 @@ extern uint16 D_9CFA[];/*ObjShapeType*/
 extern unsigned char far *D_B4FA;/*TerrainType*/
 extern int16 far *D_B53E;/*OrigShapeType*/
 extern int16 D_BAFE, D_BB00;/*AreaX, AreaY*/
-extern int16 D_BD04[3];/*types of the parts of a creature (C_0A5D_0D5B)*/
+extern int16 D_BD04[3];/*types of the parts of a creature (OBJ_GetCreatureParts)*/
 extern int16 D_BD0A[3];/*their frame shifts*/
 extern unsigned char D_BD10[11][11];/*Obj_11x11: first display node of each view cell*/
 extern int16 D_BD8A[];/*CellObjTile: tile | frame of each display node*/
@@ -194,8 +194,8 @@ extern DISK_confirm(int16);/*DISK_confirm*/
 #define DISK_confirm DISK_confirm
 
 /*this module*/
-int16 C_0A5D_0D5B(int16, int16 *, int16 *);
-int16 C_0A5D_0DEF(int16);
+int16 OBJ_GetCreatureParts(int16, int16 *, int16 *);
+int16 OBJ_PartHeadType(int16);
 int16 AddMapObj(int16, int16, int16, int16, int16, int16);
 int16 AddInvObj(int16, int16, int16, int16);
 DeleteObj(int16);
@@ -348,8 +348,8 @@ int16 QuanType(int16);
 		return dir;
 	if(objTyp == 0x14f)
 		return ((dir << 1) + 1 << 1) - 1;
-	if(C_0A5D_0DEF(objTyp)) {
-		C_0A5D_0D5B(objTyp, D_BD0A, D_BD04);
+	if(OBJ_PartHeadType(objTyp)) {
+		OBJ_GetCreatureParts(objTyp, D_BD0A, D_BD04);
 		for(i = 0; i < 3; i ++) {
 			if(D_BD04[i] == objTyp) {
 				dir ++;
@@ -542,8 +542,10 @@ int16 QuanType(int16);
 	return NextLoc();
 }
 
-/*is objNum within 5 tiles horizontally and 4 vertically of the party?*/
-/*C_0A5D_0613*/C_0A5D_0613(int16 objNum) {
+/*is objNum within 5 tiles horizontally and 4 vertically of the party (on
+   screen)? (Martian Dreams' OBJ_IsOnScreen, without its cases for double
+   tiles)*/
+/*C_0A5D_0613*/OBJ_IsOnScreen(int16 objNum) {
 	register int16 x, y;
 
 	x = GetX(objNum);
@@ -574,7 +576,7 @@ int16 QuanType(int16);
 }
 
 /*the NPC that holds objNum (directly or in a container), -1 if none*/
-/*C_0A5D_070D*/C_0A5D_070D(int16 objNum) {
+/*C_0A5D_070D*/OBJ_GetHolderNPC(int16 objNum) {
 	register int16 i;
 
 	for(i = GetAssoc(objNum); !IsNPC(i) && i != -1; i = GetAssoc(i));
@@ -616,8 +618,9 @@ int16 QuanType(int16);
 }
 
 /*an object of type objTyp, not equipped, somewhere inside the map object
-  objNum (at any depth); -1 if none*/
-/*C_0A5D_080A*/C_0A5D_080A(int16 objNum, int16 objTyp) {
+   objNum (at any depth); -1 if none (Martian Dreams' FindInvOfType, without
+   its cursor and type 0 wildcard; used for ammunition and gunpowder)*/
+/*C_0A5D_080A*/FindInvOfType(int16 objNum, int16 objTyp) {
 	int16 unused;
 	register int16 obj, holder;
 
@@ -774,15 +777,15 @@ int16 QuanType(int16);
 	}
 }
 
-/*delete the other parts of the creature objNum (the objects of its part
-  types whose quality is objNum)*/
-/*C_0A5D_0CB1*/C_0A5D_0CB1(int16 objNum) {
+/*delete the other parts of the creature objNum made of several objects
+   (the dinosaurs): the objects of its part types whose quality is objNum*/
+/*C_0A5D_0CB1*/OBJ_DeleteCreatureParts(int16 objNum) {
 	register int16 i, typ;
 	int16 objTyp, type0, type1, type2, maxCount, count;
 	int16 types[3], shifts[3];
 
 	objTyp = GetType(objNum);
-	if(C_0A5D_0D5B(objTyp, shifts, types)) {
+	if(OBJ_GetCreatureParts(objTyp, shifts, types)) {
 		count = 0;
 		type0 = types[0];
 		type1 = types[1];
@@ -806,7 +809,7 @@ int16 QuanType(int16);
 /*the parts of a creature made of several objects whose head is of type
   type: types[] gets the part types (-1 = none), shifts[] the frame shift
   of each; returns type, or 0 if type is not such a creature*/
-/*C_0A5D_0D5B*/C_0A5D_0D5B(register int16 type, register int16 *shifts, register int16 *types) {
+/*C_0A5D_0D5B*/OBJ_GetCreatureParts(register int16 type, register int16 *shifts, register int16 *types) {
 	switch(type) {
 		case 0x126:
 			shifts[0] = 1;
@@ -862,7 +865,7 @@ int16 QuanType(int16);
 
 /*the head type of a creature made of several objects, from the type of
   any of its parts; 0 if objTyp is not such a creature*/
-/*C_0A5D_0DEF*/C_0A5D_0DEF(int16 objTyp) {
+/*C_0A5D_0DEF*/OBJ_PartHeadType(int16 objTyp) {
 	switch(objTyp) {
 		case 0x125: case 0x126: case 0x127:
 			return 0x126;
@@ -920,8 +923,8 @@ int16 QuanType(int16);
 	return objNum;
 }
 
-/*number of objects directly inside objNum*/
-/*C_0A5D_0FD6*/C_0A5D_0FD6(int16 objNum) {
+/*number of objects directly inside objNum (Martian Dreams' OBJ_CountInv)*/
+/*C_0A5D_0FD6*/OBJ_CountInv(int16 objNum) {
 	register int16 count, obj;
 
 	count = 0;
@@ -930,8 +933,8 @@ int16 QuanType(int16);
 	return count;
 }
 
-/*number of objects equipped by objNum*/
-/*C_0A5D_0FF9*/C_0A5D_0FF9(int16 objNum) {
+/*number of objects equipped by objNum (Martian Dreams' OBJ_CountEquipped)*/
+/*C_0A5D_0FF9*/OBJ_CountEquipped(int16 objNum) {
 	register int16 obj, count;
 
 	count = 0;
@@ -957,7 +960,7 @@ int16 QuanType(int16);
 	if(!OBJ_IsLocLoaded(GetX(root), GetY(root), GetZ(root)))
 		return -1;
 	STAT_RefreshInventory(owner);
-	numInven = C_0A5D_0FD6(owner) - C_0A5D_0FF9(owner);
+	numInven = OBJ_CountInv(owner) - OBJ_CountEquipped(owner);
 	if(StatusDisplay == 0x92 && Party[StatusMember] == owner)
 		StatusDirty = 1;
 	coordUse = status & ~0x67;
@@ -1088,7 +1091,7 @@ int16 QuanType(int16);
 		StatusDirty = 1;
 	objTyp = GetType(objNum);
 	if(IsNPC(objNum) && (IsTyrannosaurus(objNum) || IsThreeTileCreature(objNum)))
-		C_0A5D_0CB1(objNum);
+		OBJ_DeleteCreatureParts(objNum);
 	/*spill the contents*/
 	for(content = FindInv(objNum); content >= 0; content = NextInv()) {
 		LastSpilledObj = content;
@@ -1118,8 +1121,9 @@ int16 QuanType(int16);
 	OBJ_FixMapObjPtr(GetX(objNum), GetY(objNum), GetZ(objNum), objNum, Link[prev]);
 }
 
-/*make objNum (again) an object of an inventory: status, owner, shape and amount*/
-/*C_0A5D_16BE*/C_0A5D_16BE(register int16 objNum, int16 shapeType, int16 status, int16 amount, int16 owner) {
+/*make objNum (again) an object of an inventory: status, owner, shape and
+   amount (marks the equipment view dirty); not called*/
+/*C_0A5D_16BE*/OBJ_SetInvObj(register int16 objNum, int16 shapeType, int16 status, int16 amount, int16 owner) {
 	if(objNum < 0)
 		return;
 	if(StatusDisplay == 0x92 && OBJ_IsInside(objNum, Party[StatusMember]))
@@ -1312,7 +1316,7 @@ int16 QuanType(int16);
 	if(StatusDisplay == 0x92 && OBJ_IsInside(objNum, Party[StatusMember]))
 		StatusDirty = 1;
 	objTyp = GetType(objNum);
-	if(IsNPC(objNum) && C_0A5D_0DEF(objTyp) && IsOutOfArea(objNum))
+	if(IsNPC(objNum) && OBJ_PartHeadType(objTyp) && IsOutOfArea(objNum))
 		return -1;
 	posMask = toZ?0xff:0x3ff;
 	toX &= posMask;
@@ -1343,7 +1347,7 @@ int16 QuanType(int16);
 	toY = (toY - AreaY) & 0x3ff;
 	if(toX < AREA_W && toY < AREA_H)
 		MapObjPtr[toY][toX] = objNum;
-	if(IsNPC(objNum) && C_0A5D_0DEF(objTyp))
+	if(IsNPC(objNum) && OBJ_PartHeadType(objTyp))
 		OBJ_MoveCreatureParts(objNum, oldX, oldY, 0);
 
 	if(IsNPC(objNum) && MoveAppliesTerrain) {
@@ -1366,7 +1370,7 @@ int16 QuanType(int16);
 		return -1;
 	STAT_RefreshInventory(destNum);
 	coordUse = objLoc & ~0x67;
-	numInven = C_0A5D_0FD6(destNum) - C_0A5D_0FF9(destNum);
+	numInven = OBJ_CountInv(destNum) - OBJ_CountEquipped(destNum);
 	if(numInven >= 0x10 && (coordUse == INVEN || coordUse == CONTAINED) && !QuanType(objTyp) && GetType(destNum) != 0xf9) {
 		STAT_RefreshInventory(Party[StatusMember]);
 		return -1;

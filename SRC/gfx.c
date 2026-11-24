@@ -118,7 +118,7 @@ extern int16 SearchArea(int16, int16, int16, int16);/*SearchArea(x1, y1, x2, y2)
 extern ShowObject(int16, int16, int16, int16);/*ShowObject(tile, x, y, ?)*/
 extern ShowObjects();/*ShowObjects*/
 extern int16 COMBAT_GetTargetAt(int16, int16, int16);/*COMBAT_GetTargetAt(shooter, x, y)*/
-extern int16 C_1810_0F71(int16);/*(tile class test, peer map)*/
+extern int16 IsCliffTile(int16);/*(tile class test, peer map)*/
 extern int16 LoseHP(int16, int16);/*LoseHP(objNum, hp): experience earned*/
 extern ShowPortrait(int16);/*(ShowMidgame: per-picture event)*/
 extern MUS_PlaySfx(int16);/*(ShakeScreen: sound?)*/
@@ -1153,7 +1153,7 @@ PortraitBg(int16 x, int16 y);
 
 /*peer: draw one map tile as a 4x4 dot at x,y:
   tileNum < 0 = an NPC (white with green corners), 0xff = black,
-  damaging = red, IsEarthTile = brown, C_1810_0F71 = gray, impassable =
+  damaging = red, IsEarthTile = brown, IsCliffTile = gray, impassable =
   blue (wet) or light green, other terrain (< 0x100) = green;
   passable object tiles are not drawn*/
 /*C_276B_1ED9*/static peer_tile(int16 tileNum, int16 x, int16 y) {
@@ -1168,7 +1168,7 @@ PortraitBg(int16 x, int16 y);
 		color = ColorRed;
 	} else if(IsEarthTile(tileNum)) {
 		color = ColorBrown;
-	} else if(C_1810_0F71(tileNum)) {
+	} else if(IsCliffTile(tileNum)) {
 		color = ColorGray;
 	} else if(TerrainType[tileNum] & 2) {
 		if(TerrainType[tileNum] & 1)

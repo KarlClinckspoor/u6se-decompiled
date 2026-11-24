@@ -160,7 +160,7 @@ extern cdecl CON_printf(char far *, ...);/*CON_printf*/
 extern DrawMapWindow(int16);/*redraws the map window (U6: DrawMapWindow?)*/
 extern DisplayTick();/*DisplayTick: one animation frame*/
 extern VIS_UpdateView();/*VIS_UpdateView*/
-extern int16 C_0A5D_0613(int16);/*is the NPC able to talk (onscreen)?*/
+extern int16 OBJ_IsOnScreen(int16);/*is the object on screen (within 5x4 tiles of the party)?*/
 extern int16 OBJ_FindTypeAt(int16, int16, int16);/*OBJ_FindTypeAt(type, x, y)?*/
 extern int16 FindInv(int16);/*FindInv: first object of an inventory*/
 extern int16 NextInv();/*NextInv*/
@@ -1317,7 +1317,7 @@ until OP_LEAVE/OP_SCRIPT_MARK*/
 
 	TalkNpcs[1] = speaker;
 	TalkNpcs[0] = npcObj;
-	if(IsPlrControl(npcObj) && !C_0A5D_0613(npcObj)) {
+	if(IsPlrControl(npcObj) && !OBJ_IsOnScreen(npcObj)) {
 		CON_printf(NoResponseMsg);
 		return;
 	}

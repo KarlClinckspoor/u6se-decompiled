@@ -15,9 +15,9 @@
  *   (COMBAT_FireRangedWeapon), and the special weapon/target pairs,
  * - death (COMBAT_Kill, SetTypeUnconscious: dead bodies, creatures made of
  *   several tiles), breakable objects with their effects (LoseHP),
- * - the creatures made of segments (types 0x124/0x11A, C_1810_22F0,
+ * - the creatures made of segments (types 0x124/0x11A, OrchidLoseHP,
  *   __TryGrowVine, COMBAT_AI_Tangle) and the boulders pushed around
- *   (type 0xA7, C_1810_14EA and its helpers),
+ *   (type 0xA7, PushBoulder and its helpers),
  * - the combat AI modes (assault, range, berserk, retreat, like,
  *   unfriendly, immobile, tangle) and the choice of weapons and targets.
  * Objects 0..0xff are the actors; objects >= 0x100 are plain items.
@@ -152,8 +152,8 @@ extern int16 FindLoc(int16, int16, int16);/*FindLoc*/
 extern int16 OBJ_FindTypeAt(int16, int16, int16);/*OBJ_FindTypeAt(type, x, y)*/
 extern int16 FindInv(int16);/*FindInv*/
 extern int16 NextInv(void);/*NextInv*/
-extern int16 C_0A5D_080A(int16, int16);/*an object of a type, not equipped, inside an object*/
-extern int16 C_0A5D_0DEF(int16);/*OBJ_PartHeadType: type of the head of a multi-tile creature part, 0 if none*/
+extern int16 FindInvOfType(int16, int16);/*an object of a type, not equipped, inside an object*/
+extern int16 OBJ_PartHeadType(int16);/*OBJ_PartHeadType: type of the head of a multi-tile creature part, 0 if none*/
 extern int16 AddMapObj(int16, int16, int16, int16, int16, int16);/*AddMapObj(shape, status, amount, x, y, z)*/
 extern int16 AddInvObj(int16, int16, int16, int16);/*AddInvObj(shapeType, status, amount, owner)*/
 extern DeleteObj(int16);/*DeleteObj*/
@@ -286,7 +286,6 @@ extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
 #define OBJ_FindTypeAt OBJ_FindTypeAt
 #define FindInv FindInv
 #define NextInv NextInv
-#define OBJ_PartHeadType C_0A5D_0DEF
 #define AddMapObj AddMapObj
 #define AddInvObj AddInvObj
 #define DeleteObj DeleteObj
@@ -387,7 +386,7 @@ extern int16 OSI_rand(int16, int16);/*OSI_rand(lo, hi)*/
 #define IsDraggedUnder(i) (NPCFlag[i] & 0x10)
 
 /*this module's functions used before their definition*/
-C_1810_14EA(int16, int16, int16);
+PushBoulder(int16, int16, int16);
 COMBAT_Kill(int16);
 LoseHP(int16, int16);
 COMBAT_displaySeverity(int16);
@@ -955,8 +954,10 @@ COMBAT_beginAttacked(void);
 	0xDD,0xDE,0xCB,0xCC,0xCD,0xCE,0xCF,0xD0
 };
 
-/*is the tile in TileClass1? (a boulder falls in: pit, chasm?)*/
-/*C_1810_0F71*/C_1810_0F71(int16 tile) {
+/*is the tile a cliff (TileClass1: the tiles LOOK.LZC calls "cliff", a few
+   "rock outcropping")? A boulder on one rolls on to the south-east; a thrown
+   object landing on one is lost; gray in the peer map*/
+/*C_1810_0F71*/IsCliffTile(int16 tile) {
 	int16 i;
 
 	for(i = 0; i < 0x44; i ++)
@@ -965,8 +966,9 @@ COMBAT_beginAttacked(void);
 	return 0;
 }
 
-/*is the tile in TileClass2? (blocks a boulder moving south?)*/
-/*C_1810_0F98*/C_1810_0F98(int16 tile) {
+/*is the tile in TileClass2 (cliff and outcrop tiles)? A rolling boulder
+   does not enter one moving south; a boulder pushed north onto one rolls on*/
+/*C_1810_0F98*/IsCliffEdgeS(int16 tile) {
 	int16 i;
 
 	for(i = 0; i < 0x13; i ++)
@@ -975,8 +977,9 @@ COMBAT_beginAttacked(void);
 	return 0;
 }
 
-/*is the tile in TileClass3? (blocks a boulder moving east?)*/
-/*C_1810_0FBF*/C_1810_0FBF(int16 tile) {
+/*is the tile in TileClass3 (cliff and outcrop tiles)? A rolling boulder
+   does not enter one moving east; a boulder pushed west onto one rolls on*/
+/*C_1810_0FBF*/IsCliffEdgeE(int16 tile) {
 	int16 i;
 
 	for(i = 0; i < 0x18; i ++)
@@ -985,8 +988,9 @@ COMBAT_beginAttacked(void);
 	return 0;
 }
 
-/*does the tile stop a pushed boulder?*/
-/*C_1810_0FE6*/C_1810_0FE6(int16 tile) {
+/*does the terrain tile stop a pushed boulder (0x90-0xC5: walls, rocks,
+   stepping stones, trees; or IsTreeTile)?*/
+/*C_1810_0FE6*/IsBoulderStopTile(int16 tile) {
 	if(
 		tile == 0x90 || tile == 0x91 || tile == 0x92 || tile == 0x95 ||
 		(tile >= 0x98 && tile <= 0xa9) ||
@@ -998,14 +1002,15 @@ COMBAT_beginAttacked(void);
 }
 
 /*is the 2x2 square whose bottom right corner is (x,y) blocked for a
-  boulder (by the terrain or by some object types)?*/
-/*C_1810_103F*/C_1810_103F(int16 x, int16 y) {
+   boulder (0xA7), by the terrain or by fallen trees and waterfalls (objects
+   0x104-0x10A, 0x96, 0x97)?*/
+/*C_1810_103F*/BoulderBlockedAt(int16 x, int16 y) {
 	int16 obj, j;
 	int16 i, objType;
 
 	for(i = 0; i < 2; i ++) {
 		for(j = 0; j < 2; j ++) {
-			if(C_1810_0FE6(TILE_AT(x + i - 1, y + j - 1)))
+			if(IsBoulderStopTile(TILE_AT(x + i - 1, y + j - 1)))
 				return 1;
 			for(obj = FindLoc(x + i - 1, y - i + j, MapZ); obj >= 0; obj = NextLoc()) {
 				objType = GetType(obj);
@@ -1024,7 +1029,7 @@ COMBAT_beginAttacked(void);
   (x,y): another boulder there is pushed first (returns 0 if it can't be);
   then actors (or the creatures a part belongs to) are crushed (mode 1)
   or pushed aside and hurt, other objects destroyed. returns 1*/
-/*C_1810_1101*/C_1810_1101(int16 x, int16 y, int16 selfObj, int16 mode) {
+/*C_1810_1101*/BoulderLandsAt(int16 x, int16 y, int16 selfObj, int16 mode) {
 	int16 tx, ty, i;
 	int16 dx, dy, found, objType;
 	int16 obj, j;
@@ -1037,7 +1042,7 @@ COMBAT_beginAttacked(void);
 				objType = GetType(obj);
 				if(obj == selfObj)
 					continue;
-				if(objType == 0xa7 && !C_1810_14EA(tx, ty, obj))
+				if(objType == 0xa7 && !PushBoulder(tx, ty, obj))
 					return 0;
 			}
 		}
@@ -1089,9 +1094,9 @@ COMBAT_beginAttacked(void);
 	return 1;
 }
 
-/*does a boulder fall in water? if a tile of its 2x2 square is 0x0C or
-  0x0F, it stops being temporary (returns 1)*/
-/*C_1810_1327*/C_1810_1327(int16 objNum) {
+/*does a boulder fall in water? if a tile of its 2x2 square is water (0x0C
+   or 0x0F), it stops being temporary (returns 1)*/
+/*C_1810_1327*/BoulderInWater(int16 objNum) {
 	int16 x, y, tile;
 	int16 i, j;
 
@@ -1110,11 +1115,12 @@ COMBAT_beginAttacked(void);
 }
 
 /*move a boulder (quality 1: stuck) to (x,y), unless the place is blocked
-  (and force is not 1); then a boulder dropped at the right place removes
-  the objects 0x96/0x97/0xC3/0x98 around (and otherObj)*/
-/*C_1810_13B1*/C_1810_13B1(int16 obj, int16 x, int16 y, int16 mode, int16 force, int16 otherObj) {
-	if(!((GetQual(obj) == 1 || C_1810_103F(x, y)) && force != 1)) {
-		if(C_1810_1101(x, y, obj, mode) == 1 || force == 1) {
+   (and force is not 1); a boulder that lands above a waterfall (0x96) plugs
+   it: it gets stuck and removes the objects 0x96/0x97/0xC3/0x98 around (and
+   otherObj)*/
+/*C_1810_13B1*/BoulderMoveTo(int16 obj, int16 x, int16 y, int16 mode, int16 force, int16 otherObj) {
+	if(!((GetQual(obj) == 1 || BoulderBlockedAt(x, y)) && force != 1)) {
+		if(BoulderLandsAt(x, y, obj, mode) == 1 || force == 1) {
 			MoveObj(obj, x, y, MapZ);
 			VIS_UpdateView();
 			DisplayTick();
@@ -1129,7 +1135,7 @@ COMBAT_beginAttacked(void);
 				if(otherObj >= 0)
 					DeleteObj(otherObj);
 			}
-			if(C_1810_1327(obj)) {
+			if(BoulderInWater(obj)) {
 				MUS_PlaySfx(0x1f);
 				GetQual(obj) = 1;
 			}
@@ -1140,8 +1146,9 @@ COMBAT_beginAttacked(void);
 		return 0;
 }
 
-/*push the boulder obj away from (px,py), the pusher's position*/
-/*C_1810_14EA*/C_1810_14EA(int16 px, int16 py, int16 obj) {
+/*push the boulder obj away from (px,py), the pusher's position (a blast:
+   objcmd.c's AfterExplosion); it rolls on over cliffs; 0 if it is stuck*/
+/*C_1810_14EA*/PushBoulder(int16 px, int16 py, int16 obj) {
 	int16 dy, dx, done, dirs, pushN, pushW, inPit, i, j, moved, otherObj;
 	int16 x, y;
 
@@ -1162,48 +1169,48 @@ COMBAT_beginAttacked(void);
 	if(dx == 1 || (dx == 0 && (dy == 0 || dy == -1))) {
 		x --;
 		dirs |= 0x10;
-	} else if((dx == -2 || (dx == -1 && (dy == 0 || dy == -1))) && !C_1810_0FBF(TILE_AT(x + 1, y))) {
+	} else if((dx == -2 || (dx == -1 && (dy == 0 || dy == -1))) && !IsCliffEdgeE(TILE_AT(x + 1, y))) {
 		x ++;
 		dirs |= 0x40;
 	}
 	if(dy == 1 || (dy == 0 && (dx == 0 || dx == -1))) {
 		y --;
 		dirs |= 0x80;
-	} else if((dy == -2 || (dy == -1 && (dx == 0 || dx == -1))) && !C_1810_0F98(TILE_AT(x + 1, y))) {
+	} else if((dy == -2 || (dy == -1 && (dx == 0 || dx == -1))) && !IsCliffEdgeS(TILE_AT(x + 1, y))) {
 		y ++;
 		dirs |= 0x20;
 	}
-	if((dirs & 0x10) && C_1810_0FBF(TILE_AT(x, y))) {
+	if((dirs & 0x10) && IsCliffEdgeE(TILE_AT(x, y))) {
 		pushW = 1;
-		C_1810_13B1(obj, x --, y, 0, 0, otherObj);
-		C_1810_13B1(obj, x --, y, 1, 0, otherObj);
-		C_1810_13B1(obj, x, y, 1, 0, otherObj);
-	} else if((dirs & 0x80) && C_1810_0F98(TILE_AT(x, y))) {
+		BoulderMoveTo(obj, x --, y, 0, 0, otherObj);
+		BoulderMoveTo(obj, x --, y, 1, 0, otherObj);
+		BoulderMoveTo(obj, x, y, 1, 0, otherObj);
+	} else if((dirs & 0x80) && IsCliffEdgeS(TILE_AT(x, y))) {
 		pushN = 1;
-		C_1810_13B1(obj, x, y --, 0, 0, otherObj);
-		C_1810_13B1(obj, x, y --, 1, 0, otherObj);
-		C_1810_13B1(obj, x, y, 1, 0, otherObj);
-	} else if(!C_1810_13B1(obj, x, y, 0, 1, otherObj)) {
+		BoulderMoveTo(obj, x, y --, 0, 0, otherObj);
+		BoulderMoveTo(obj, x, y --, 1, 0, otherObj);
+		BoulderMoveTo(obj, x, y, 1, 0, otherObj);
+	} else if(!BoulderMoveTo(obj, x, y, 0, 1, otherObj)) {
 		return 0;
 	}
 	while(!done && GetQual(obj) != 1) {
 		done = 1;
 		if(
-			C_1810_0F71(TILE_AT(x, y)) || C_1810_0F71(TILE_AT(x - 1, y)) ||
-			C_1810_0F71(TILE_AT(x, y - 1)) || C_1810_0F71(TILE_AT(x - 1, y - 1))
+			IsCliffTile(TILE_AT(x, y)) || IsCliffTile(TILE_AT(x - 1, y)) ||
+			IsCliffTile(TILE_AT(x, y - 1)) || IsCliffTile(TILE_AT(x - 1, y - 1))
 		) {
 			inPit = 1;
-			if(!C_1810_0FBF(TILE_AT(x + 1, y))) {
+			if(!IsCliffEdgeE(TILE_AT(x + 1, y))) {
 				x ++;
 				done = 0;
 			}
-			if(!C_1810_0F98(TILE_AT(x, y + 1))) {
+			if(!IsCliffEdgeS(TILE_AT(x, y + 1))) {
 				y ++;
 				done = 0;
 			}
 			if(!done)
-				C_1810_13B1(obj, x, y, 1, 0, otherObj);
-		} else if(!C_1810_13B1(obj, x, y, 1, 1, otherObj)) {
+				BoulderMoveTo(obj, x, y, 1, 0, otherObj);
+		} else if(!BoulderMoveTo(obj, x, y, 1, 1, otherObj)) {
 			if(inPit || pushN || pushW) {
 				moved = 0;
 				for(i = 0; i < 3; i ++) {
@@ -1216,11 +1223,11 @@ COMBAT_beginAttacked(void);
 							continue;
 						if(inPit && i == 0 && j == 0)
 							continue;
-						if(j == 2 && C_1810_0F98(TILE_AT(x + i - 1, y + j - 1)))
+						if(j == 2 && IsCliffEdgeS(TILE_AT(x + i - 1, y + j - 1)))
 							continue;
-						if(i == 2 && C_1810_0FBF(TILE_AT(x + i - 1, y + j - 1)))
+						if(i == 2 && IsCliffEdgeE(TILE_AT(x + i - 1, y + j - 1)))
 							continue;
-						if(C_1810_13B1(obj, x + i - 1, y + j - 1, 1, 1, otherObj)) {
+						if(BoulderMoveTo(obj, x + i - 1, y + j - 1, 1, 1, otherObj)) {
 							moved = 1;
 							break;
 						}
@@ -1228,13 +1235,13 @@ COMBAT_beginAttacked(void);
 				}
 				if(!moved) {
 					if(inPit) {
-						C_1810_13B1(obj, ++x, ++y, 1, 0, otherObj);
+						BoulderMoveTo(obj, ++x, ++y, 1, 0, otherObj);
 						done = 0;
 					} else if(pushN) {
-						C_1810_13B1(obj, x, --y, 1, 0, otherObj);
+						BoulderMoveTo(obj, x, --y, 1, 0, otherObj);
 						done = 0;
 					} else if(pushW) {
-						C_1810_13B1(obj, --x, y, 1, 0, otherObj);
+						BoulderMoveTo(obj, --x, y, 1, 0, otherObj);
 						done = 0;
 					}
 				}
@@ -1243,9 +1250,9 @@ COMBAT_beginAttacked(void);
 	}
 }
 
-/*explosion of a fire bomb? (object 0x89/0x8A) at (x,y): hurts every
-  actor around (1d20)*/
-/*C_1810_1941*/C_1810_1941(int16 x, int16 y) {
+/*a grenade (object 0x89/0x8A) explodes at (x,y): hurts every actor around
+   (1d20), then AfterExplosion*/
+/*C_1810_1941*/GrenadeBlast(int16 x, int16 y) {
 	int16 far *list;
 
 	MUS_PlaySfx(6);
@@ -1257,9 +1264,9 @@ COMBAT_beginAttacked(void);
 	DisplayTick();
 }
 
-/*explosion of object 0xF0/0xF1 at (x,y): hurts the actors of types
-  0x143/0x148 around (1d35)*/
-/*C_1810_19C1*/C_1810_19C1(int16 x, int16 y) {
+/*a device (object 0xF0/0xF1) explodes at (x,y): hurts only the Myrmidex
+   (types 0x143/0x148) around (1d35), then AfterExplosion*/
+/*C_1810_19C1*/DeviceBlast(int16 x, int16 y) {
 	int16 far *list;
 	int16 objType;
 
@@ -1335,13 +1342,13 @@ COMBAT_beginAttacked(void);
 	switch(typ) {
 		case 0x1f: case 0x20: case 0x25: case 0x28: case 0x32:
 			if(typ == 0x1f)
-				itemObj = C_0A5D_080A(att_objNum, 0x2d);
+				itemObj = FindInvOfType(att_objNum, 0x2d);
 			else if(typ == 0x28)
-				itemObj = C_0A5D_080A(att_objNum, 0x29);
+				itemObj = FindInvOfType(att_objNum, 0x29);
 			else if(typ == 0x20)
-				itemObj = C_0A5D_080A(att_objNum, 0x24);
+				itemObj = FindInvOfType(att_objNum, 0x24);
 			else if(typ == 0x25)
-				itemObj = C_0A5D_080A(att_objNum, 0x1a);
+				itemObj = FindInvOfType(att_objNum, 0x1a);
 			else
 				itemObj = -1;
 			numUsed = 1;
@@ -1369,7 +1376,7 @@ COMBAT_beginAttacked(void);
 			dist_x = abs(dist_x - GetX(att_objNum));
 			dist_y = abs(dist_y - GetY(att_objNum));
 			if(dest_x > 1 || dest_y > 1) {/*thrown*/
-				if((itemObj = C_0A5D_080A(att_objNum, typ)) >= 0) {
+				if((itemObj = FindInvOfType(att_objNum, typ)) >= 0) {
 					if(Equipment[2] == itemObj)
 						slot = 2;
 					else if(Equipment[5] == itemObj)
@@ -1399,14 +1406,14 @@ COMBAT_beginAttacked(void);
 			invChanged = 1;
 			DeleteObj(weap_objNum);
 			if(typ == 0xf0 || typ == 0xf1)
-				C_1810_19C1(dist_x, dist_y);
+				DeviceBlast(dist_x, dist_y);
 			else
-				C_1810_1941(dist_x, dist_y);
+				GrenadeBlast(dist_x, dist_y);
 			if(typ == 0x8a)
 				typ = 0x89;
 			if(typ == 0xf1)
 				typ = 0xf0;
-			if((itemObj = C_0A5D_080A(att_objNum, typ)) >= 0) {
+			if((itemObj = FindInvOfType(att_objNum, typ)) >= 0) {
 				if(Equipment[2] == itemObj)
 					slot = 2;
 				else if(Equipment[5] == itemObj)
@@ -1509,12 +1516,12 @@ COMBAT_beginAttacked(void);
 	ShowHitFlash = 1;
 }
 
-/*the 2x5 area hit (D_10AF says which tiles) when the object 0x107 is
-  destroyed: the actors there are pushed aside and hurt (2d10), or killed
-  if there is no room*/
+/*the tree 0x107 falls (LoseHP; the tree becomes fallen-tree objects): the
+  actors in the 2x5 area north of (x,y) (D_10AF says which tiles) are pushed
+  aside and hurt (2d10), or lose all their hit points if there is no room*/
 /*10AF*/int16 D_10AF[5][2] = {{1,1},{1,1},{1,1},{1,1},{0,1}};
 
-/*C_1810_219F*/C_1810_219F(int16 x, int16 y) {
+/*C_1810_219F*/TreeFallCrush(int16 x, int16 y) {
 	int16 tx, ty, i, j, dx, found;
 	int16 obj, dy;
 
@@ -1559,11 +1566,11 @@ COMBAT_beginAttacked(void);
 	{9,2,9,6},{0,9,4,9},{6,4,9,9},{9,0,6,9},{9,9,2,0},{2,9,9,4}
 };
 
-/*damage to a creature made of segments (types 0x124 and 0x11A): the
-  head (0x124, an NPC) passes half the damage to every segment; a
-  segment that dies removes the parts that follow it; when the last one
-  is gone the creature dies. returns 10 (experience) when it dies*/
-/*C_1810_22F0*/C_1810_22F0(int16 objNum, int16 damage) {
+/*damage to the carnivorous orchid, a creature made of segments (core 0x124,
+   an NPC, and tips 0x11A): the core passes half the damage to every tip; a
+   tip that dies removes the vine segments that follow it; when the last one
+   is gone the orchid dies. returns 10 (experience) when it dies (LoseHP)*/
+/*C_1810_22F0*/OrchidLoseHP(int16 objNum, int16 damage) {
 	int16 objType, i, x, y, obj, dir;
 	int16 head;
 
@@ -1575,9 +1582,9 @@ COMBAT_beginAttacked(void);
 		if(IsNPC(objNum)) {
 			for(i = 0x10; i < 0x100; i ++)
 				if(GetType(i) == 0x11a)
-					C_1810_22F0(i, damage >> 1);
+					OrchidLoseHP(i, damage >> 1);
 		} else {
-			C_1810_22F0(GetQual(objNum), damage);
+			OrchidLoseHP(GetQual(objNum), damage);
 		}
 		return 0;
 	} else if(objType == 0x11a) {
@@ -1727,7 +1734,7 @@ COMBAT_beginAttacked(void);
 	objType = GetType(objNum);
 	if(objType == 0x124 || objType == 0x11a) {
 		COMBAT_showHit(objNum);
-		return C_1810_22F0(objNum, damage);
+		return OrchidLoseHP(objNum, damage);
 	}
 	if(objType == 0x148)
 		objNum = 0x36;
@@ -1794,7 +1801,7 @@ COMBAT_beginAttacked(void);
 				ObjStatus[AddMapObj(0x1505, 0, 0, x + 1, y - 2, MapZ)] &= ~0x20;
 				ObjStatus[AddMapObj(0x2505, 0, 0, x + 1, y - 4, MapZ)] &= ~0x20;
 				ObjStatus[AddMapObj(0xd06, 0, 0, x + 1, y - 5, MapZ)] &= ~0x20;
-				C_1810_219F(x, y);
+				TreeFallCrush(x, y);
 				VisibilityDirty = 1;
 			} else if(objType == 0xde) {
 				MUS_PlaySfx(0);
@@ -2046,13 +2053,13 @@ COMBAT_beginAttacked(void);
 	if(GetType(SelectionObj) == 0x107 && objTyp != 0x89 && objTyp != 0x8a && objTyp != 0x76)
 		return 3;
 	/*ammunition*/
-	if(objTyp == 0x1f && C_0A5D_080A(att_objNum, 0x2d) < 0)
+	if(objTyp == 0x1f && FindInvOfType(att_objNum, 0x2d) < 0)
 		return 0;
-	if(objTyp == 0x28 && C_0A5D_080A(att_objNum, 0x29) < 0)
+	if(objTyp == 0x28 && FindInvOfType(att_objNum, 0x29) < 0)
 		return 0;
-	if(objTyp == 0x20 && C_0A5D_080A(att_objNum, 0x24) < 0)
+	if(objTyp == 0x20 && FindInvOfType(att_objNum, 0x24) < 0)
 		return 0;
-	if(objTyp == 0x25 && C_0A5D_080A(att_objNum, 0x1a) < 0)
+	if(objTyp == 0x25 && FindInvOfType(att_objNum, 0x1a) < 0)
 		return 0;
 	if(objTyp == 0x32 && GetFrame(weap_objNum) == 0) {
 		LoadFlintlock(weap_objNum, att_objNum);
@@ -2167,13 +2174,13 @@ COMBAT_beginAttacked(void);
 	else
 		weapObj = EquipWeapons[CurEquipWeapon];
 	weapTyp = GetType(weapObj);
-	if(weapTyp == 0x1f && C_0A5D_080A(attacker, 0x2d) < 0) {
+	if(weapTyp == 0x1f && FindInvOfType(attacker, 0x2d) < 0) {
 		CON_printf(OutOfArrowsMsg);
-	} else if(weapTyp == 0x28 && C_0A5D_080A(attacker, 0x29) < 0) {
+	} else if(weapTyp == 0x28 && FindInvOfType(attacker, 0x29) < 0) {
 		CON_printf(OutOfAmmoMsg);
-	} else if(weapTyp == 0x20 && C_0A5D_080A(attacker, 0x24) < 0) {
+	} else if(weapTyp == 0x20 && FindInvOfType(attacker, 0x24) < 0) {
 		CON_printf(OutOfDartsMsg);
-	} else if(weapTyp == 0x25 && C_0A5D_080A(attacker, 0x1a) < 0) {
+	} else if(weapTyp == 0x25 && FindInvOfType(attacker, 0x1a) < 0) {
 		CON_printf(OutOfSpearsMsg);
 	} else if(weapTyp == 0x32 && GetFrame(weapObj) == 0) {
 		CON_printf(FlintlockNotLoadedMsg);
@@ -2502,13 +2509,12 @@ COMBAT_beginAttacked(void);
 	return ret;
 }
 
-/*the best target for an explosive thrown by objNum: the tile of the
-  11x9 area around the active party member with the most enemies in
-  the 3x3 square around it (the centre counts twice); with notAllies 0
-  (fire bombs?) the square must not hold the thrower or a party ally,
-  with 1 only the types 0x143/0x148 count. returns an object at the
-  centre, -1 if none*/
-/*C_1810_4561*/C_1810_4561(int16 objNum, int16 notAllies) {
+/*where an NPC throws an explosive: the tile in the 11x9 area around the
+   active party member with the most enemies in the 3x3 square around it
+   (the centre counts twice); with notAllies 0 (a grenade) the square must
+   not hold the thrower or a party ally, with 1 (a device) only the types
+   0x143/0x148 (Myrmidex) count. returns an object at the centre, -1 if none*/
+/*C_1810_4561*/COMBAT_PickBlastTarget(int16 objNum, int16 notAllies) {
 	int16 i, j, x, y, px, py, tx, ty, best, center, leader, bestCount, dx, dy, bad;
 	int16 obj, count;
 
@@ -2574,9 +2580,9 @@ COMBAT_beginAttacked(void);
 	weapObj = __PickWeapon(objNum, SelectionObj);
 	weapTyp = GetType(weapObj);
 	if(weapTyp == 0x89 || weapTyp == 0x8a)
-		SelectionObj = C_1810_4561(objNum, 0);
+		SelectionObj = COMBAT_PickBlastTarget(objNum, 0);
 	else if(weapTyp == 0xf0 || weapTyp == 0xf1)
-		SelectionObj = C_1810_4561(objNum, 1);
+		SelectionObj = COMBAT_PickBlastTarget(objNum, 1);
 	if(SelectionObj >= 0) {
 		opp_x = GetX(SelectionObj);
 		opp_y = GetY(SelectionObj);
@@ -2610,9 +2616,9 @@ COMBAT_beginAttacked(void);
 }
 
 /*choose a ranged weapon (range 3 or more) for an NPC that keeps its
-  distance: the longest range until one reaches the opponent, then the
-  best damage; -1 if none*/
-/*C_1810_4968*/C_1810_4968(int16 att_objNum, int16 opp_objNum) {
+   distance: the longest range until one reaches the opponent, then the
+   best damage; -1 if none (Martian Dreams' COMBAT_PickRangedWeapon)*/
+/*C_1810_4968*/COMBAT_PickRangedWeapon(int16 att_objNum, int16 opp_objNum) {
 	int16 opp_x, opp_y, att_x, att_y, ret, dmg, max_dmg, itemTyp, range, wrange, oppTyp;
 	int16 maxRange, i;
 
@@ -2663,7 +2669,7 @@ COMBAT_beginAttacked(void);
 	x = GetX(objNum);
 	y = GetY(objNum);
 	SelectionObj = COMBAT_pickOpponent(objNum);
-	weapObj = C_1810_4968(objNum, SelectionObj);
+	weapObj = COMBAT_PickRangedWeapon(objNum, SelectionObj);
 	if(SelectionObj >= 0 && abs(GetX(SelectionObj) - x) < 3 && abs(GetY(SelectionObj) - y) < 3) {
 		TryMoveTo(objNum, x - GetX(SelectionObj), y - GetY(SelectionObj));
 	} else if(weapObj == -1) {
@@ -2675,9 +2681,9 @@ COMBAT_beginAttacked(void);
 	} else {
 		weapTyp = GetType(weapObj);
 		if(weapTyp == 0x89 || weapTyp == 0x8a)
-			SelectionObj = C_1810_4561(objNum, 0);
+			SelectionObj = COMBAT_PickBlastTarget(objNum, 0);
 		else if(weapTyp == 0xf0 || weapTyp == 0xf1)
-			SelectionObj = C_1810_4561(objNum, 1);
+			SelectionObj = COMBAT_PickBlastTarget(objNum, 1);
 		if(SelectionObj >= 0) {
 			opp_x = GetX(SelectionObj);
 			opp_y = GetY(SelectionObj);
@@ -2751,9 +2757,9 @@ COMBAT_beginAttacked(void);
 		weapTyp = GetType(weapObj);
 		if(weapTyp == 0x89 || weapTyp == 0x8a || weapTyp == 0xf0 || weapTyp == 0xf1) {
 			if(weapTyp == 0x89 || weapTyp == 0x8a)
-				bestOpp = C_1810_4561(objNum, 0);
+				bestOpp = COMBAT_PickBlastTarget(objNum, 0);
 			else
-				bestOpp = C_1810_4561(objNum, 1);
+				bestOpp = COMBAT_PickBlastTarget(objNum, 1);
 			oppX = GetX(bestOpp);
 			oppY = GetY(bestOpp);
 		}
@@ -2920,9 +2926,9 @@ COMBAT_beginAttacked(void);
 			}
 		} else {
 			if(GetType(weapObj) == 0x89 || GetType(weapObj) == 0x8a)
-				SelectionObj = C_1810_4561(objNum, 0);
+				SelectionObj = COMBAT_PickBlastTarget(objNum, 0);
 			else
-				SelectionObj = C_1810_4561(objNum, 1);
+				SelectionObj = COMBAT_PickBlastTarget(objNum, 1);
 			opp_x = GetX(SelectionObj);
 			opp_y = GetY(SelectionObj);
 			__TryHit(objNum, opp_x, opp_y, weapObj);

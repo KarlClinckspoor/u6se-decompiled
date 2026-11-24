@@ -67,8 +67,8 @@ extern unsigned char GetTileAtXYZ(int16, int16, int16);/*GetTileAtXYZ*/
 extern int16 OBJ_IsLocLoaded(int16, int16, int16);/*OBJ_IsLocLoaded(x, y, z)*/
 extern int16 NextLoc();/*NextLoc*/
 extern int16 FindLoc(int16, int16, int16);/*FindLoc(x, y, z)*/
-extern int16 C_0A5D_0D5B(int16, int16 *, int16 *);/*the parts of a creature made of several objects (frame shifts, types); 0 if none*/
-extern int16 C_0A5D_0DEF(int16);/*OBJ_PartHeadType: type of the head of a multi-tile creature part, 0 if none*/
+extern int16 OBJ_GetCreatureParts(int16, int16 *, int16 *);/*the parts of a creature made of several objects (frame shifts, types); 0 if none*/
+extern int16 OBJ_PartHeadType(int16);/*OBJ_PartHeadType: type of the head of a multi-tile creature part, 0 if none*/
 extern int16 AddMapObj(int16, int16, int16, int16, int16, int16);/*AddMapObj(type and frame, status, amount, x, y, z)*/
 extern DeleteObj(int16);/*DeleteObj*/
 extern int16 MoveObj(int16, int16, int16, int16);/*MoveObj(objNum, x, y, z)*/
@@ -832,8 +832,8 @@ extern int16 D_EBCA;/*PTH_Found*/
 				keepFind = canEnter = 0;
 			}
 c_0e1d:
-			/*an actor (or an object of the C_0A5D_0DEF kind) blocks*/
-			if((IsNPC(otherObj) || C_0A5D_0DEF(GetType(otherObj))) && otherObj) {
+			/*an actor (or an object of the OBJ_PartHeadType kind) blocks*/
+			if((IsNPC(otherObj) || OBJ_PartHeadType(GetType(otherObj))) && otherObj) {
 				keepFind = canEnter = 0;
 				break;
 			}
@@ -888,7 +888,7 @@ c_0e1d:
 			}
 			keepFind = canEnter = 0;
 c_0faa:
-			if((IsNPC(otherObj) || C_0A5D_0DEF(GetType(otherObj))) && otherObj) {
+			if((IsNPC(otherObj) || OBJ_PartHeadType(GetType(otherObj))) && otherObj) {
 				keepFind = canEnter = 0;
 				break;
 			}
@@ -971,7 +971,7 @@ c_0faa:
 
 /*make objNum face the 8-way direction dir and update its shape frame
  (step animation, alternating feet with the NPCFlag "walking" bit).
- Creatures made of several objects (C_0A5D_0D5B) turn their other parts
+ Creatures made of several objects (OBJ_GetCreatureParts) turn their other parts
  too; the 2x2 creatures may refuse to turn when the squares they would
  sweep are blocked (returns 0, else 1). Always clears StepMovesParts
  (except when refusing).*/
@@ -1116,7 +1116,7 @@ c_0faa:
 		}
 		frm = frm + (dirFram << 1) + dirFram + 1;
 		SetFrame(objNum, (frm << 1) - 1);
-	} else if(C_0A5D_0D5B(objTyp, shifts, types)) {
+	} else if(OBJ_GetCreatureParts(objTyp, shifts, types)) {
 		/*creature made of several objects*/
 		dir >>= 1;
 		cur_x = GetX(objNum);

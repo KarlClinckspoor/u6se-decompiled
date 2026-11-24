@@ -64,8 +64,8 @@ extern int16 NextArea(void);
 extern int16 FindLoc(int16, int16, int16);
 extern int16 OBJ_MakeDirFrame(int16, int16);
 extern int16 FindInv(int16);
-extern int16 C_0A5D_070D(int16);
-extern int16 C_0A5D_0613(int16);/*is the object in the 11x9 tiles around the party?*/
+extern int16 OBJ_GetHolderNPC(int16);
+extern int16 OBJ_IsOnScreen(int16);/*is the object in the 11x9 tiles around the party?*/
 extern ShowObject(int16, int16, int16, int16);/*the NPC holding an object, -1 if none*/
 extern int16 OBJ_FindTypeAt(int16, int16, int16);
 extern int16 FindInvType(int16, int16, int16);
@@ -73,8 +73,8 @@ extern int16 AddMapObj(int16, int16, int16, int16, int16, int16);
 extern int16 AddObj(int16, struct coord, int16, int16, int16);
 extern int16 AddInvObj(int16, int16, int16, int16);
 extern int16 InsertObj(int16, int16, int16);
-extern int16 C_0A5D_0FD6(int16);
-extern int16 C_0A5D_080A(int16, int16);/*an object of type objTyp carried by objNum, -1 if none*//*number of objects directly inside an object*/
+extern int16 OBJ_CountInv(int16);/*number of objects directly inside an object*/
+extern int16 FindInvOfType(int16, int16);/*an object of type objTyp carried by objNum, -1 if none*/
 extern DeleteObj(int16);
 extern int16 OBJ_IsInside(int16, int16);
 extern MoveObj(int16, int16, int16, int16);
@@ -118,12 +118,12 @@ extern COMBAT_begin(void);/*COMBAT_begin*/
 extern int16 GetStr(int16);
 extern LoseHP(int16, int16);
 extern COMBAT_displaySeverity(int16);
-extern int16 C_1810_0F71(int16);/*is a tile ...?*/
+extern int16 IsCliffTile(int16);/*is a tile ...?*/
 extern int16 COMBAT_getHead(int16);
 extern int16 COMBAT_Missile(int16, int16 *, int16 *, int16, int16);
-extern C_1810_14EA(int16, int16, int16);/*pushes the boulder obj away from (x, y)*/
-extern C_1810_1941(int16, int16);/*explosion of 0x8a at (x, y)*/
-extern C_1810_19C1(int16, int16);/*explosion of 0xf1 at (x, y)*/
+extern PushBoulder(int16, int16, int16);/*pushes the boulder obj away from (x, y)*/
+extern GrenadeBlast(int16, int16);/*a grenade explodes at (x, y)*/
+extern DeviceBlast(int16, int16);/*a device explodes at (x, y)*/
 extern int16 MaxHP(int16);/*MaxHP*/
 #define MaxHP MaxHP
 extern COMBAT_Kill(int16);
@@ -381,7 +381,7 @@ void C_1DBD_5069(int16, int16, int16);
 /*C_1DBD_0003*/unsigned char C_1DBD_0003(int16 objNum) {
 	int16 holder;
 
-	if((holder = C_0A5D_070D(objNum)) == -1)
+	if((holder = OBJ_GetHolderNPC(objNum)) == -1)
 		return Party[Active];
 	return holder;
 }
@@ -660,7 +660,7 @@ void C_1DBD_5069(int16, int16, int16);
 	int16 contTyp;
 	int16 itemTyp, inner;
 
-	if(C_0A5D_0FD6(containerObj) < 0x10 && itemObj >= 0x100) {
+	if(OBJ_CountInv(containerObj) < 0x10 && itemObj >= 0x100) {
 		itemTyp = GetType(itemObj);
 		contTyp = GetType(containerObj);
 		if(IsContainerType(contTyp)) {
@@ -1145,12 +1145,12 @@ void C_1DBD_5069(int16, int16, int16);
 }
 
 /*is (x, y) water or a similar tile (terrain bits 0x01 and 0x02,
- IsLavaTile or C_1810_0F71) with no object on it?*/
+ IsLavaTile or IsCliffTile) with no object on it?*/
 /*C_1DBD_18FD*/C_1DBD_18FD(int16 x, int16 y) {
 	int16 flags, tile;
 
 	flags = TerrainType[tile = GetTileAtXYZ(x, y, MapZ)];
-	return (((flags & 1) && (flags & 2)) || IsLavaTile(tile) || C_1810_0F71(tile)) && FindLoc(x, y, MapZ) == -1;
+	return (((flags & 1) && (flags & 2)) || IsLavaTile(tile) || IsCliffTile(tile)) && FindLoc(x, y, MapZ) == -1;
 }
 
 /*"drop" command: drop or throw the selected inventory object of the
@@ -1255,7 +1255,7 @@ void C_1DBD_5069(int16, int16, int16);
 			if(objTyp == 0x8a) {
 				KegFuse = 0;
 				KegObject = -1;
-				C_1810_1941(destX, destY);
+				GrenadeBlast(destX, destY);
 			} else if(objTyp == 0x84) {
 				AddMapObj(0xc0, 0, 1, destX, destY, MapZ);
 				CON_printf("\nThe soft clay pot went squish.\n");
@@ -1309,7 +1309,7 @@ void C_1DBD_5069(int16, int16, int16);
 			} else if(objTyp == 0xf1) {
 				KegFuse = 0;
 				KegObject = -1;
-				C_1810_19C1(destX, destY);
+				DeviceBlast(destX, destY);
 				DeleteObj(obj);
 			} else {
 				MoveObj(obj, destX, destY, MapZ);
@@ -1695,7 +1695,7 @@ void C_1DBD_5069(int16, int16, int16);
 					} else {
 						weight = GetWeight(obj) + Encumbrance(obj);
 					}
-					if(STREN[SelectionObj] * 20 < weight + WeightInven + WeightEquip || C_0A5D_0FD6(SelectionObj) >= 0x10) {
+					if(STREN[SelectionObj] * 20 < weight + WeightInven + WeightEquip || OBJ_CountInv(SelectionObj) >= 0x10) {
 						CON_printf("%s is carrying too much already.\n", GetObjectString(SelectionObj));
 						STAT_ComputeWeights(Party[StatusMember]);
 						return;
@@ -1752,7 +1752,7 @@ void C_1DBD_5069(int16, int16, int16);
 					CON_printf("\n\nThat container belongs to someone else!\n");
 					return;
 				}
-				if(C_0A5D_0FD6(SelectionObj) >= 0x10) {
+				if(OBJ_CountInv(SelectionObj) >= 0x10) {
 					CON_printf(GetObjectString(SelectionObj));
 					CON_printf("\n\nThat container is already full.\n");
 					return;
@@ -2153,9 +2153,9 @@ void C_1DBD_5069(int16, int16, int16);
 	objTyp = GetType(objNum);
 	DeleteObj(objNum);
 	if(objTyp == 0xf1)
-		C_1810_19C1(x, y);
+		DeviceBlast(x, y);
 	else
-		C_1810_1941(x, y);
+		GrenadeBlast(x, y);
 	DeleteObj(objNum);
 	KegFuse = 0;
 	KegObject = -1;
@@ -2182,7 +2182,7 @@ void C_1DBD_5069(int16, int16, int16);
 				Detonate(newObj);
 			}
 			if((objNum = FindTypeAt(i, j, MapZ, 0xa7)) >= 0 && lastBoulder != objNum) {
-				C_1810_14EA(x, y, objNum);
+				PushBoulder(x, y, objNum);
 				lastBoulder = objNum;
 			}
 			if((objNum = FindTypeAt(i, j, MapZ, 0x107)) >= 0 && last107 != objNum) {
@@ -2328,7 +2328,7 @@ void C_1DBD_5069(int16, int16, int16);
 		return;
 	}
 	for(i = 0; i < PartySize; i ++) {
-		if(C_0A5D_080A(Party[i], 0xc) >= 0) {
+		if(FindInvOfType(Party[i], 0xc) >= 0) {
 			paddlers ++;
 			if(paddlers >= 4)
 				break;
@@ -2381,7 +2381,7 @@ void C_1DBD_5069(int16, int16, int16);
 		CON_printf("\nFlintlock already loaded.\n");
 		return;
 	}
-	if((powder = C_0A5D_080A(npc, 0xcc)) == -1) {
+	if((powder = FindInvOfType(npc, 0xcc)) == -1) {
 		if(npc == actor) {
 			CON_printf("\nYou don't have any gunpowder.\n");
 			return;
@@ -2509,9 +2509,9 @@ void C_1DBD_5069(int16, int16, int16);
 			DeleteObj(SelectionObj);
 		} else if(targetTyp == 0xcc) {
 			if(OBJ_IsInside(SelectionObj, actor))
-				C_1810_1941(GetX(actor), GetY(actor));
+				GrenadeBlast(GetX(actor), GetY(actor));
 			else
-				C_1810_1941(SelectionX, SelectionY);
+				GrenadeBlast(SelectionX, SelectionY);
 			DeleteObj(SelectionObj);
 		} else {
 			CON_printf(NoEffectMsg);
@@ -3004,7 +3004,7 @@ void C_1DBD_5069(int16, int16, int16);
 			unusedC = -1;
 			unusedE = 0;
 			CON_putch('\n');
-			if((powder = C_0A5D_080A(user, 0xcc)) < 0 || GetQuan(powder) < 5) {
+			if((powder = FindInvOfType(user, 0xcc)) < 0 || GetQuan(powder) < 5) {
 				CON_printf("\nYou need five pinches of gunpowder to make a grenade.\n");
 			} else {
 				if(GetQuan(powder) == 5)
@@ -3624,7 +3624,7 @@ void C_1DBD_5069(int16, int16, int16);
 	AmbientLight = savedLight;
 	VIS_UpdateView();
 	DrawMapWindow(1);
-	if(!(TalkFlags[3] & 2) && !(TalkFlags[0x35] & 0x80) && C_0A5D_0613(0x19)) {
+	if(!(TalkFlags[3] & 2) && !(TalkFlags[0x35] & 0x80) && OBJ_IsOnScreen(0x19)) {
 		if(x - GetX(0x19) > 1 || y - GetY(0x19) > 1 || x - GetX(0x19) < -2 || y - GetY(0x19) < -2) {
 			CON_printf("\nYou hear a barely audible voice whisper, \"Closer...\".\n");
 		} else {
@@ -3732,7 +3732,7 @@ void C_1DBD_5069(int16, int16, int16);
 	} else if(frm == 5) {
 		MoveObj(objNum, GetX(objNum) - 1, GetY(objNum), MapZ);
 		SetFrame(objNum, 1);
-		if(x == 0x184 && y == 0x235 && MapZ == 0 && (TalkFlags[4] & 0x10) == 0 && C_0A5D_0613(4)) {
+		if(x == 0x184 && y == 0x235 && MapZ == 0 && (TalkFlags[4] & 0x10) == 0 && OBJ_IsOnScreen(4)) {
 			if(NPCStatus[4] & 4)
 				NPCStatus[4] &= ~4;
 			TalkFlags[4] |= 0x10;
@@ -3751,7 +3751,7 @@ void C_1DBD_5069(int16, int16, int16);
 /*C_1DBD_7800*/void C_1DBD_7800(int16 objNum) {
 	int16 opened;
 
-	if((NPCStatus[11] & 0x80) && C_0A5D_0613(11)) {
+	if((NPCStatus[11] & 0x80) && OBJ_IsOnScreen(11)) {
 		CON_printf("\nYunapotli closes its eyes and appears to concentrate.");
 		CON_printf("  There is a grinding noise froom the direction of the doors... ");
 		DeleteObj(objNum);
@@ -3882,9 +3882,9 @@ void C_1DBD_5069(int16, int16, int16);
 			CON_printf("\nYou incinerated the %s.\n", GetObjectString(SelectionObj));
 			DeleteObj(SelectionObj);
 		} else if(targetTyp == 0xcc) {
-			if(C_0A5D_070D(SelectionObj) >= 0)
-				LoseHP(C_0A5D_070D(SelectionObj), OSI_rand(1, 30));
-			C_1810_1941(SelectionX, SelectionY);
+			if(OBJ_GetHolderNPC(SelectionObj) >= 0)
+				LoseHP(OBJ_GetHolderNPC(SelectionObj), OSI_rand(1, 30));
+			GrenadeBlast(SelectionX, SelectionY);
 			DeleteObj(SelectionObj);
 		} else {
 			CON_printf(NoEffectMsg);
@@ -4009,9 +4009,9 @@ void C_1DBD_5069(int16, int16, int16);
 	int16 who;
 
 	who = -1;
-	if((NPCStatus[7] & 0x80) && !(NPCStatus[7] & 0x10) && !(NPCStatus[7] & 4) && C_0A5D_0613(7))
+	if((NPCStatus[7] & 0x80) && !(NPCStatus[7] & 0x10) && !(NPCStatus[7] & 4) && OBJ_IsOnScreen(7))
 		who = 7;
-	else if((NPCStatus[5] & 0x80) && !(NPCStatus[5] & 0x10) && !(NPCStatus[5] & 4) && C_0A5D_0613(5))
+	else if((NPCStatus[5] & 0x80) && !(NPCStatus[5] & 0x10) && !(NPCStatus[5] & 4) && OBJ_IsOnScreen(5))
 		who = 5;
 	if(who != -1) {
 		if(AddInvObj(0x82, INVEN, 10, Party[Active]) != -1) {
